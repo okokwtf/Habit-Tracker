@@ -100,7 +100,7 @@
     <!-- Main Content Area -->
     <main class="max-w-md w-full mx-auto p-4 flex-grow pb-32 space-y-4">
         
-        <!-- ================= TAB 1: DASHBOARD ================= -->
+        <!-- ================= TAB 1: DASHBOARD (HABITS FIRST) ================= -->
         <div id="tab-dashboard" class="tab-content space-y-4">
             <!-- Motivation Banner -->
             <div class="neon-card p-4 text-center relative overflow-hidden">
@@ -150,22 +150,12 @@
                 </div>
             </div>
 
-            <!-- Weekly Progress -->
-            <div class="neon-card p-4">
-                <h3 class="text-[11px] font-bold uppercase tracking-wider opacity-60 mb-3 flex items-center justify-between">
-                    <span>Last 7 Days Progress</span>
-                    <i data-lucide="bar-chart-3" class="w-4 h-4 text-accent"></i>
-                </h3>
-                <div class="grid grid-cols-7 gap-2" id="weekly-chart-container"></div>
-            </div>
-
-            <!-- Date Header -->
+            <!-- Date Header & Habits List (Now Above Progress) -->
             <div class="flex justify-between items-center pt-2">
                 <h2 class="text-xs font-bold uppercase tracking-wider opacity-60" id="current-date-label">Today</h2>
                 <span class="text-[11px] text-accent bg-accent/10 px-2.5 py-1 rounded-full font-bold">Keep shining!</span>
             </div>
 
-            <!-- Habits List -->
             <div id="habits-container" class="space-y-3"></div>
 
             <!-- Empty State -->
@@ -178,64 +168,135 @@
                 <button onclick="openAddModal()" class="text-accent font-semibold text-xs hover:underline">Add a Habit Now</button>
             </div>
 
-            <!-- Daily Bottom Quote -->
+            <!-- Weekly Progress (Moved near the bottom) -->
+            <div class="neon-card p-4">
+                <h3 class="text-[11px] font-bold uppercase tracking-wider opacity-60 mb-3 flex items-center justify-between">
+                    <span>Last 7 Days Progress</span>
+                    <i data-lucide="bar-chart-3" class="w-4 h-4 text-accent"></i>
+                </h3>
+                <div class="grid grid-cols-7 gap-2" id="weekly-chart-container"></div>
+            </div>
+
+            <!-- Daily Bottom Quote (At the very end) -->
             <div class="mt-6 p-4 neon-card text-center">
                 <div class="text-[10px] uppercase font-bold tracking-widest opacity-40 mb-1">Daily Inspiration</div>
                 <p class="text-xs italic opacity-80 font-medium" id="dynamic-bottom-quote">"Loading quote..."</p>
             </div>
         </div>
 
-        <!-- ================= TAB 2: MONTHLY CALENDAR & PLANNER ================= -->
-        <div id="tab-calendar" class="tab-content hidden space-y-4">
-            <div class="neon-card p-4 space-y-3">
-                <div class="flex justify-between items-center">
-                    <h3 class="font-bold text-xs uppercase tracking-wider opacity-60 flex items-center gap-2">
-                        <i data-lucide="calendar" class="w-4 h-4 text-accent"></i> Monthly Planner
-                    </h3>
-                    <div class="flex items-center gap-2">
-                        <button onclick="changeMonth(-1)" class="neon-card px-2 py-1 text-xs font-bold">&larr;</button>
-                        <span id="calendar-month-year" class="text-xs font-bold text-accent"></span>
-                        <button onclick="changeMonth(1)" class="neon-card px-2 py-1 text-xs font-bold">&rarr;</button>
-                    </div>
+        <!-- ================= TAB 2: FOCUS TIMER (POMODORO WITH SELECTOR) ================= -->
+        <div id="tab-focus" class="tab-content hidden space-y-4">
+            <div class="neon-card p-6 text-center space-y-5">
+                <h3 class="font-bold text-xs uppercase tracking-wider opacity-60 flex items-center justify-center gap-2">
+                    <i data-lucide="timer" class="w-4 h-4 text-accent"></i> Pomodoro Focus Timer
+                </h3>
+
+                <!-- Timer Duration Selector -->
+                <div class="flex justify-center gap-2 pt-1">
+                    <button onclick="setTimerDuration(15)" class="duration-btn neon-card px-3 py-1.5 text-[11px] font-bold transition">15m</button>
+                    <button onclick="setTimerDuration(25)" class="duration-btn bg-accent border-accent text-white px-3 py-1.5 text-[11px] font-bold transition shadow-md">25m</button>
+                    <button onclick="setTimerDuration(45)" class="duration-btn neon-card px-3 py-1.5 text-[11px] font-bold transition">45m</button>
+                    <button onclick="setTimerDuration(60)" class="duration-btn neon-card px-3 py-1.5 text-[11px] font-bold transition">60m</button>
                 </div>
-                <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold opacity-50 pt-2">
-                    <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
+
+                <div id="timer-display" class="text-5xl font-extrabold tracking-wider text-accent py-2">25:00</div>
+                
+                <div class="flex justify-center gap-3">
+                    <button onclick="startTimer()" class="bg-accent text-white px-5 py-2.5 rounded-xl text-xs font-bold transition shadow-lg active:scale-95">Start Focus</button>
+                    <button onclick="pauseTimer()" class="neon-card px-5 py-2.5 rounded-xl text-xs font-bold transition active:scale-95">Pause</button>
+                    <button onclick="resetTimer()" class="neon-card px-5 py-2.5 rounded-xl text-xs font-bold transition active:scale-95">Reset</button>
                 </div>
-                <div class="grid grid-cols-7 gap-1.5" id="monthly-grid"></div>
+                <p class="text-xs opacity-60">Lock in for deep focus and crush your goals!</p>
             </div>
 
-            <div class="neon-card p-4 space-y-3">
-                <div class="flex justify-between items-center">
-                    <h4 class="text-xs font-bold text-accent uppercase tracking-wider" id="selected-date-title">Select a date above</h4>
-                </div>
-                <div>
-                    <textarea id="planner-notes-input" rows="3" placeholder="Write reminders, schedule, or thoughts for this selected date..." oninput="saveDayPlannerNotes()" class="w-full neon-card rounded-xl p-3 text-xs font-medium placeholder-slate-500 focus:outline-none"></textarea>
-                </div>
-            </div>
-        </div>
-
-        <!-- ================= TAB 3: TO-DO LIST ================= -->
-        <div id="tab-todo" class="tab-content hidden space-y-4">
             <div class="neon-card p-4 space-y-3">
                 <h3 class="font-bold text-xs uppercase tracking-wider opacity-60 flex items-center gap-2">
-                    <i data-lucide="check-square" class="w-4 h-4 text-accent"></i> Eku's To-Do List
+                    <i data-lucide="check-square" class="w-4 h-4 text-accent"></i> Quick Focus Task
                 </h3>
                 <form onsubmit="handleTodoSubmit(event)" class="flex gap-2 mb-2">
-                    <input type="text" id="todo-input" required placeholder="Add a quick task..." class="flex-grow neon-card rounded-xl px-3 py-2 text-xs font-medium placeholder-slate-500 focus:outline-none">
+                    <input type="text" id="todo-input" required placeholder="What are you focusing on?" class="flex-grow neon-card rounded-xl px-3 py-2 text-xs font-medium placeholder-slate-500 focus:outline-none">
                     <button type="submit" class="bg-accent text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-md active:scale-95">Add</button>
                 </form>
                 <div id="todo-list-container" class="space-y-2"></div>
             </div>
         </div>
 
-        <!-- ================= TAB 4: NOTES & IDEAS ================= -->
-        <div id="tab-notes" class="tab-content hidden space-y-4">
-            <div class="neon-card p-4 space-y-3 flex flex-col h-[70vh]">
+        <!-- ================= TAB 3: BUDGET & EXPENSES ================= -->
+        <div id="tab-budget" class="tab-content hidden space-y-4">
+            <div class="neon-card p-5 space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-bold text-xs uppercase tracking-wider opacity-60 flex items-center gap-2">
+                        <i data-lucide="wallet" class="w-4 h-4 text-accent"></i> Expense Tracker
+                    </h3>
+                    <div class="text-right">
+                        <span class="text-[10px] opacity-60 block">Total Spent</span>
+                        <span class="text-sm font-extrabold text-accent" id="total-expense-amount">₹0</span>
+                    </div>
+                </div>
+
+                <form onsubmit="handleExpenseSubmit(event)" class="space-y-3 pt-2">
+                    <div>
+                        <label class="block text-[10px] font-bold opacity-60 uppercase tracking-wider mb-1">Expense Title / Item</label>
+                        <input type="text" id="expense-name" required placeholder="e.g., Coffee, Groceries" class="w-full neon-card rounded-xl px-3.5 py-2.5 placeholder-slate-500 focus:outline-none text-xs font-medium">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[10px] font-bold opacity-60 uppercase tracking-wider mb-1">Amount (₹)</label>
+                            <input type="number" id="expense-amount" required placeholder="150" class="w-full neon-card rounded-xl px-3.5 py-2.5 placeholder-slate-500 focus:outline-none text-xs font-medium">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold opacity-60 uppercase tracking-wider mb-1">Category</label>
+                            <select id="expense-category" class="w-full neon-card rounded-xl px-3.5 py-2.5 focus:outline-none text-xs font-medium bg-transparent">
+                                <option value="Food" class="bg-slate-900">Food & Dining</option>
+                                <option value="Shopping" class="bg-slate-900">Shopping</option>
+                                <option value="Bills" class="bg-slate-900">Bills & Utilities</option>
+                                <option value="Other" class="bg-slate-900">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-accent text-white font-bold py-2.5 rounded-xl text-xs transition shadow-md active:scale-95">Add Expense</button>
+                </form>
+            </div>
+
+            <div class="neon-card p-4 space-y-3">
+                <h4 class="text-xs font-bold uppercase tracking-wider opacity-60">Recent Spends</h4>
+                <div id="expense-list-container" class="space-y-2"></div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 4: JOURNAL (NOTES & CALENDAR PLANNER) ================= -->
+        <div id="tab-journal" class="tab-content hidden space-y-4">
+            <!-- Top Half: Scratchpad Notes -->
+            <div class="neon-card p-4 space-y-3 flex flex-col h-[45vh]">
                 <h3 class="font-bold text-xs uppercase tracking-wider opacity-60 flex items-center gap-2">
-                    <i data-lucide="book-open" class="w-4 h-4 text-accent"></i> Notes & Ideas Scratchpad
+                    <i data-lucide="book-open" class="w-4 h-4 text-accent"></i> Quick Journal Scratchpad
                 </h3>
-                <p class="text-[11px] opacity-60">Jot down random thoughts, book ideas, or things to remember anytime.</p>
-                <textarea id="scratchpad-input" placeholder="Type your notes and thoughts here... (Saves automatically)" oninput="saveScratchpad()" class="w-full flex-grow neon-card rounded-xl p-4 text-xs font-medium placeholder-slate-500 focus:outline-none resize-none"></textarea>
+                <textarea id="scratchpad-input" placeholder="Jot down random thoughts, book ideas, or daily reflections... (Saves automatically)" oninput="saveScratchpad()" class="w-full flex-grow neon-card rounded-xl p-3 text-xs font-medium placeholder-slate-500 focus:outline-none resize-none"></textarea>
+            </div>
+
+            <!-- Bottom Half: Monthly Calendar & Date Notes -->
+            <div class="neon-card p-4 space-y-3">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-bold text-xs uppercase tracking-wider opacity-60 flex items-center gap-2">
+                        <i data-lucide="calendar" class="w-4 h-4 text-accent"></i> Monthly Planner & Date Notes
+                    </h3>
+                    <div class="flex items-center gap-2">
+                        <button onclick="changeMonth(-1)" class="neon-card px-2.5 py-1 text-xs font-bold">&larr;</button>
+                        <span id="calendar-month-year" class="text-xs font-bold text-accent"></span>
+                        <button onclick="changeMonth(1)" class="neon-card px-2.5 py-1 text-xs font-bold">&rarr;</button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold opacity-50 pt-1">
+                    <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
+                </div>
+                <div class="grid grid-cols-7 gap-1.5" id="monthly-grid"></div>
+
+                <div class="pt-2 border-t border-white/10 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <h4 class="text-[11px] font-bold text-accent uppercase tracking-wider" id="selected-date-title">Select a date above</h4>
+                    </div>
+                    <textarea id="planner-notes-input" rows="2" placeholder="Write reminders or notes for this selected date..." oninput="saveDayPlannerNotes()" class="w-full neon-card rounded-xl p-3 text-xs font-medium placeholder-slate-500 focus:outline-none resize-none"></textarea>
+                </div>
             </div>
         </div>
 
@@ -284,8 +345,8 @@
 
                 <div class="flex items-center justify-between py-2">
                     <div>
-                        <div class="text-xs font-bold text-red-500">Reset Habit Data</div>
-                        <div class="text-[10px] opacity-60">Clear all habits and history</div>
+                        <div class="text-xs font-bold text-red-500">Reset App Data</div>
+                        <div class="text-[10px] opacity-60">Clear all habits, expenses, and notes</div>
                     </div>
                     <button onclick="resetAllData()" class="bg-red-500/10 hover:bg-red-500/20 text-red-500 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition active:scale-95">
                         Reset
@@ -296,24 +357,24 @@
 
     </main>
 
-    <!-- Bottom Navigation Bar -->
+    <!-- Bottom Navigation Bar (5 Tabs) -->
     <nav class="neon-card fixed bottom-0 left-0 right-0 py-2.5 px-3 z-20 transition-all duration-300 mx-3 mb-3 sm:mx-auto sm:max-w-md">
         <div class="flex justify-around">
             <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn flex flex-col items-center gap-0.5 text-accent transition">
                 <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-                <span class="text-[9px] font-bold">Dashboard</span>
+                <span class="text-[9px] font-bold">Habits</span>
             </button>
-            <button onclick="switchTab('calendar')" id="nav-calendar" class="nav-btn flex flex-col items-center gap-0.5 opacity-50 transition">
-                <i data-lucide="calendar" class="w-4 h-4"></i>
-                <span class="text-[9px] font-bold">Planner</span>
+            <button onclick="switchTab('focus')" id="nav-focus" class="nav-btn flex flex-col items-center gap-0.5 opacity-50 transition">
+                <i data-lucide="timer" class="w-4 h-4"></i>
+                <span class="text-[9px] font-bold">Focus</span>
             </button>
-            <button onclick="switchTab('todo')" id="nav-todo" class="nav-btn flex flex-col items-center gap-0.5 opacity-50 transition">
-                <i data-lucide="check-square" class="w-4 h-4"></i>
-                <span class="text-[9px] font-bold">To-Do</span>
+            <button onclick="switchTab('budget')" id="nav-budget" class="nav-btn flex flex-col items-center gap-0.5 opacity-50 transition">
+                <i data-lucide="wallet" class="w-4 h-4"></i>
+                <span class="text-[9px] font-bold">Budget</span>
             </button>
-            <button onclick="switchTab('notes')" id="nav-notes" class="nav-btn flex flex-col items-center gap-0.5 opacity-50 transition">
+            <button onclick="switchTab('journal')" id="nav-journal" class="nav-btn flex flex-col items-center gap-0.5 opacity-50 transition">
                 <i data-lucide="book-open" class="w-4 h-4"></i>
-                <span class="text-[9px] font-bold">Notes</span>
+                <span class="text-[9px] font-bold">Journal</span>
             </button>
             <button onclick="switchTab('settings')" id="nav-settings" class="nav-btn flex flex-col items-center gap-0.5 opacity-50 transition">
                 <i data-lucide="settings" class="w-4 h-4"></i>
@@ -333,7 +394,7 @@
         </div>
     </div>
 
-    <!-- Add Habit Modal -->
+    <!-- Global Add Habit Modal -->
     <div id="add-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
         <div class="neon-card border w-full max-w-md p-6 shadow-2xl">
             <div class="flex justify-between items-center mb-4">
@@ -360,9 +421,8 @@
         </div>
     </div>
 
-    <!-- App Logic & Service Worker Registration -->
+    <!-- App Logic & State -->
     <script>
-        // Service Worker Registration
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed'));
         }
@@ -372,19 +432,27 @@
             { id: '2', name: 'Drink 8 Glasses of Water', category: 'Fitness', history: {}, streak: 0 }
         ];
         let todos = JSON.parse(localStorage.getItem('habitflow_todos')) || [
-            { id: 't1', text: 'Plan weekend outing', completed: false }
+            { id: 't1', text: 'Plan study session', completed: false }
         ];
+        let expenses = JSON.parse(localStorage.getItem('habitflow_expenses')) || [];
         let plannerNotes = JSON.parse(localStorage.getItem('habitflow_planner')) || {};
         let waterData = JSON.parse(localStorage.getItem('habitflow_water')) || {};
-        let scratchpadText = localStorage.getItem('habitflow_scratchpad') || '';
+        let scratchpadText = localStorage.getItem('habitflow_notes') || '';
         let selectedCategory = 'Fitness';
         let currentTheme = localStorage.getItem('habitflow_theme') || 'neon-black';
         let currentAccentHex = localStorage.getItem('habitflow_accent') || '#f43f5e';
         let currentGlowHex = localStorage.getItem('habitflow_glow') || 'rgba(244, 63, 94, 0.25)';
 
+        // Calendar Planner State
         let calYear = new Date().getFullYear();
         let calMonth = new Date().getMonth();
         let selectedDateKey = getDateKey(new Date());
+
+        // Pomodoro State
+        let timerInterval = null;
+        let selectedTimerMinutes = 25;
+        let timeLeft = selectedTimerMinutes * 60;
+        let isTimerRunning = false;
 
         function setThemeMode(themeName) {
             currentTheme = themeName;
@@ -409,6 +477,7 @@
         setThemeMode(currentTheme);
         applyAccent();
 
+        // Motivation & Love Notes
         const motivations = [
             "Every small step you take today brings your biggest dreams closer. You've got this, Eku! ❤️",
             "Your dedication inspires everyone around you. Have a wonderful, productive day, Eku! ✨",
@@ -446,7 +515,7 @@
         document.getElementById('scratchpad-input').value = scratchpadText;
 
         function switchTab(tabName) {
-            ['dashboard', 'calendar', 'todo', 'notes', 'settings'].forEach(t => {
+            ['dashboard', 'focus', 'budget', 'journal', 'settings'].forEach(t => {
                 document.getElementById(`tab-${t}`).classList.add('hidden');
                 document.getElementById(`nav-${t}`).className = "nav-btn flex flex-col items-center gap-0.5 opacity-50 transition";
             });
@@ -473,10 +542,16 @@
             renderTodos();
         }
 
-        function saveScratchpad() {
-            localStorage.setItem('habitflow_scratchpad', document.getElementById('scratchpad-input').value);
+        function saveExpenses() {
+            localStorage.setItem('habitflow_expenses', JSON.stringify(expenses));
+            renderExpenses();
         }
 
+        function saveScratchpad() {
+            localStorage.setItem('habitflow_notes', document.getElementById('scratchpad-input').value);
+        }
+
+        // Water Tracker
         function adjustWater(amount) {
             const todayKey = getTodayKey();
             let currentWater = waterData[todayKey] || 0;
@@ -490,8 +565,59 @@
             document.getElementById('water-status').innerText = `${waterData[getTodayKey()] || 0} / 8 glasses today`;
         }
 
+        // Pomodoro Functions
+        function setTimerDuration(mins) {
+            pauseTimer();
+            selectedTimerMinutes = mins;
+            timeLeft = mins * 60;
+            updateTimerDisplay();
+
+            document.querySelectorAll('.duration-btn').forEach(btn => {
+                if (btn.innerText.includes(`${mins}m`)) {
+                    btn.className = "duration-btn bg-accent border-accent text-white px-3 py-1.5 text-[11px] font-bold transition shadow-md";
+                } else {
+                    btn.className = "duration-btn neon-card px-3 py-1.5 text-[11px] font-bold transition";
+                }
+            });
+        }
+
+        function startTimer() {
+            if (isTimerRunning) return;
+            isTimerRunning = true;
+            timerInterval = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    updateTimerDisplay();
+                } else {
+                    clearInterval(timerInterval);
+                    isTimerRunning = false;
+                    alert("🔔 Grv says: Pomodoro session completed! Take a well-deserved break, Eku! ❤️");
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            timeLeft = selectedTimerMinutes * 60;
+            updateTimerDisplay();
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timer-display').innerText = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        // Calendar Planner Functions
         function renderMonthlyCalendar() {
             const grid = document.getElementById('monthly-grid');
+            if(!grid) return;
             const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             document.getElementById('calendar-month-year').innerText = `${monthNames[calMonth]} ${calYear}`;
 
@@ -539,20 +665,26 @@
         }
 
         function loadDayPlannerForSelected() {
-            document.getElementById('selected-date-title').innerText = `Notes for ${selectedDateKey}`;
-            document.getElementById('planner-notes-input').value = plannerNotes[selectedDateKey] || '';
+            const titleEl = document.getElementById('selected-date-title');
+            if(titleEl) titleEl.innerText = `Notes for ${selectedDateKey}`;
+            const inputEl = document.getElementById('planner-notes-input');
+            if(inputEl) inputEl.value = plannerNotes[selectedDateKey] || '';
         }
 
         function saveDayPlannerNotes() {
-            plannerNotes[selectedDateKey] = document.getElementById('planner-notes-input').value;
+            const inputEl = document.getElementById('planner-notes-input');
+            if(!inputEl) return;
+            plannerNotes[selectedDateKey] = inputEl.value;
             localStorage.setItem('habitflow_planner', JSON.stringify(plannerNotes));
             renderMonthlyCalendar();
         }
 
+        // To-Do List
         function renderTodos() {
             const container = document.getElementById('todo-list-container');
+            if (!container) return;
             if (todos.length === 0) {
-                container.innerHTML = `<p class="text-xs opacity-50 text-center py-4">No tasks in your to-do list yet.</p>`;
+                container.innerHTML = `<p class="text-xs opacity-50 text-center py-4">No tasks in your focus list yet.</p>`;
                 return;
             }
             container.innerHTML = todos.map(t => `
@@ -590,6 +722,57 @@
             saveTodos();
         }
 
+        // Expenses
+        function renderExpenses() {
+            const container = document.getElementById('expense-list-container');
+            const totalDisplay = document.getElementById('total-expense-amount');
+            if (!container) return;
+
+            let total = 0;
+            expenses.forEach(e => total += Number(e.amount));
+            totalDisplay.innerText = `₹${total}`;
+
+            if (expenses.length === 0) {
+                container.innerHTML = `<p class="text-xs opacity-50 text-center py-4">No expenses logged yet.</p>`;
+                return;
+            }
+
+            container.innerHTML = expenses.slice().reverse().map(exp => `
+                <div class="neon-card p-3 flex items-center justify-between">
+                    <div>
+                        <h4 class="text-xs font-bold">${exp.name}</h4>
+                        <span class="text-[9px] font-bold opacity-60 neon-card px-2 py-0.5 rounded-md">${exp.category}</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs font-extrabold text-accent">₹${exp.amount}</span>
+                        <button onclick="deleteExpense('${exp.id}')" class="opacity-50 hover:text-red-500 p-1 transition">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function handleExpenseSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('expense-name').value.trim();
+            const amount = document.getElementById('expense-amount').value.trim();
+            const category = document.getElementById('expense-category').value;
+            if (!name || !amount) return;
+
+            expenses.push({ id: Date.now().toString(), name, amount, category });
+            document.getElementById('expense-name').value = '';
+            document.getElementById('expense-amount').value = '';
+            saveExpenses();
+        }
+
+        function deleteExpense(id) {
+            expenses = expenses.filter(e => e.id !== id);
+            saveExpenses();
+        }
+
+        // Master Render Function
         function render() {
             const container = document.getElementById('habits-container');
             const emptyState = document.getElementById('empty-state');
@@ -599,6 +782,7 @@
 
             renderWeeklyChart();
             renderTodos();
+            renderExpenses();
             renderMonthlyCalendar();
             updateWaterDisplay();
 
@@ -608,50 +792,52 @@
             document.getElementById('stats-best-streak').innerText = `${bestStreak} Days`;
 
             if (habits.length === 0) {
-                container.innerHTML = '';
-                emptyState.classList.remove('hidden');
+                if (container) container.innerHTML = '';
+                if (emptyState) emptyState.classList.remove('hidden');
                 document.getElementById('today-completed-count').innerText = `0/0`;
                 document.getElementById('max-streak-count').innerText = `0 days`;
                 lucide.createIcons();
                 return;
             }
 
-            emptyState.classList.add('hidden');
+            if (emptyState) emptyState.classList.add('hidden');
             let completedTodayCount = 0;
             let maxStreak = 0;
 
-            container.innerHTML = habits.map(habit => {
-                const isCompleted = habit.history[todayKey] || false;
-                if (isCompleted) completedTodayCount++;
-                if (habit.streak > maxStreak) maxStreak = habit.streak;
+            if (container) {
+                container.innerHTML = habits.map(habit => {
+                    const isCompleted = habit.history[todayKey] || false;
+                    if (isCompleted) completedTodayCount++;
+                    if (habit.streak > maxStreak) maxStreak = habit.streak;
 
-                return `
-                    <div class="neon-card p-3.5 flex items-center justify-between transition">
-                        <div class="flex items-center gap-3">
-                            <button onclick="toggleHabit('${habit.id}')" class="w-7 h-7 rounded-xl border ${isCompleted ? 'bg-accent border-accent text-white' : 'border-slate-600 neon-card text-transparent'} flex items-center justify-center transition active:scale-95">
-                                <i data-lucide="check" class="w-4 h-4 stroke-[3]"></i>
-                            </button>
-                            <div>
-                                <h4 class="text-xs font-bold ${isCompleted ? 'line-through opacity-40' : ''}">${habit.name}</h4>
-                                <div class="flex items-center gap-2 mt-0.5">
-                                    <span class="text-[9px] font-bold opacity-60 neon-card px-2 py-0.5 rounded-md">${habit.category}</span>
-                                    <span class="text-[9px] font-bold text-orange-500 flex items-center gap-0.5"><i data-lucide="flame" class="w-3 h-3"></i> ${habit.streak} streak</span>
+                    return `
+                        <div class="neon-card p-3.5 flex items-center justify-between transition">
+                            <div class="flex items-center gap-3">
+                                <button onclick="toggleHabit('${habit.id}')" class="w-7 h-7 rounded-xl border ${isCompleted ? 'bg-accent border-accent text-white' : 'border-slate-600 neon-card text-transparent'} flex items-center justify-center transition active:scale-95">
+                                    <i data-lucide="check" class="w-4 h-4 stroke-[3]"></i>
+                                </button>
+                                <div>
+                                    <h4 class="text-xs font-bold ${isCompleted ? 'line-through opacity-40' : ''}">${habit.name}</h4>
+                                    <div class="flex items-center gap-2 mt-0.5">
+                                        <span class="text-[9px] font-bold opacity-60 neon-card px-2 py-0.5 rounded-md">${habit.category}</span>
+                                        <span class="text-[9px] font-bold text-orange-500 flex items-center gap-0.5"><i data-lucide="flame" class="w-3 h-3"></i> ${habit.streak} streak</span>
+                                    </div>
                                 </div>
                             </div>
+                            <button onclick="deleteHabit('${habit.id}')" class="opacity-50 hover:text-red-500 p-2 transition">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
                         </div>
-                        <button onclick="deleteHabit('${habit.id}')" class="opacity-50 hover:text-red-500 p-2 transition">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i>
-                        </button>
-                    </div>
-                `;
-            }).join('');
+                    `;
+                }).join('');
+            }
 
             document.getElementById('today-completed-count').innerText = `${completedTodayCount}/${habits.length}`;
             document.getElementById('max-streak-count').innerText = `${maxStreak} days`;
 
             if (habits.length > 0 && completedTodayCount === habits.length && !window.hasCelebratedToday) {
                 window.hasCelebratedToday = true;
-                setTimeout(() => alert("🎉 Amazing job, Eku! You completed all your habits for today! You're crushing it! ❤️✨"), 300);
+                setTimeout(() => alert("🎉 Grv says: Amazing job, Eku! You completed all your habits for today! You're crushing it! ❤️✨"), 300);
             }
 
             lucide.createIcons();
@@ -659,6 +845,7 @@
 
         function renderWeeklyChart() {
             const chartContainer = document.getElementById('weekly-chart-container');
+            if (!chartContainer) return;
             let daysHtml = '';
             
             for (let i = 6; i >= 0; i--) {
@@ -710,7 +897,7 @@
         }
 
         function resetAllData() {
-            if (confirm("Are you sure you want to reset all data?")) {
+            if (confirm("Are you sure you want to reset all app data?")) {
                 localStorage.clear();
                 location.reload();
             }
