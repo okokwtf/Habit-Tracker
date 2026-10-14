@@ -82,7 +82,7 @@
     </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans antialiased">
-    <!-- Header (Heart removed from title as requested) -->
+    <!-- Header -->
     <header class="neon-card sticky top-0 z-10 mx-3 mt-3 sm:mx-auto sm:max-w-md sm:w-full">
         <div class="px-4 py-3.5 flex justify-between items-center">
             <div>
@@ -185,25 +185,33 @@
             </div>
         </div>
 
-        <!-- ================= TAB 2: CALENDAR & PLANNER ================= -->
+        <!-- ================= TAB 2: MONTHLY CALENDAR & PLANNER ================= -->
         <div id="tab-calendar" class="tab-content hidden space-y-4">
             <div class="neon-card p-4 space-y-3">
-                <h3 class="font-bold text-xs uppercase tracking-wider opacity-60 flex items-center gap-2">
-                    <i data-lucide="calendar" class="w-4 h-4 text-accent"></i> Day Planner & Notes
-                </h3>
-                <div>
-                    <label class="block text-[10px] font-bold opacity-60 uppercase tracking-wider mb-1">Select Date</label>
-                    <input type="date" id="planner-date-picker" onchange="loadDayPlanner()" class="w-full neon-card rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-bold text-xs uppercase tracking-wider opacity-60 flex items-center gap-2">
+                        <i data-lucide="calendar" class="w-4 h-4 text-accent"></i> Monthly Planner
+                    </h3>
+                    <div class="flex items-center gap-2">
+                        <button onclick="changeMonth(-1)" class="neon-card px-2 py-1 text-xs font-bold">&larr;</button>
+                        <span id="calendar-month-year" class="text-xs font-bold text-accent"></span>
+                        <button onclick="changeMonth(1)" class="neon-card px-2 py-1 text-xs font-bold">&rarr;</button>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-[10px] font-bold opacity-60 uppercase tracking-wider mb-1">Daily Notes & Reminders</label>
-                    <textarea id="planner-notes-input" rows="3" placeholder="Write reminders, schedule, or thoughts for this day..." oninput="saveDayPlannerNotes()" class="w-full neon-card rounded-xl p-3 text-xs font-medium placeholder-slate-500 focus:outline-none"></textarea>
+                <!-- Calendar Grid -->
+                <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold opacity-50 pt-2">
+                    <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
                 </div>
+                <div class="grid grid-cols-7 gap-1.5" id="monthly-grid"></div>
             </div>
-            <div class="neon-card p-4">
-                <h4 class="text-[10px] font-bold uppercase tracking-wider opacity-60 mb-2">Selected Day's Scheduled Focus</h4>
-                <div id="calendar-daily-summary" class="text-xs font-medium opacity-80">
-                    No special notes for this date yet. Use the planner above to record your schedule!
+
+            <!-- Selected Date Planner & Reminders -->
+            <div class="neon-card p-4 space-y-3">
+                <div class="flex justify-between items-center">
+                    <h4 class="text-xs font-bold text-accent uppercase tracking-wider" id="selected-date-title">Select a date above</h4>
+                </div>
+                <div>
+                    <textarea id="planner-notes-input" rows="3" placeholder="Write reminders, schedule, or thoughts for this selected date..." oninput="saveDayPlannerNotes()" class="w-full neon-card rounded-xl p-3 text-xs font-medium placeholder-slate-500 focus:outline-none"></textarea>
                 </div>
             </div>
         </div>
@@ -222,45 +230,37 @@
             </div>
         </div>
 
-        <!-- ================= TAB 4: NOTES & IDEAS ================= -->
+        <!-- ================= TAB 4: NOTES & IDEAS (EXPANDED SCREEN SPACE) ================= -->
         <div id="tab-notes" class="tab-content hidden space-y-4">
-            <div class="neon-card p-4 space-y-3">
+            <div class="neon-card p-4 space-y-3 flex flex-col h-[70vh]">
                 <h3 class="font-bold text-xs uppercase tracking-wider opacity-60 flex items-center gap-2">
                     <i data-lucide="book-open" class="w-4 h-4 text-accent"></i> Notes & Ideas Scratchpad
                 </h3>
                 <p class="text-[11px] opacity-60">Jot down random thoughts, book ideas, or things to remember anytime.</p>
-                <textarea id="scratchpad-input" rows="8" placeholder="Type your notes and thoughts here... (Saves automatically)" oninput="saveScratchpad()" class="w-full neon-card rounded-xl p-3 text-xs font-medium placeholder-slate-500 focus:outline-none"></textarea>
+                <textarea id="scratchpad-input" placeholder="Type your notes and thoughts here... (Saves automatically)" oninput="saveScratchpad()" class="w-full flex-grow neon-card rounded-xl p-4 text-xs font-medium placeholder-slate-500 focus:outline-none resize-none"></textarea>
             </div>
         </div>
 
-        <!-- ================= TAB 5: ANALYTICS ================= -->
-        <div id="tab-analytics" class="tab-content hidden space-y-4">
+        <!-- ================= TAB 5: SETTINGS & STATS ================= -->
+        <div id="tab-settings" class="tab-content hidden space-y-4">
+            <!-- Stats Card Integrated into Settings -->
             <div class="neon-card p-5 space-y-3">
                 <h3 class="font-bold text-sm mb-1 flex items-center gap-2">
-                    <i data-lucide="trending-up" class="w-4 h-4 text-accent"></i> Performance Overview
+                    <i data-lucide="trending-up" class="w-4 h-4 text-accent"></i> Performance & Stats
                 </h3>
-                <p class="text-[11px] opacity-60 mb-2">Your habit completion overview and metrics.</p>
-                <div class="space-y-3">
-                    <div class="neon-card p-3.5 flex justify-between items-center">
-                        <div>
-                            <div class="text-[10px] font-bold uppercase tracking-wider opacity-60">Total Active Habits</div>
-                            <div class="text-base font-extrabold" id="stats-total-habits">0</div>
-                        </div>
-                        <i data-lucide="layers" class="w-5 h-5 text-accent"></i>
+                <div class="grid grid-cols-2 gap-3 pt-1">
+                    <div class="neon-card p-3">
+                        <div class="text-[10px] font-bold uppercase tracking-wider opacity-60">Total Habits</div>
+                        <div class="text-lg font-extrabold" id="stats-total-habits">0</div>
                     </div>
-                    <div class="neon-card p-3.5 flex justify-between items-center">
-                        <div>
-                            <div class="text-[10px] font-bold uppercase tracking-wider opacity-60">Best Streak Achieved</div>
-                            <div class="text-base font-extrabold" id="stats-best-streak">0 Days</div>
-                        </div>
-                        <i data-lucide="award" class="w-5 h-5 text-orange-500"></i>
+                    <div class="neon-card p-3">
+                        <div class="text-[10px] font-bold uppercase tracking-wider opacity-60">Best Streak</div>
+                        <div class="text-lg font-extrabold" id="stats-best-streak">0 Days</div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- ================= TAB 6: SETTINGS ================= -->
-        <div id="tab-settings" class="tab-content hidden space-y-4">
+            <!-- Customization Settings -->
             <div class="neon-card p-5 space-y-4">
                 <h3 class="font-bold text-sm mb-1 flex items-center gap-2">
                     <i data-lucide="settings" class="w-4 h-4 text-accent"></i> Stunning Theme Settings
@@ -303,8 +303,8 @@
 
     </main>
 
-    <!-- Bottom Navigation Bar -->
-    <nav class="neon-card fixed bottom-0 left-0 right-0 py-2.5 px-2 z-20 transition-all duration-300 mx-3 mb-3 sm:mx-auto sm:max-w-md">
+    <!-- Bottom Navigation Bar (Stats Tab Removed) -->
+    <nav class="neon-card fixed bottom-0 left-0 right-0 py-2.5 px-3 z-20 transition-all duration-300 mx-3 mb-3 sm:mx-auto sm:max-w-md">
         <div class="flex justify-around">
             <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn flex flex-col items-center gap-0.5 text-accent transition">
                 <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
@@ -322,10 +322,6 @@
                 <i data-lucide="book-open" class="w-4 h-4"></i>
                 <span class="text-[9px] font-bold">Notes</span>
             </button>
-            <button onclick="switchTab('analytics')" id="nav-analytics" class="nav-btn flex flex-col items-center gap-0.5 opacity-50 transition">
-                <i data-lucide="bar-chart-2" class="w-4 h-4"></i>
-                <span class="text-[9px] font-bold">Stats</span>
-            </button>
             <button onclick="switchTab('settings')" id="nav-settings" class="nav-btn flex flex-col items-center gap-0.5 opacity-50 transition">
                 <i data-lucide="settings" class="w-4 h-4"></i>
                 <span class="text-[9px] font-bold">Settings</span>
@@ -333,7 +329,7 @@
         </div>
     </nav>
 
-    <!-- Custom Love Note Modal (Replaces ugly browser alert) -->
+    <!-- Custom Love Note Modal ("Grv says") -->
     <div id="love-note-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
         <div class="neon-card w-full max-w-sm p-6 text-center space-y-4 border-accent/40 shadow-2xl">
             <div class="text-xs font-bold uppercase tracking-wider text-accent">Grv says ❤️</div>
@@ -387,6 +383,10 @@
         let currentTheme = localStorage.getItem('habitflow_theme') || 'neon-black';
         let currentAccentHex = localStorage.getItem('habitflow_accent') || '#f43f5e';
         let currentGlowHex = localStorage.getItem('habitflow_glow') || 'rgba(244, 63, 94, 0.25)';
+
+        let calYear = new Date().getFullYear();
+        let calMonth = new Date().getMonth();
+        let selectedDateKey = getDateKey(new Date());
 
         function setThemeMode(themeName) {
             currentTheme = themeName;
@@ -445,12 +445,10 @@
         ];
         document.getElementById('dynamic-bottom-quote').innerText = bottomQuotes[Math.floor(Math.random() * bottomQuotes.length)];
 
-        const todayStr = getDateKey(new Date());
-        document.getElementById('planner-date-picker').value = todayStr;
         document.getElementById('scratchpad-input').value = scratchpadText;
 
         function switchTab(tabName) {
-            ['dashboard', 'calendar', 'todo', 'notes', 'analytics', 'settings'].forEach(t => {
+            ['dashboard', 'calendar', 'todo', 'notes', 'settings'].forEach(t => {
                 document.getElementById(`tab-${t}`).classList.add('hidden');
                 document.getElementById(`nav-${t}`).className = "nav-btn flex flex-col items-center gap-0.5 opacity-50 transition";
             });
@@ -494,23 +492,64 @@
             document.getElementById('water-status').innerText = `${waterData[getTodayKey()] || 0} / 8 glasses today`;
         }
 
-        function loadDayPlanner() {
-            const dateVal = document.getElementById('planner-date-picker').value;
-            document.getElementById('planner-notes-input').value = plannerNotes[dateVal] || '';
-            updateCalendarSummary();
+        // Monthly Calendar Logic
+        function renderMonthlyCalendar() {
+            const grid = document.getElementById('monthly-grid');
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            document.getElementById('calendar-month-year').innerText = `${monthNames[calMonth]} ${calYear}`;
+
+            const firstDayIndex = new Date(calYear, calMonth, 1).getDay();
+            const totalDays = new Date(calYear, calMonth + 1, 0).getDate();
+
+            let html = '';
+            for (let i = 0; i < firstDayIndex; i++) {
+                html += `<div></div>`;
+            }
+
+            for (let day = 1; day <= totalDays; day++) {
+                const dKey = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const hasNote = plannerNotes[dKey] && plannerNotes[dKey].trim() !== '';
+                const isSelected = dKey === selectedDateKey;
+
+                let btnClass = 'neon-card opacity-70';
+                if (isSelected) {
+                    btnClass = 'bg-accent border-accent text-white font-bold shadow-md';
+                } else if (hasNote) {
+                    btnClass = 'border-accent/50 text-accent font-bold';
+                }
+
+                html += `
+                    <button onclick="selectCalendarDate('${dKey}')" class="aspect-square rounded-xl ${btnClass} flex flex-col items-center justify-center text-xs transition active:scale-95">
+                        <span>${day}</span>
+                        ${hasNote ? '<span class="w-1 h-1 rounded-full bg-accent mt-0.5"></span>' : ''}
+                    </button>
+                `;
+            }
+            grid.innerHTML = html;
+            loadDayPlannerForSelected();
+        }
+
+        function changeMonth(direction) {
+            calMonth += direction;
+            if (calMonth > 11) { calMonth = 0; calYear++; }
+            else if (calMonth < 0) { calMonth = 11; calYear--; }
+            renderMonthlyCalendar();
+        }
+
+        function selectCalendarDate(dKey) {
+            selectedDateKey = dKey;
+            renderMonthlyCalendar();
+        }
+
+        function loadDayPlannerForSelected() {
+            document.getElementById('selected-date-title').innerText = `Notes for ${selectedDateKey}`;
+            document.getElementById('planner-notes-input').value = plannerNotes[selectedDateKey] || '';
         }
 
         function saveDayPlannerNotes() {
-            const dateVal = document.getElementById('planner-date-picker').value;
-            plannerNotes[dateVal] = document.getElementById('planner-notes-input').value;
+            plannerNotes[selectedDateKey] = document.getElementById('planner-notes-input').value;
             localStorage.setItem('habitflow_planner', JSON.stringify(plannerNotes));
-            updateCalendarSummary();
-        }
-
-        function updateCalendarSummary() {
-            const note = plannerNotes[document.getElementById('planner-date-picker').value];
-            const summaryEl = document.getElementById('calendar-daily-summary');
-            summaryEl.innerHTML = (note && note.trim() !== '') ? `<p class="italic text-accent">${note}</p>` : "No special notes for this date yet. Use the planner above to record your schedule!";
+            renderMonthlyCalendar();
         }
 
         function renderTodos() {
@@ -563,7 +602,7 @@
 
             renderWeeklyChart();
             renderTodos();
-            loadDayPlanner();
+            renderMonthlyCalendar();
             updateWaterDisplay();
 
             document.getElementById('stats-total-habits').innerText = habits.length;
