@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HabitFlow - Built for Eku ❤️</title>
+    <title>HabitFlow - Couple's Edition ❤️</title>
     
     <!-- PWA & Mobile Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -11,6 +11,27 @@
     <meta name="apple-mobile-web-app-title" content="HabitFlow">
     <meta name="mobile-web-app-capable" content="yes">
     <link rel="manifest" href="manifest.json">
+
+    <!-- Firebase CDN SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDrjNg-l23xjWSDrMJyp0e28ZWjJVIdgD8",
+            authDomain: "habitflow-couple.firebaseapp.com",
+            projectId: "habitflow-couple",
+            storageBucket: "habitflow-couple.firebasestorage.app",
+            messagingSenderId: "602214886973",
+            appId: "1:602214886973:web:29224917bdc941c1314454"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        window.db = getFirestore(app);
+        window.fbModules = { collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc };
+        window.isFirebaseReady = true;
+        console.log("🔥 Firebase connected successfully for HabitFlow!");
+    </script>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -82,12 +103,33 @@
     </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans antialiased">
+    
+    <!-- Role Selection Modal (First-time setup lock) -->
+    <div id="role-setup-modal" class="fixed inset-0 bg-black/90 backdrop-blur-lg z-50 flex items-center justify-center p-4 hidden">
+        <div class="neon-card w-full max-w-sm p-6 text-center space-y-6 border-accent/50 shadow-2xl">
+            <div>
+                <h2 class="text-lg font-extrabold text-accent">Welcome to HabitFlow ❤️</h2>
+                <p class="text-xs opacity-70 mt-1">Select whose device this is. This locks your side permanently.</p>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="selectUserRole('Grv')" class="neon-card p-4 flex flex-col items-center gap-2 hover:border-accent transition active:scale-95">
+                    <span class="text-2xl">👦🏽</span>
+                    <span class="text-xs font-bold">Grv's Side</span>
+                </button>
+                <button onclick="selectUserRole('Eku')" class="neon-card p-4 flex flex-col items-center gap-2 hover:border-accent transition active:scale-95">
+                    <span class="text-2xl">🌸</span>
+                    <span class="text-xs font-bold">Eku's Side</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Header -->
     <header class="neon-card sticky top-0 z-10 mx-3 mt-3 sm:mx-auto sm:max-w-md sm:w-full">
         <div class="px-4 py-3.5 flex justify-between items-center">
             <div>
-                <h1 class="text-lg font-extrabold tracking-tight">HabitFlow</h1>
-                <p class="text-[11px] text-accent font-semibold">Made with love for Eku ❤️</p>
+                <h1 class="text-lg font-extrabold tracking-tight" id="app-title">HabitFlow</h1>
+                <p class="text-[11px] text-accent font-semibold" id="header-subtitle">Made with love ❤️</p>
             </div>
             <div class="flex items-center gap-2">
                 <button onclick="openAddModal()" class="bg-accent text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1 transition shadow-lg active:scale-95">
@@ -104,11 +146,9 @@
         <div id="tab-dashboard" class="tab-content space-y-4">
             <div class="neon-card p-4 text-center relative overflow-hidden">
                 <div class="text-[11px] uppercase tracking-wider text-accent font-bold mb-1 flex items-center justify-center gap-1">
-                    <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Daily Motivation for Eku
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> <span id="motivation-header-label">Daily Motivation</span>
                 </div>
-                <p class="text-xs font-medium opacity-90 mb-2.5 leading-relaxed" id="motivation-text">
-                    "Every small step you take today brings your biggest dreams closer. You've got this, Eku!"
-                </p>
+                <p class="text-xs font-medium opacity-90 mb-2.5 leading-relaxed" id="motivation-text">Loading...</p>
                 <button onclick="revealLoveNote()" class="text-[11px] bg-accent text-white font-bold px-3.5 py-1.5 rounded-full shadow-md hover:opacity-95 transition active:scale-95">
                     💌 Tap for Secret Love Note
                 </button>
@@ -256,31 +296,36 @@
             </div>
         </div>
 
-        <!-- ================= TAB 4: JOURNAL & VOICE MEMOS ================= -->
+        <!-- ================= TAB 4: JOURNAL & VOICE DROPS ================= -->
         <div id="tab-journal" class="tab-content hidden space-y-4">
-            <div class="neon-card p-4 space-y-3 flex flex-col h-[35vh]">
+            <div class="neon-card p-4 space-y-3 flex flex-col h-[30vh]">
                 <h3 class="font-bold text-xs uppercase tracking-wider opacity-60 flex items-center gap-2">
                     <i data-lucide="book-open" class="w-4 h-4 text-accent"></i> Quick Journal Scratchpad
                 </h3>
-                <textarea id="scratchpad-input" placeholder="Jot down random thoughts, book ideas, or daily reflections... (Saves automatically)" oninput="saveScratchpad()" class="w-full flex-grow neon-card rounded-xl p-3 text-xs font-medium placeholder-slate-500 focus:outline-none resize-none"></textarea>
+                <textarea id="scratchpad-input" placeholder="Jot down random thoughts, book ideas... (Saves automatically)" oninput="saveScratchpad()" class="w-full flex-grow neon-card rounded-xl p-3 text-xs font-medium placeholder-slate-500 focus:outline-none resize-none"></textarea>
             </div>
 
-            <div class="neon-card p-4 space-y-3 border-accent/40">
+            <!-- Couple's Synchronized Voice Drop (Synced via Firebase) -->
+            <div class="neon-card p-4 space-y-3 border-accent/60 shadow-xl">
                 <div class="flex items-center justify-between">
-                    <h3 class="font-bold text-xs uppercase tracking-wider opacity-60 flex items-center gap-2">
-                        <i data-lucide="mic" class="w-4 h-4 text-accent"></i> Voice Memos / Audio Notes
+                    <h3 class="font-bold text-xs uppercase tracking-wider text-accent flex items-center gap-2">
+                        <i data-lucide="heart-handshake" class="w-4 h-4"></i> <span id="partner-drop-title">Partner's Voice Drop</span> 💕
                     </h3>
                     <span class="text-[10px] text-accent font-bold" id="rec-status">Ready</span>
                 </div>
+                
                 <div class="flex gap-2">
-                    <button type="button" id="record-btn" onclick="toggleRecording()" class="flex-grow bg-accent text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition shadow-lg active:scale-95">
-                        <i data-lucide="mic" class="w-4 h-4"></i> Start Recording
+                    <button type="button" id="record-btn" onclick="toggleRecording()" class="flex-grow bg-accent text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition shadow-md active:scale-95">
+                        <i data-lucide="mic" class="w-4 h-4"></i> Record Voice Note (< 2m)
                     </button>
                     <button type="button" id="stop-btn" onclick="stopRecording()" disabled class="neon-card px-4 py-2.5 rounded-xl text-xs font-bold opacity-50 cursor-not-allowed transition">
-                        Stop
+                        Stop & Send
                     </button>
                 </div>
-                <div id="voice-memos-container" class="space-y-2 pt-1 max-h-40 overflow-y-auto"></div>
+
+                <div id="voice-memos-container" class="space-y-2.5 pt-1 max-h-48 overflow-y-auto">
+                    <p class="text-[11px] opacity-40 text-center py-2">No voice drops yet.</p>
+                </div>
             </div>
 
             <div class="neon-card p-4 space-y-3">
@@ -328,33 +373,21 @@
 
             <div class="neon-card p-5 space-y-4">
                 <h3 class="font-bold text-sm mb-1 flex items-center gap-2">
-                    <i data-lucide="settings" class="w-4 h-4 text-accent"></i> Stunning Theme Settings
+                    <i data-lucide="settings" class="w-4 h-4 text-accent"></i> Couple Settings & Device Role
                 </h3>
                 
-                <div class="space-y-1.5 py-2 border-b border-white/10">
-                    <div class="text-xs font-bold">Display Theme</div>
-                    <div class="grid grid-cols-3 gap-2 pt-1">
-                        <button onclick="setThemeMode('neon-black')" class="theme-btn text-[11px] font-bold py-2 px-2 rounded-xl neon-card transition">OLED Black</button>
-                        <button onclick="setThemeMode('dark-glass')" class="theme-btn text-[11px] font-bold py-2 px-2 rounded-xl neon-card transition">Dark Glass</button>
-                        <button onclick="setThemeMode('clean-light')" class="theme-btn text-[11px] font-bold py-2 px-2 rounded-xl neon-card transition">Clean Light</button>
+                <div class="py-2 border-b border-white/10 flex items-center justify-between">
+                    <div>
+                        <div class="text-xs font-bold">Active Device Profile</div>
+                        <div class="text-[10px] opacity-60" id="current-role-display">Locked Profile</div>
                     </div>
-                </div>
-
-                <div class="space-y-1.5 py-2 border-b border-white/10">
-                    <div class="text-xs font-bold">Neon Accent Color</div>
-                    <div class="grid grid-cols-5 gap-2 pt-1">
-                        <button onclick="setAccentColor('rose', '#f43f5e', 'rgba(244, 63, 94, 0.25)')" class="h-9 rounded-xl bg-rose-500 shadow-lg active:scale-95" title="Neon Rose"></button>
-                        <button onclick="setAccentColor('emerald', '#10b981', 'rgba(16, 185, 129, 0.25)')" class="h-9 rounded-xl bg-emerald-500 shadow-lg active:scale-95" title="Cyber Green"></button>
-                        <button onclick="setAccentColor('violet', '#8b5cf6', 'rgba(139, 92, 246, 0.25)')" class="h-9 rounded-xl bg-violet-500 shadow-lg active:scale-95" title="Electric Violet"></button>
-                        <button onclick="setAccentColor('amber', '#f59e0b', 'rgba(245, 158, 11, 0.25)')" class="h-9 rounded-xl bg-amber-500 shadow-lg active:scale-95" title="Solar Gold"></button>
-                        <button onclick="setAccentColor('cyan', '#06b6d4', 'rgba(6, 182, 212, 0.25)')" class="h-9 rounded-xl bg-cyan-500 shadow-lg active:scale-95" title="Neon Cyan"></button>
-                    </div>
+                    <span id="role-badge" class="bg-accent/20 text-accent text-xs font-bold px-3 py-1 rounded-full"></span>
                 </div>
 
                 <div class="flex items-center justify-between py-2">
                     <div>
-                        <div class="text-xs font-bold text-red-500">Reset App Data</div>
-                        <div class="text-[10px] opacity-60">Clear all habits, expenses, and notes</div>
+                        <div class="text-xs font-bold text-red-500">Reset Local App Data</div>
+                        <div class="text-[10px] opacity-60">Clear personal habits, expenses, and notes</div>
                     </div>
                     <button onclick="resetAllData()" class="bg-red-500/10 hover:bg-red-500/20 text-red-500 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition active:scale-95">
                         Reset
@@ -394,7 +427,7 @@
     <!-- Modals -->
     <div id="love-note-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
         <div class="neon-card w-full max-w-sm p-6 text-center space-y-4 border-accent/40 shadow-2xl">
-            <div class="text-xs font-bold uppercase tracking-wider text-accent">Grv says ❤️</div>
+            <div class="text-xs font-bold uppercase tracking-wider text-accent" id="modal-sender-title">Love Note ❤️</div>
             <p id="love-note-content" class="text-sm font-medium leading-relaxed opacity-90"></p>
             <button onclick="closeLoveNoteModal()" class="w-full bg-accent text-white font-bold py-2.5 rounded-xl text-xs transition active:scale-95 shadow-lg">
                 Close with a Smile 😊
@@ -405,7 +438,7 @@
     <div id="add-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
         <div class="neon-card border w-full max-w-md p-6 shadow-2xl">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-base font-bold">Add New Habit for Eku</h3>
+                <h3 class="text-base font-bold" id="add-modal-title">Add New Habit</h3>
                 <button onclick="closeAddModal()" class="opacity-60 hover:opacity-100 p-1">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
@@ -428,7 +461,7 @@
         </div>
     </div>
 
-    <!-- App Logic & Auto-Update Listener -->
+    <!-- App Logic & Cloud Sync Script -->
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js').then(reg => {
@@ -445,24 +478,49 @@
             }).catch(err => console.log('SW registration failed', err));
         }
 
+        // Role Lock Setup
+        let userRole = localStorage.getItem('habitflow_user_role');
+        if (!userRole) {
+            document.getElementById('role-setup-modal').classList.remove('hidden');
+        }
+
+        function selectUserRole(role) {
+            localStorage.setItem('habitflow_user_role', role);
+            userRole = role;
+            document.getElementById('role-setup-modal').classList.add('hidden');
+            location.reload();
+        }
+
+        const isGrv = userRole === 'Grv';
+
+        if (userRole) {
+            document.getElementById('app-title').innerText = isGrv ? "HabitFlow (Grv's Side)" : "HabitFlow (Eku's Side)";
+            document.getElementById('header-subtitle').innerText = isGrv ? "Built for Eku ❤️" : "Built by Grv with love 🌸";
+            document.getElementById('current-role-display').innerText = isGrv ? "Grv (Male Side)" : "Eku (Female Side)";
+            document.getElementById('role-badge').innerText = isGrv ? "Grv 👦🏽" : "Eku 🌸";
+            document.getElementById('partner-drop-title').innerText = isGrv ? "From Eku to Grv" : "From Grv to Eku";
+            document.getElementById('modal-sender-title').innerText = isGrv ? "Eku says ❤️" : "Grv says ❤️";
+            document.getElementById('motivation-header-label').innerText = isGrv ? "Daily Motivation for Grv" : "Daily Motivation for Eku";
+            document.getElementById('add-modal-title').innerText = isGrv ? "Add New Habit for Grv" : "Add New Habit for Eku";
+
+            if (!isGrv) {
+                document.documentElement.style.setProperty('--accent-color', '#fb7185');
+                document.documentElement.style.setProperty('--glow-color', 'rgba(251, 113, 133, 0.25)');
+            }
+        }
+
         let habits = JSON.parse(localStorage.getItem('habitflow_habits')) || [
-            { id: '1', name: 'Morning Skincare Routine', category: 'Wellness', history: {}, streak: 0 },
+            { id: '1', name: isGrv ? 'Morning Workout & Stretch' : 'Morning Skincare Routine', category: 'Wellness', history: {}, streak: 0 },
             { id: '2', name: 'Drink 8 Glasses of Water', category: 'Fitness', history: {}, streak: 0 }
         ];
-        let todos = JSON.parse(localStorage.getItem('habitflow_todos')) || [
-            { id: 't1', text: 'Plan study session', completed: false }
-        ];
+        let todos = JSON.parse(localStorage.getItem('habitflow_todos')) || [{ id: 't1', text: 'Plan daily priorities', completed: false }];
         let expenses = JSON.parse(localStorage.getItem('habitflow_expenses')) || [];
         let plannerNotes = JSON.parse(localStorage.getItem('habitflow_planner')) || {};
         let waterData = JSON.parse(localStorage.getItem('habitflow_water')) || {};
         let scratchpadText = localStorage.getItem('habitflow_notes') || '';
-        let savedVoiceMemos = JSON.parse(localStorage.getItem('habitflow_voicememos')) || [];
-        
-        let selectedCategory = 'Fitness';
-        let currentTheme = localStorage.getItem('habitflow_theme') || 'neon-black';
-        let currentAccentHex = localStorage.getItem('habitflow_accent') || '#f43f5e';
-        let currentGlowHex = localStorage.getItem('habitflow_glow') || 'rgba(244, 63, 94, 0.25)';
+        let sharedVoiceDrops = [];
 
+        let selectedCategory = 'Fitness';
         let calYear = new Date().getFullYear();
         let calMonth = new Date().getMonth();
         let selectedDateKey = getDateKey(new Date());
@@ -472,50 +530,29 @@
         let timeLeft = selectedTimerMinutes * 60;
         let isTimerRunning = false;
 
-        let mediaRecorder;
-        let audioChunks = [];
+        let coupleMediaRecorder;
+        let coupleAudioChunks = [];
+        let maxRecordTimeOut;
 
-        function setThemeMode(themeName) {
-            currentTheme = themeName;
-            localStorage.setItem('habitflow_theme', themeName);
-            document.documentElement.setAttribute('data-theme', themeName);
-        }
-
-        function setAccentColor(name, hex, glow) {
-            currentAccentHex = hex;
-            currentGlowHex = glow;
-            localStorage.setItem('habitflow_accent', hex);
-            localStorage.setItem('habitflow_glow', glow);
-            applyAccent();
-            render();
-        }
-
-        function applyAccent() {
-            document.documentElement.style.setProperty('--accent-color', currentAccentHex);
-            document.documentElement.style.setProperty('--glow-color', currentGlowHex);
-        }
-
-        setThemeMode(currentTheme);
-        applyAccent();
-
-        const motivations = [
+        const motivations = isGrv ? [
+            "Every step you take today builds your strongest future, Grv! You've got this. 💪",
+            "Focus, discipline, and passion. Make today count, Grv! 🚀"
+        ] : [
             "Every small step you take today brings your biggest dreams closer. You've got this, Eku! ❤️",
-            "Your dedication inspires everyone around you. Have a wonderful, productive day, Eku! ✨",
-            "Believe in yourself as much as I believe in you. Make today amazing, Eku! 🌸",
-            "Small daily improvements lead to stunning results over time. Keep shining, Eku! 💫"
+            "Your dedication inspires everyone around you. Have a wonderful day, Eku! ✨"
         ];
         document.getElementById('motivation-text').innerText = `"${motivations[Math.floor(Math.random() * motivations.length)]}"`;
 
-        const loveNotes = [
-            "You have the most beautiful smile, Eku, never stop wearing it! 😊💕",
-            "Just a reminder that you are deeply loved and appreciated today and always. 🌹",
-            "No matter how busy your day gets, take a moment to breathe. You're doing amazing! ☕✨",
-            "Proud of everything you do, Eku. You make the world brighter! 🌟"
+        const loveNotes = isGrv ? [
+            "Eku says: You are my rock and my biggest motivation, Grv! 🌸💕",
+            "Eku says: Remember to take a break and drink some water today! 💧"
+        ] : [
+            "Grv says: You have the most beautiful smile, Eku, never stop wearing it! 😊💕",
+            "Grv says: Proud of everything you do. You make the world brighter! 🌟"
         ];
 
         function revealLoveNote() {
-            const randomNote = loveNotes[Math.floor(Math.random() * loveNotes.length)];
-            document.getElementById('love-note-content').innerText = randomNote;
+            document.getElementById('love-note-content').innerText = loveNotes[Math.floor(Math.random() * loveNotes.length)];
             document.getElementById('love-note-modal').classList.remove('hidden');
         }
 
@@ -525,13 +562,9 @@
 
         const bottomQuotes = [
             "“The secret of getting ahead is getting started.” — Mark Twain",
-            "“Don't watch the clock; do what it does. Keep going.” — Sam Levenson",
-            "“Act as if what you do makes a difference. It does.” — William James",
-            "“Success is the sum of small efforts, repeated day in and day out.” — Robert Collier",
-            "“You are capable of amazing things, Eku!” ✨"
+            "“Success is the sum of small efforts, repeated day in and day out.” — Robert Collier"
         ];
         document.getElementById('dynamic-bottom-quote').innerText = bottomQuotes[Math.floor(Math.random() * bottomQuotes.length)];
-
         document.getElementById('scratchpad-input').value = scratchpadText;
 
         function switchTab(tabName) {
@@ -544,81 +577,94 @@
             render();
         }
 
-        function getDateKey(dateObj) {
-            return `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`;
+        function getDateKey(d) {
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         }
+        function getTodayKey() { return getDateKey(new Date()); }
 
-        function getTodayKey() {
-            return getDateKey(new Date());
-        }
+        function saveHabits() { localStorage.setItem('habitflow_habits', JSON.stringify(habits)); render(); }
+        function saveTodos() { localStorage.setItem('habitflow_todos', JSON.stringify(todos)); renderTodos(); }
+        function saveExpenses() { localStorage.setItem('habitflow_expenses', JSON.stringify(expenses)); renderExpenses(); }
+        function saveScratchpad() { localStorage.setItem('habitflow_notes', document.getElementById('scratchpad-input').value); }
 
-        function saveHabits() {
-            localStorage.setItem('habitflow_habits', JSON.stringify(habits));
-            render();
-        }
-
-        function saveTodos() {
-            localStorage.setItem('habitflow_todos', JSON.stringify(todos));
-            renderTodos();
-        }
-
-        function saveExpenses() {
-            localStorage.setItem('habitflow_expenses', JSON.stringify(expenses));
-            renderExpenses();
-        }
-
-        function saveScratchpad() {
-            localStorage.setItem('habitflow_notes', document.getElementById('scratchpad-input').value);
-        }
-
-        function adjustWater(amount) {
-            const todayKey = getTodayKey();
-            let currentWater = waterData[todayKey] || 0;
-            currentWater = Math.max(0, currentWater + amount);
-            waterData[todayKey] = currentWater;
+        function adjustWater(amt) {
+            const tk = getTodayKey();
+            waterData[tk] = Math.max(0, (waterData[tk] || 0) + amt);
             localStorage.setItem('habitflow_water', JSON.stringify(waterData));
-            updateWaterDisplay();
+            document.getElementById('water-status').innerText = `${waterData[tk]} / 8 glasses today`;
         }
 
-        function updateWaterDisplay() {
-            document.getElementById('water-status').innerText = `${waterData[getTodayKey()] || 0} / 8 glasses today`;
+        // ================= FIREBASE CLOUD SYNC & VOICE DROP =================
+        function initCloudSync() {
+            if (!window.isFirebaseReady) {
+                setTimeout(initCloudSync, 1000);
+                return;
+            }
+            const q = window.fbModules.query(
+                window.fbModules.collection(window.db, "shared_voice_drops"), 
+                window.fbModules.orderBy("createdAt", "asc")
+            );
+            window.fbModules.onSnapshot(q, (snapshot) => {
+                sharedVoiceDrops = [];
+                snapshot.forEach((docSnap) => {
+                    sharedVoiceDrops.push({ firebaseId: docSnap.id, ...docSnap.data() });
+                });
+                renderVoiceMemos();
+            });
         }
+        initCloudSync();
 
         async function toggleRecording() {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                mediaRecorder = new MediaRecorder(stream);
-                audioChunks = [];
+                coupleMediaRecorder = new MediaRecorder(stream);
+                coupleAudioChunks = [];
 
-                mediaRecorder.ondataavailable = event => { audioChunks.push(event.data); };
+                coupleMediaRecorder.ondataavailable = event => { coupleAudioChunks.push(event.data); };
 
-                mediaRecorder.onstop = () => {
-                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                coupleMediaRecorder.onstop = () => {
+                    const audioBlob = new Blob(coupleAudioChunks, { type: 'audio/webm' });
                     const reader = new FileReader();
                     reader.readAsDataURL(audioBlob);
-                    reader.onloadend = () => {
+                    reader.onloadend = async () => {
                         const base64Audio = reader.result;
-                        savedVoiceMemos.push({ id: Date.now().toString(), date: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}), audio: base64Audio });
-                        localStorage.setItem('habitflow_voicememos', JSON.stringify(savedVoiceMemos));
-                        renderVoiceMemos();
+                        document.getElementById('rec-status').innerText = "Syncing to Cloud... 💌";
+
+                        if (window.isFirebaseReady) {
+                            try {
+                                await window.fbModules.addDoc(window.fbModules.collection(window.db, "shared_voice_drops"), {
+                                    sender: userRole || 'Partner',
+                                    time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                                    audio: base64Audio,
+                                    listened: false,
+                                    createdAt: Date.now()
+                                });
+                                document.getElementById('rec-status').innerText = "Sent & Synced! ✓";
+                            } catch(err) {
+                                console.error("Firestore write error:", err);
+                                document.getElementById('rec-status').innerText = "Sync Failed";
+                            }
+                        }
                     };
                 };
 
-                mediaRecorder.start();
+                coupleMediaRecorder.start();
                 document.getElementById('rec-status').innerText = "🔴 Recording...";
                 document.getElementById('record-btn').className = "flex-grow bg-red-500 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 animate-pulse";
                 document.getElementById('record-btn').innerText = "Recording...";
                 document.getElementById('stop-btn').disabled = false;
                 document.getElementById('stop-btn').className = "neon-card px-4 py-2.5 rounded-xl text-xs font-bold text-accent border-accent active:scale-95 cursor-pointer";
+
+                maxRecordTimeOut = setTimeout(() => stopRecording(), 120000);
             } catch (err) {
                 alert("Microphone access is required to record voice notes!");
             }
         }
 
         function stopRecording() {
-            if (mediaRecorder && mediaRecorder.state !== "inactive") {
-                mediaRecorder.stop();
-                document.getElementById('rec-status').innerText = "Saved!";
+            if (coupleMediaRecorder && coupleMediaRecorder.state !== "inactive") {
+                clearTimeout(maxRecordTimeOut);
+                coupleMediaRecorder.stop();
                 document.getElementById('record-btn').className = "flex-grow bg-accent text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition shadow-lg active:scale-95";
                 document.getElementById('record-btn').innerHTML = `<i data-lucide="mic" class="w-4 h-4"></i> Start Recording`;
                 document.getElementById('stop-btn').disabled = true;
@@ -631,77 +677,77 @@
             const container = document.getElementById('voice-memos-container');
             if (!container) return;
 
-            if (savedVoiceMemos.length === 0) {
-                container.innerHTML = `<p class="text-[11px] opacity-40 text-center py-2">No voice memos recorded yet.</p>`;
+            if (sharedVoiceDrops.length === 0) {
+                container.innerHTML = `<p class="text-[11px] opacity-40 text-center py-2">No voice drops yet.</p>`;
                 return;
             }
 
-            container.innerHTML = savedVoiceMemos.slice().reverse().map(memo => `
-                <div class="neon-card p-2.5 flex items-center justify-between gap-2">
-                    <div class="text-[10px] opacity-60 font-bold">${memo.date}</div>
-                    <audio controls src="${memo.audio}" class="h-8 max-w-[160px] sm:max-w-[200px]"></audio>
-                    <button onclick="deleteVoiceMemo('${memo.id}')" class="opacity-50 hover:text-red-500 p-1">
-                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                    </button>
+            container.innerHTML = sharedVoiceDrops.slice().reverse().map(memo => `
+                <div class="neon-card p-3 space-y-2 border ${memo.listened ? 'border-white/10' : 'border-accent/60 bg-accent/5'}">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-accent">Voice Drop from ${memo.sender} 🎙️</span>
+                        <span class="text-[9px] opacity-50">${memo.time}</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-2">
+                        <audio controls src="${memo.audio}" onplay="markAsListened('${memo.firebaseId}')" class="h-8 w-full"></audio>
+                        <button onclick="deleteVoiceMemo('${memo.firebaseId}')" class="opacity-50 hover:text-red-500 p-1">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                    <div class="text-[9px] opacity-60 text-right">${memo.listened ? 'Listened ✓' : 'Unplayed'}</div>
                 </div>
             `).join('');
             lucide.createIcons();
         }
 
-        function deleteVoiceMemo(id) {
-            savedVoiceMemos = savedVoiceMemos.filter(m => m.id !== id);
-            localStorage.setItem('habitflow_voicememos', JSON.stringify(savedVoiceMemos));
+        function markAsListened(firebaseId) {
+            // Mark listened state locally / you can expand to firestore update if needed
+            sharedVoiceDrops = sharedVoiceDrops.map(m => m.firebaseId === firebaseId ? {...m, listened: true} : m);
             renderVoiceMemos();
         }
 
+        async function deleteVoiceMemo(firebaseId) {
+            const drop = sharedVoiceDrops.find(d => d.firebaseId === firebaseId);
+            if (drop && !drop.listened) {
+                alert("You must play/listen to this voice drop before deleting it!");
+                return;
+            }
+            if (window.isFirebaseReady && firebaseId) {
+                try {
+                    await window.fbModules.deleteDoc(window.fbModules.doc(window.db, "shared_voice_drops", firebaseId));
+                } catch(e) {
+                    console.error("Error deleting from cloud:", e);
+                }
+            }
+        }
+
+        // Pomodoro Functions
         function setTimerDuration(mins) {
             pauseTimer();
             selectedTimerMinutes = mins;
             timeLeft = mins * 60;
             updateTimerDisplay();
-
-            document.querySelectorAll('.duration-btn').forEach(btn => {
-                if (btn.innerText.includes(`${mins}m`)) {
-                    btn.className = "duration-btn bg-accent border-accent text-white px-3 py-1.5 text-[11px] font-bold transition shadow-md";
-                } else {
-                    btn.className = "duration-btn neon-card px-3 py-1.5 text-[11px] font-bold transition";
-                }
-            });
         }
-
         function startTimer() {
             if (isTimerRunning) return;
             isTimerRunning = true;
             timerInterval = setInterval(() => {
-                if (timeLeft > 0) {
-                    timeLeft--;
-                    updateTimerDisplay();
-                } else {
+                if (timeLeft > 0) { timeLeft--; updateTimerDisplay(); }
+                else {
                     clearInterval(timerInterval);
                     isTimerRunning = false;
-                    alert("🔔 Grv says: Pomodoro session completed! Take a well-deserved break, Eku! ❤️");
+                    alert(isGrv ? "🔔 Pomodoro completed! Great focus session! 🚀" : "🔔 Pomodoro completed! Take a well-deserved break, Eku! ❤️");
                 }
             }, 1000);
         }
-
-        function pauseTimer() {
-            clearInterval(timerInterval);
-            isTimerRunning = false;
-        }
-
-        function resetTimer() {
-            clearInterval(timerInterval);
-            isTimerRunning = false;
-            timeLeft = selectedTimerMinutes * 60;
-            updateTimerDisplay();
-        }
-
+        function pauseTimer() { clearInterval(timerInterval); isTimerRunning = false; }
+        function resetTimer() { clearInterval(timerInterval); isTimerRunning = false; timeLeft = selectedTimerMinutes * 60; updateTimerDisplay(); }
         function updateTimerDisplay() {
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
-            document.getElementById('timer-display').innerText = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
+            document.getElementById('timer-display').innerText = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
         }
 
+        // Calendar Planner Functions
         function renderMonthlyCalendar() {
             const grid = document.getElementById('monthly-grid');
             if(!grid) return;
@@ -712,7 +758,7 @@
             const totalDays = new Date(calYear, calMonth + 1, 0).getDate();
 
             let html = '';
-            for (let i = 0; i < firstDayIndex; i++) { html += `<div></div>`; }
+            for (let i = 0; i < firstDayIndex; i++) html += `<div></div>`;
 
             for (let day = 1; day <= totalDays; day++) {
                 const dKey = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
@@ -720,11 +766,8 @@
                 const isSelected = dKey === selectedDateKey;
 
                 let btnClass = 'neon-card opacity-70';
-                if (isSelected) {
-                    btnClass = 'bg-accent border-accent text-white font-bold shadow-md';
-                } else if (hasNote) {
-                    btnClass = 'border-accent/50 text-accent font-bold';
-                }
+                if (isSelected) btnClass = 'bg-accent border-accent text-white font-bold shadow-md';
+                else if (hasNote) btnClass = 'border-accent/50 text-accent font-bold';
 
                 html += `
                     <button onclick="selectCalendarDate('${dKey}')" class="aspect-square rounded-xl ${btnClass} flex flex-col items-center justify-center text-xs transition active:scale-95">
@@ -736,41 +779,28 @@
             grid.innerHTML = html;
             loadDayPlannerForSelected();
         }
-
-        function changeMonth(direction) {
-            calMonth += direction;
+        function changeMonth(dir) {
+            calMonth += dir;
             if (calMonth > 11) { calMonth = 0; calYear++; }
             else if (calMonth < 0) { calMonth = 11; calYear--; }
             renderMonthlyCalendar();
         }
-
-        function selectCalendarDate(dKey) {
-            selectedDateKey = dKey;
-            renderMonthlyCalendar();
-        }
-
+        function selectCalendarDate(dKey) { selectedDateKey = dKey; renderMonthlyCalendar(); }
         function loadDayPlannerForSelected() {
-            const titleEl = document.getElementById('selected-date-title');
-            if(titleEl) titleEl.innerText = `Notes for ${selectedDateKey}`;
-            const inputEl = document.getElementById('planner-notes-input');
-            if(inputEl) inputEl.value = plannerNotes[selectedDateKey] || '';
+            document.getElementById('selected-date-title').innerText = `Notes for ${selectedDateKey}`;
+            document.getElementById('planner-notes-input').value = plannerNotes[selectedDateKey] || '';
         }
-
         function saveDayPlannerNotes() {
-            const inputEl = document.getElementById('planner-notes-input');
-            if(!inputEl) return;
-            plannerNotes[selectedDateKey] = inputEl.value;
+            plannerNotes[selectedDateKey] = document.getElementById('planner-notes-input').value;
             localStorage.setItem('habitflow_planner', JSON.stringify(plannerNotes));
             renderMonthlyCalendar();
         }
 
+        // To-Do & Expenses
         function renderTodos() {
             const container = document.getElementById('todo-list-container');
             if (!container) return;
-            if (todos.length === 0) {
-                container.innerHTML = `<p class="text-xs opacity-50 text-center py-4">No tasks in your focus list yet.</p>`;
-                return;
-            }
+            if (todos.length === 0) { container.innerHTML = `<p class="text-xs opacity-50 text-center py-4">No tasks yet.</p>`; return; }
             container.innerHTML = todos.map(t => `
                 <div class="neon-card p-3 flex items-center justify-between">
                     <div class="flex items-center gap-3">
@@ -779,14 +809,11 @@
                         </button>
                         <span class="text-xs font-medium ${t.completed ? 'line-through opacity-40' : ''}">${t.text}</span>
                     </div>
-                    <button onclick="deleteTodo('${t.id}')" class="opacity-50 hover:text-red-500 p-1 transition">
-                        <i data-lucide="trash-2" class="w-4 h-4"></i>
-                    </button>
+                    <button onclick="deleteTodo('${t.id}')" class="opacity-50 hover:text-red-500 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                 </div>
             `).join('');
             lucide.createIcons();
         }
-
         function handleTodoSubmit(e) {
             e.preventDefault();
             const input = document.getElementById('todo-input');
@@ -795,31 +822,16 @@
             input.value = '';
             saveTodos();
         }
-
-        function toggleTodo(id) {
-            todos = todos.map(t => t.id === id ? {...t, completed: !t.completed} : t);
-            saveTodos();
-        }
-
-        function deleteTodo(id) {
-            todos = todos.filter(t => t.id !== id);
-            saveTodos();
-        }
+        function toggleTodo(id) { todos = todos.map(t => t.id === id ? {...t, completed: !t.completed} : t); saveTodos(); }
+        function deleteTodo(id) { todos = todos.filter(t => t.id !== id); saveTodos(); }
 
         function renderExpenses() {
             const container = document.getElementById('expense-list-container');
-            const totalDisplay = document.getElementById('total-expense-amount');
             if (!container) return;
-
             let total = 0;
             expenses.forEach(e => total += Number(e.amount));
-            totalDisplay.innerText = `₹${total}`;
-
-            if (expenses.length === 0) {
-                container.innerHTML = `<p class="text-xs opacity-50 text-center py-4">No expenses logged yet.</p>`;
-                return;
-            }
-
+            document.getElementById('total-expense-amount').innerText = `₹${total}`;
+            if (expenses.length === 0) { container.innerHTML = `<p class="text-xs opacity-50 text-center py-4">No expenses logged.</p>`; return; }
             container.innerHTML = expenses.slice().reverse().map(exp => `
                 <div class="neon-card p-3 flex items-center justify-between">
                     <div>
@@ -828,33 +840,26 @@
                     </div>
                     <div class="flex items-center gap-3">
                         <span class="text-xs font-extrabold text-accent">₹${exp.amount}</span>
-                        <button onclick="deleteExpense('${exp.id}')" class="opacity-50 hover:text-red-500 p-1 transition">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i>
-                        </button>
+                        <button onclick="deleteExpense('${exp.id}')" class="opacity-50 hover:text-red-500 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                     </div>
                 </div>
             `).join('');
             lucide.createIcons();
         }
-
         function handleExpenseSubmit(e) {
             e.preventDefault();
             const name = document.getElementById('expense-name').value.trim();
             const amount = document.getElementById('expense-amount').value.trim();
             const category = document.getElementById('expense-category').value;
             if (!name || !amount) return;
-
             expenses.push({ id: Date.now().toString(), name, amount, category });
             document.getElementById('expense-name').value = '';
             document.getElementById('expense-amount').value = '';
             saveExpenses();
         }
+        function deleteExpense(id) { expenses = expenses.filter(e => e.id !== id); saveExpenses(); }
 
-        function deleteExpense(id) {
-            expenses = expenses.filter(e => e.id !== id);
-            saveExpenses();
-        }
-
+        // Master Render
         function render() {
             const container = document.getElementById('habits-container');
             const emptyState = document.getElementById('empty-state');
@@ -866,7 +871,6 @@
             renderTodos();
             renderExpenses();
             renderMonthlyCalendar();
-            renderVoiceMemos();
             updateWaterDisplay();
 
             document.getElementById('stats-total-habits').innerText = habits.length;
@@ -884,8 +888,7 @@
             }
 
             if (emptyState) emptyState.classList.add('hidden');
-            let completedTodayCount = 0;
-            let maxStreak = 0;
+            let completedTodayCount = 0, maxStreak = 0;
 
             if (container) {
                 container.innerHTML = habits.map(habit => {
@@ -907,9 +910,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <button onclick="deleteHabit('${habit.id}')" class="opacity-50 hover:text-red-500 p-2 transition">
-                                <i data-lucide="trash-2" class="w-4 h-4"></i>
-                            </button>
+                            <button onclick="deleteHabit('${habit.id}')" class="opacity-50 hover:text-red-500 p-2"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                         </div>
                     `;
                 }).join('');
@@ -920,7 +921,10 @@
 
             if (habits.length > 0 && completedTodayCount === habits.length && !window.hasCelebratedToday) {
                 window.hasCelebratedToday = true;
-                setTimeout(() => alert("🎉 Grv says: Amazing job, Eku! You completed all your habits for today! You're crushing it! ❤️✨"), 300);
+                const celebrationText = isGrv 
+                    ? "🎉 Eku says: Look at you go, Grv! All habits crushed for today! 🌸✨" 
+                    : "🎉 Grv says: Amazing job, Eku! You completed all your habits for today! ❤️✨";
+                setTimeout(() => alert(celebrationText), 300);
             }
 
             lucide.createIcons();
@@ -930,30 +934,23 @@
             const chartContainer = document.getElementById('weekly-chart-container');
             if (!chartContainer) return;
             let daysHtml = '';
-            
             for (let i = 6; i >= 0; i--) {
                 const d = new Date();
                 d.setDate(d.getDate() - i);
                 const dateKey = getDateKey(d);
                 const dayName = d.toLocaleDateString('en-US', { weekday: 'narrow' });
 
-                let totalHabits = habits.length;
-                let completedOnDay = 0;
+                let totalHabits = habits.length, completedOnDay = 0;
                 habits.forEach(h => { if (h.history && h.history[dateKey]) completedOnDay++; });
 
                 const ratio = totalHabits > 0 ? (completedOnDay / totalHabits) : 0;
                 let bgClass = 'neon-card opacity-60';
-                if (totalHabits > 0 && ratio === 1) {
-                    bgClass = 'bg-accent border-accent text-white font-bold shadow-lg';
-                } else if (totalHabits > 0 && ratio > 0) {
-                    bgClass = 'bg-accent/20 border-accent/40 text-accent font-bold';
-                }
+                if (totalHabits > 0 && ratio === 1) bgClass = 'bg-accent border-accent text-white font-bold shadow-lg';
+                else if (totalHabits > 0 && ratio > 0) bgClass = 'bg-accent/20 border-accent/40 text-accent font-bold';
 
                 daysHtml += `
                     <div class="flex flex-col items-center">
-                        <div class="w-full aspect-square rounded-xl border ${bgClass} flex items-center justify-center text-xs transition mb-1">
-                            ${completedOnDay > 0 ? completedOnDay : ''}
-                        </div>
+                        <div class="w-full aspect-square rounded-xl border ${bgClass} flex items-center justify-center text-xs mb-1">${completedOnDay > 0 ? completedOnDay : ''}</div>
                         <span class="text-[9px] font-bold opacity-50 uppercase">${dayName}</span>
                     </div>
                 `;
@@ -973,45 +970,22 @@
             });
             saveHabits();
         }
+        function deleteHabit(id) { habits = habits.filter(h => h.id !== id); saveHabits(); }
+        function resetAllData() { if (confirm("Reset local app data?")) { localStorage.clear(); location.reload(); } }
 
-        function deleteHabit(id) {
-            habits = habits.filter(h => h.id !== id);
-            saveHabits();
-        }
-
-        function resetAllData() {
-            if (confirm("Are you sure you want to reset all app data?")) {
-                localStorage.clear();
-                location.reload();
-            }
-        }
-
-        function openAddModal() {
-            document.getElementById('add-modal').classList.remove('hidden');
-            document.getElementById('habit-name-input').focus();
-        }
-
-        function closeAddModal() {
-            document.getElementById('add-modal').classList.add('hidden');
-            document.getElementById('habit-form').reset();
-        }
-
+        function openAddModal() { document.getElementById('add-modal').classList.remove('hidden'); document.getElementById('habit-name-input').focus(); }
+        function closeAddModal() { document.getElementById('add-modal').classList.add('hidden'); document.getElementById('habit-form').reset(); }
         function setCategory(cat) {
             selectedCategory = cat;
             document.querySelectorAll('.cat-btn').forEach(btn => {
-                if (btn.dataset.cat === cat) {
-                    btn.className = "cat-btn py-2.5 px-3 rounded-xl border border-accent bg-accent/10 text-accent text-xs font-bold transition";
-                } else {
-                    btn.className = "cat-btn py-2.5 px-3 rounded-xl neon-card opacity-70 text-xs font-semibold transition";
-                }
+                btn.className = btn.dataset.cat === cat ? "cat-btn py-2.5 px-3 rounded-xl border border-accent bg-accent/10 text-accent text-xs font-bold transition" : "cat-btn py-2.5 px-3 rounded-xl neon-card opacity-70 text-xs font-semibold transition";
             });
         }
-
         function handleHabitSubmit(e) {
             e.preventDefault();
-            const nameInput = document.getElementById('habit-name-input').value.trim();
-            if (!nameInput) return;
-            habits.push({ id: Date.now().toString(), name: nameInput, category: selectedCategory, history: {}, streak: 0 });
+            const name = document.getElementById('habit-name-input').value.trim();
+            if (!name) return;
+            habits.push({ id: Date.now().toString(), name, category: selectedCategory, history: {}, streak: 0 });
             closeAddModal();
             saveHabits();
         }
