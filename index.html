@@ -421,10 +421,21 @@
         </div>
     </div>
 
-    <!-- App Logic & State -->
+    <!-- App Logic & Auto-Update Service Worker -->
     <script>
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed'));
+            navigator.serviceWorker.register('sw.js').then(reg => {
+                reg.addEventListener('updatefound', () => {
+                    const newWorker = reg.installing;
+                    newWorker.addEventListener('statechange', () => {
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            if (confirm("✨ A new update for HabitFlow is available! Click OK to update.")) {
+                                window.location.reload();
+                            }
+                        }
+                    });
+                });
+            }).catch(err => console.log('SW registration failed', err));
         }
 
         let habits = JSON.parse(localStorage.getItem('habitflow_habits')) || [
