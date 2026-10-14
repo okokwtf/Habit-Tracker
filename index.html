@@ -56,38 +56,40 @@
             --border-color: rgba(255, 255, 255, 0.08);
             --accent-color: #f43f5e;
             --glow-color: rgba(244, 63, 94, 0.25);
+            --text-color: #f3f4f6;
         }
 
         [data-theme="neon-black"] {
             --bg-color: #000000;
             --card-color: #0a0a0a;
             --border-color: rgba(255, 255, 255, 0.12);
+            --text-color: #f3f4f6;
         }
         [data-theme="dark-glass"] {
             --bg-color: #0f172a;
             --card-color: rgba(30, 41, 59, 0.85);
             --border-color: rgba(255, 255, 255, 0.1);
+            --text-color: #f3f4f6;
         }
         [data-theme="light-white"] {
-            --bg-color: #f8fafc;
+            --bg-color: #ffffff;
             --card-color: #ffffff;
             --border-color: #cbd5e1;
-            --glow-color: rgba(0, 0, 0, 0.04);
+            --glow-color: rgba(0, 0, 0, 0.08);
+            --text-color: #0f172a;
         }
         [data-theme="clean-light"] {
-            --bg-color: #f1f5f9;
+            --bg-color: #f8fafc;
             --card-color: #ffffff;
             --border-color: #94a3b8;
-            --glow-color: rgba(0, 0, 0, 0.06);
+            --glow-color: rgba(0, 0, 0, 0.08);
+            --text-color: #0f172a;
         }
 
         body {
             background-color: var(--bg-color);
-            color: #f3f4f6;
-            transition: background-color 0.2s ease;
-        }
-        [data-theme="light-white"] body, [data-theme="clean-light"] body {
-            color: #0f172a;
+            color: var(--text-color);
+            transition: background-color 0.2s ease, color 0.2s ease;
         }
 
         .neon-card {
@@ -256,10 +258,10 @@
                     </div>
                     <div class="flex gap-3">
                         <select id="expense-category" class="flex-grow neon-card rounded-xl px-4 py-3 focus:outline-none text-xs font-medium bg-transparent">
-                            <option value="Food" class="bg-slate-900">Food & Dining</option>
-                            <option value="Shopping" class="bg-slate-900">Shopping</option>
-                            <option value="Bills" class="bg-slate-900">Bills & Utilities</option>
-                            <option value="Other" class="bg-slate-900">Other</option>
+                            <option value="Food" class="bg-slate-900 text-white">Food & Dining</option>
+                            <option value="Shopping" class="bg-slate-900 text-white">Shopping</option>
+                            <option value="Bills" class="bg-slate-900 text-white">Bills & Utilities</option>
+                            <option value="Other" class="bg-slate-900 text-white">Other</option>
                         </select>
                         <button type="submit" class="bg-accent text-white font-bold px-6 py-3 rounded-xl text-xs active:scale-95">Add Expense</button>
                     </div>
@@ -272,22 +274,22 @@
             </div>
         </div>
 
-        <!-- ================= TAB 4: JOURNAL (BALANCED SCRATCHPAD & COMPACT CALENDAR) ================= -->
-        <div id="tab-journal" class="tab-content hidden space-y-2.5">
-            <div class="grid grid-cols-2 gap-2">
+        <!-- ================= TAB 4: JOURNAL (FIXED SIZED SCRATCHPAD & COMPACT CALENDAR) ================= -->
+        <div id="tab-journal" class="tab-content hidden space-y-3">
+            <div class="grid grid-cols-2 gap-2.5">
                 <!-- Scratchpad Card -->
-                <div class="neon-card p-2.5 space-y-1 flex flex-col h-[21vh]">
+                <div class="neon-card p-3 space-y-1.5 flex flex-col h-[20vh]">
                     <h3 class="font-bold text-[9px] uppercase tracking-wider opacity-60 flex items-center gap-1">
-                        <i data-lucide="book-open" class="w-3 h-3 text-accent"></i> Scratchpad
+                        <i data-lucide="book-open" class="w-3.5 h-3.5 text-accent"></i> Scratchpad
                     </h3>
-                    <textarea id="scratchpad-input" placeholder="Jot down notes..." oninput="saveScratchpad()" class="w-full flex-grow neon-card rounded-lg p-2 text-[10px] font-medium placeholder-slate-500 focus:outline-none resize-none"></textarea>
+                    <textarea id="scratchpad-input" placeholder="Jot down notes..." oninput="saveScratchpad()" class="w-full flex-grow neon-card rounded-xl p-2.5 text-[11px] font-medium placeholder-slate-500 focus:outline-none resize-none"></textarea>
                 </div>
 
-                <!-- Smaller Minimal Calendar Card -->
-                <div class="neon-card p-2.5 space-y-1 flex flex-col h-[21vh]">
+                <!-- Compact Minimal Calendar Card -->
+                <div class="neon-card p-2.5 space-y-1 flex flex-col h-[20vh]">
                     <div class="flex justify-between items-center">
                         <h3 class="font-bold text-[9px] uppercase tracking-wider opacity-60 flex items-center gap-1">
-                            <i data-lucide="calendar" class="w-3 h-3 text-accent"></i> Planner
+                            <i data-lucide="calendar" class="w-3.5 h-3.5 text-accent"></i> Planner
                         </h3>
                         <div class="flex items-center gap-1">
                             <button onclick="changeMonth(-1)" class="neon-card px-1.5 py-0.5 text-[9px] font-bold">&larr;</button>
@@ -303,24 +305,24 @@
             </div>
 
             <!-- Selected Date Reminder Box -->
-            <div class="neon-card p-2.5 space-y-1">
+            <div class="neon-card p-3 space-y-1">
                 <div class="text-[9px] font-bold text-accent uppercase" id="selected-date-title">Selected Date Note</div>
-                <textarea id="planner-notes-input" rows="1" placeholder="Tap date above to add reminder..." oninput="saveDayPlannerNotes()" class="w-full neon-card rounded-lg px-2.5 py-1.5 text-[10px] font-medium placeholder-slate-500 focus:outline-none resize-none"></textarea>
+                <textarea id="planner-notes-input" rows="1" placeholder="Tap date above to add reminder..." oninput="saveDayPlannerNotes()" class="w-full neon-card rounded-xl px-3 py-2 text-xs font-medium placeholder-slate-500 focus:outline-none resize-none"></textarea>
             </div>
 
             <!-- Personal Voice Memos at Bottom -->
-            <div class="neon-card p-3 space-y-2">
+            <div class="neon-card p-3.5 space-y-2">
                 <div class="flex items-center justify-between">
-                    <h3 class="font-bold text-[10px] uppercase tracking-wider opacity-60 flex items-center gap-1">
-                        <i data-lucide="mic" class="w-3.5 h-3.5 text-accent"></i> Personal Voice Memos
+                    <h3 class="font-bold text-[11px] uppercase tracking-wider opacity-60 flex items-center gap-1.5">
+                        <i data-lucide="mic" class="w-4 h-4 text-accent"></i> Personal Voice Memos
                     </h3>
-                    <span class="text-[9px] text-accent font-bold" id="personal-rec-status">Ready</span>
+                    <span class="text-[10px] text-accent font-bold" id="personal-rec-status">Ready</span>
                 </div>
                 <div class="flex gap-2">
-                    <button type="button" id="personal-record-btn" onclick="togglePersonalRecording()" class="flex-grow bg-accent text-white font-bold py-1.5 rounded-xl text-xs flex items-center justify-center gap-1 active:scale-95">
-                        <i data-lucide="mic" class="w-3 h-3"></i> Record Memo
+                    <button type="button" id="personal-record-btn" onclick="togglePersonalRecording()" class="flex-grow bg-accent text-white font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 active:scale-95">
+                        <i data-lucide="mic" class="w-3.5 h-3.5"></i> Record Memo
                     </button>
-                    <button type="button" id="personal-stop-btn" onclick="stopPersonalRecording()" disabled class="neon-card px-3 py-1.5 rounded-xl text-xs font-bold opacity-50 cursor-not-allowed">
+                    <button type="button" id="personal-stop-btn" onclick="stopPersonalRecording()" disabled class="neon-card px-3.5 py-2 rounded-xl text-xs font-bold opacity-50 cursor-not-allowed">
                         Stop
                     </button>
                 </div>
@@ -453,7 +455,7 @@
 
     <!-- App Script -->
     <script>
-        // Live Digital Clock (Seconds only, no milliseconds) & Date
+        // Live Digital Clock (Seconds only) & Date
         setInterval(() => {
             const now = new Date();
             const h = String(now.getHours()).padStart(2, '0');
