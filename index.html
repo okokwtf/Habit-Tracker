@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="dark" id="html-root" data-theme="neon-black">
+<html lang="en" id="html-root" data-theme="neon-black">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -64,26 +64,28 @@
             --card-color: #0a0a0a;
             --border-color: rgba(255, 255, 255, 0.12);
             --text-color: #f3f4f6;
+            --glow-color: rgba(244, 63, 94, 0.25);
         }
         [data-theme="dark-glass"] {
             --bg-color: #0f172a;
             --card-color: rgba(30, 41, 59, 0.85);
             --border-color: rgba(255, 255, 255, 0.1);
             --text-color: #f3f4f6;
+            --glow-color: rgba(244, 63, 94, 0.25);
         }
         [data-theme="light-white"] {
             --bg-color: #ffffff;
-            --card-color: #ffffff;
-            --border-color: #cbd5e1;
-            --glow-color: rgba(0, 0, 0, 0.08);
+            --card-color: #f8fafc;
+            --border-color: #e2e8f0;
             --text-color: #0f172a;
+            --glow-color: rgba(0, 0, 0, 0.06);
         }
         [data-theme="clean-light"] {
-            --bg-color: #f8fafc;
+            --bg-color: #f1f5f9;
             --card-color: #ffffff;
-            --border-color: #94a3b8;
-            --glow-color: rgba(0, 0, 0, 0.08);
+            --border-color: #cbd5e1;
             --text-color: #0f172a;
+            --glow-color: rgba(0, 0, 0, 0.08);
         }
 
         body {
@@ -95,9 +97,21 @@
         .neon-card {
             background-color: var(--card-color);
             border: 1px solid var(--border-color);
-            box-shadow: 0 4px 20px -2px var(--glow-color);
+            box-shadow: 0 4px 18px -2px var(--glow-color);
             border-radius: 1.25rem;
             transition: all 0.2s ease;
+        }
+
+        [data-theme="light-white"] input, [data-theme="light-white"] textarea, [data-theme="light-white"] select,
+        [data-theme="clean-light"] input, [data-theme="clean-light"] textarea, [data-theme="clean-light"] select {
+            color: #0f172a !important;
+            background-color: var(--card-color) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        [data-theme="light-white"] select option, [data-theme="clean-light"] select option {
+            background-color: #ffffff !important;
+            color: #0f172a !important;
         }
 
         .text-accent { color: var(--accent-color); }
@@ -143,7 +157,7 @@
     </header>
 
     <!-- Main Content Area -->
-    <main class="max-w-md w-full mx-auto p-3 flex-grow pb-20 space-y-3">
+    <main class="max-w-md w-full mx-auto p-3 flex-grow pb-24 space-y-3">
         
         <!-- ================= TAB 1: DASHBOARD (HABITS) ================= -->
         <div id="tab-dashboard" class="tab-content space-y-3">
@@ -258,10 +272,10 @@
                     </div>
                     <div class="flex gap-3">
                         <select id="expense-category" class="flex-grow neon-card rounded-xl px-4 py-3 focus:outline-none text-xs font-medium bg-transparent">
-                            <option value="Food" class="bg-slate-900 text-white">Food & Dining</option>
-                            <option value="Shopping" class="bg-slate-900 text-white">Shopping</option>
-                            <option value="Bills" class="bg-slate-900 text-white">Bills & Utilities</option>
-                            <option value="Other" class="bg-slate-900 text-white">Other</option>
+                            <option value="Food">Food & Dining</option>
+                            <option value="Shopping">Shopping</option>
+                            <option value="Bills">Bills & Utilities</option>
+                            <option value="Other">Other</option>
                         </select>
                         <button type="submit" class="bg-accent text-white font-bold px-6 py-3 rounded-xl text-xs active:scale-95">Add Expense</button>
                     </div>
@@ -274,47 +288,47 @@
             </div>
         </div>
 
-        <!-- ================= TAB 4: JOURNAL (FIXED SIZED SCRATCHPAD & COMPACT CALENDAR) ================= -->
+        <!-- ================= TAB 4: JOURNAL (STACKED SCRATCHPAD + USABLE FULL CALENDAR) ================= -->
         <div id="tab-journal" class="tab-content hidden space-y-3">
-            <div class="grid grid-cols-2 gap-2.5">
-                <!-- Scratchpad Card -->
-                <div class="neon-card p-3 space-y-1.5 flex flex-col h-[20vh]">
-                    <h3 class="font-bold text-[9px] uppercase tracking-wider opacity-60 flex items-center gap-1">
-                        <i data-lucide="book-open" class="w-3.5 h-3.5 text-accent"></i> Scratchpad
+            <!-- 1. Scratchpad Card at Top -->
+            <div class="neon-card p-3.5 space-y-1.5">
+                <h3 class="font-bold text-[10px] uppercase tracking-wider opacity-60 flex items-center gap-1.5">
+                    <i data-lucide="book-open" class="w-3.5 h-3.5 text-accent"></i> Scratchpad
+                </h3>
+                <textarea id="scratchpad-input" rows="3" placeholder="Jot down notes, thoughts, reminders..." oninput="saveScratchpad()" class="w-full neon-card rounded-xl p-3 text-xs font-medium placeholder-slate-500 focus:outline-none resize-none"></textarea>
+            </div>
+
+            <!-- 2. Planner Calendar Below Scratchpad (Full Width & Tap-Friendly) -->
+            <div class="neon-card p-3.5 space-y-2.5">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-bold text-[10px] uppercase tracking-wider opacity-60 flex items-center gap-1.5">
+                        <i data-lucide="calendar" class="w-3.5 h-3.5 text-accent"></i> Calendar Planner
                     </h3>
-                    <textarea id="scratchpad-input" placeholder="Jot down notes..." oninput="saveScratchpad()" class="w-full flex-grow neon-card rounded-xl p-2.5 text-[11px] font-medium placeholder-slate-500 focus:outline-none resize-none"></textarea>
+                    <div class="flex items-center gap-2">
+                        <button onclick="changeMonth(-1)" class="neon-card px-2.5 py-1 text-xs font-bold active:scale-95">&larr;</button>
+                        <span id="calendar-month-year" class="text-xs font-bold text-accent"></span>
+                        <button onclick="changeMonth(1)" class="neon-card px-2.5 py-1 text-xs font-bold active:scale-95">&rarr;</button>
+                    </div>
                 </div>
+                
+                <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold opacity-50">
+                    <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
+                </div>
+                
+                <div class="grid grid-cols-7 gap-1.5" id="monthly-grid"></div>
 
-                <!-- Compact Minimal Calendar Card -->
-                <div class="neon-card p-2.5 space-y-1 flex flex-col h-[20vh]">
-                    <div class="flex justify-between items-center">
-                        <h3 class="font-bold text-[9px] uppercase tracking-wider opacity-60 flex items-center gap-1">
-                            <i data-lucide="calendar" class="w-3.5 h-3.5 text-accent"></i> Planner
-                        </h3>
-                        <div class="flex items-center gap-1">
-                            <button onclick="changeMonth(-1)" class="neon-card px-1.5 py-0.5 text-[9px] font-bold">&larr;</button>
-                            <span id="calendar-month-year" class="text-[9px] font-bold text-accent"></span>
-                            <button onclick="changeMonth(1)" class="neon-card px-1.5 py-0.5 text-[9px] font-bold">&rarr;</button>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-7 gap-0.5 text-center text-[8px] font-bold opacity-50">
-                        <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
-                    </div>
-                    <div class="grid grid-cols-7 gap-1 overflow-y-auto" id="monthly-grid"></div>
+                <!-- Date Reminder Box Integrated Directly Into Calendar -->
+                <div class="pt-2 border-t border-white/10 space-y-1">
+                    <div class="text-[10px] font-bold text-accent uppercase" id="selected-date-title">Selected Date Note</div>
+                    <textarea id="planner-notes-input" rows="1" placeholder="Tap any date above to add or view reminder..." oninput="saveDayPlannerNotes()" class="w-full neon-card rounded-xl px-3 py-2 text-xs font-medium placeholder-slate-500 focus:outline-none resize-none"></textarea>
                 </div>
             </div>
 
-            <!-- Selected Date Reminder Box -->
-            <div class="neon-card p-3 space-y-1">
-                <div class="text-[9px] font-bold text-accent uppercase" id="selected-date-title">Selected Date Note</div>
-                <textarea id="planner-notes-input" rows="1" placeholder="Tap date above to add reminder..." oninput="saveDayPlannerNotes()" class="w-full neon-card rounded-xl px-3 py-2 text-xs font-medium placeholder-slate-500 focus:outline-none resize-none"></textarea>
-            </div>
-
-            <!-- Personal Voice Memos at Bottom -->
+            <!-- 3. Personal Voice Memos at Bottom -->
             <div class="neon-card p-3.5 space-y-2">
                 <div class="flex items-center justify-between">
-                    <h3 class="font-bold text-[11px] uppercase tracking-wider opacity-60 flex items-center gap-1.5">
-                        <i data-lucide="mic" class="w-4 h-4 text-accent"></i> Personal Voice Memos
+                    <h3 class="font-bold text-[10px] uppercase tracking-wider opacity-60 flex items-center gap-1.5">
+                        <i data-lucide="mic" class="w-3.5 h-3.5 text-accent"></i> Personal Voice Memos (Device Only)
                     </h3>
                     <span class="text-[10px] text-accent font-bold" id="personal-rec-status">Ready</span>
                 </div>
@@ -455,7 +469,7 @@
 
     <!-- App Script -->
     <script>
-        // Live Digital Clock (Seconds only) & Date
+        // Live Digital Clock (HH:MM:SS) & Header Date
         setInterval(() => {
             const now = new Date();
             const h = String(now.getHours()).padStart(2, '0');
@@ -494,6 +508,13 @@
             currentTheme = name;
             localStorage.setItem('habitflow_theme', name);
             document.documentElement.setAttribute('data-theme', name);
+            
+            // Cleanly toggle Tailwind dark mode class
+            if (name === 'light-white' || name === 'clean-light') {
+                document.documentElement.classList.remove('dark');
+            } else {
+                document.documentElement.classList.add('dark');
+            }
         }
         function setAccentColor(hex, glow) {
             currentAccentHex = hex;
@@ -600,18 +621,18 @@
                 };
                 personalMediaRecorder.start();
                 document.getElementById('personal-rec-status').innerText = "🔴 Rec...";
-                document.getElementById('personal-record-btn').className = "flex-grow bg-red-500 text-white font-bold py-1.5 rounded-xl text-xs animate-pulse";
+                document.getElementById('personal-record-btn').className = "flex-grow bg-red-500 text-white font-bold py-2 rounded-xl text-xs animate-pulse";
                 document.getElementById('personal-stop-btn').disabled = false;
-                document.getElementById('personal-stop-btn').className = "neon-card px-3 py-1.5 rounded-xl text-xs font-bold text-accent border-accent cursor-pointer";
+                document.getElementById('personal-stop-btn').className = "neon-card px-3.5 py-2 rounded-xl text-xs font-bold text-accent border-accent cursor-pointer";
             } catch(e) { alert("Mic required."); }
         }
         function stopPersonalRecording() {
             if (personalMediaRecorder && personalMediaRecorder.state !== "inactive") {
                 personalMediaRecorder.stop();
                 document.getElementById('personal-rec-status').innerText = "Saved!";
-                document.getElementById('personal-record-btn').className = "flex-grow bg-accent text-white font-bold py-1.5 rounded-xl text-xs active:scale-95";
+                document.getElementById('personal-record-btn').className = "flex-grow bg-accent text-white font-bold py-2 rounded-xl text-xs active:scale-95";
                 document.getElementById('personal-stop-btn').disabled = true;
-                document.getElementById('personal-stop-btn').className = "neon-card px-3 py-1.5 rounded-xl text-xs opacity-50 cursor-not-allowed";
+                document.getElementById('personal-stop-btn').className = "neon-card px-3.5 py-2 rounded-xl text-xs opacity-50 cursor-not-allowed";
                 lucide.createIcons();
             }
         }
@@ -801,11 +822,11 @@
             document.getElementById('timer-display').innerText = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
         }
 
-        // Calendar Planner with Date Tapping & Reminder Box
+        // Full Width Planner Calendar
         function renderMonthlyCalendar() {
             const grid = document.getElementById('monthly-grid');
             if(!grid) return;
-            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             document.getElementById('calendar-month-year').innerText = `${monthNames[calMonth]} ${calYear}`;
             const firstDayIndex = new Date(calYear, calMonth, 1).getDay();
             const totalDays = new Date(calYear, calMonth + 1, 0).getDate();
@@ -815,9 +836,9 @@
                 const dKey = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const isSelected = dKey === selectedDateKey;
                 const hasNote = plannerNotes[dKey] && plannerNotes[dKey].trim() !== '';
-                html += `<button onclick="selectCalendarDate('${dKey}')" class="aspect-square rounded-lg ${isSelected ? 'bg-accent text-white font-bold' : 'neon-card'} flex flex-col items-center justify-center text-[10px] relative">
+                html += `<button onclick="selectCalendarDate('${dKey}')" class="aspect-square rounded-xl ${isSelected ? 'bg-accent text-white font-extrabold shadow-md' : 'neon-card font-semibold'} flex flex-col items-center justify-center text-xs relative active:scale-95 transition">
                     <span>${day}</span>
-                    ${hasNote ? '<span class="w-1 h-1 rounded-full bg-accent mt-0.5"></span>' : ''}
+                    ${hasNote ? '<span class="w-1.5 h-1.5 rounded-full bg-accent mt-0.5"></span>' : ''}
                 </button>`;
             }
             grid.innerHTML = html;
