@@ -41,20 +41,16 @@
             --glow-color: rgba(244, 63, 94, 0.25);
         }
 
-        /* --- THEME DEFINITIONS --- */
-        /* 1. Pitch Black OLED Neon */
         [data-theme="neon-black"] {
             --bg-color: #000000;
             --card-color: #0a0a0a;
             --border-color: rgba(255, 255, 255, 0.12);
         }
-        /* 2. Sleek Dark Glass */
         [data-theme="dark-glass"] {
             --bg-color: #0f172a;
             --card-color: rgba(30, 41, 59, 0.75);
             --border-color: rgba(255, 255, 255, 0.08);
         }
-        /* 3. Pure Clean Light */
         [data-theme="clean-light"] {
             --bg-color: #f8fafc;
             --card-color: #ffffff;
@@ -86,13 +82,11 @@
     </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans antialiased">
-    <!-- Header -->
+    <!-- Header (Heart removed from title as requested) -->
     <header class="neon-card sticky top-0 z-10 mx-3 mt-3 sm:mx-auto sm:max-w-md sm:w-full">
         <div class="px-4 py-3.5 flex justify-between items-center">
             <div>
-                <h1 class="text-lg font-extrabold tracking-tight flex items-center gap-2">
-                    <i data-lucide="heart" class="text-accent w-5 h-5 fill-current animate-pulse"></i> HabitFlow
-                </h1>
+                <h1 class="text-lg font-extrabold tracking-tight">HabitFlow</h1>
                 <p class="text-[11px] text-accent font-semibold">Made with love for Eku ❤️</p>
             </div>
             <div class="flex items-center gap-2">
@@ -339,6 +333,17 @@
         </div>
     </nav>
 
+    <!-- Custom Love Note Modal (Replaces ugly browser alert) -->
+    <div id="love-note-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="neon-card w-full max-w-sm p-6 text-center space-y-4 border-accent/40 shadow-2xl">
+            <div class="text-xs font-bold uppercase tracking-wider text-accent">Grv says ❤️</div>
+            <p id="love-note-content" class="text-sm font-medium leading-relaxed opacity-90"></p>
+            <button onclick="closeLoveNoteModal()" class="w-full bg-accent text-white font-bold py-2.5 rounded-xl text-xs transition active:scale-95 shadow-lg">
+                Close with a Smile 😊
+            </button>
+        </div>
+    </div>
+
     <!-- Add Habit Modal -->
     <div id="add-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
         <div class="neon-card border w-full max-w-md p-6 shadow-2xl">
@@ -415,14 +420,20 @@
         document.getElementById('motivation-text').innerText = `"${motivations[Math.floor(Math.random() * motivations.length)]}"`;
 
         const loveNotes = [
-            "Secret Note from Him: You have the most beautiful smile, Eku, never stop wearing it! 😊💕",
-            "Secret Note from Him: Just a reminder that you are deeply loved and appreciated today and always. 🌹",
-            "Secret Note from Him: No matter how busy your day gets, take a moment to breathe. You're doing amazing! ☕✨",
-            "Secret Note from Him: Proud of everything you do, Eku. You make the world brighter! 🌟"
+            "You have the most beautiful smile, Eku, never stop wearing it! 😊💕",
+            "Just a reminder that you are deeply loved and appreciated today and always. 🌹",
+            "No matter how busy your day gets, take a moment to breathe. You're doing amazing! ☕✨",
+            "Proud of everything you do, Eku. You make the world brighter! 🌟"
         ];
 
         function revealLoveNote() {
-            alert(loveNotes[Math.floor(Math.random() * loveNotes.length)]);
+            const randomNote = loveNotes[Math.floor(Math.random() * loveNotes.length)];
+            document.getElementById('love-note-content').innerText = randomNote;
+            document.getElementById('love-note-modal').classList.remove('hidden');
+        }
+
+        function closeLoveNoteModal() {
+            document.getElementById('love-note-modal').classList.add('hidden');
         }
 
         const bottomQuotes = [
