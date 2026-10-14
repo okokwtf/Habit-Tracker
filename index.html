@@ -198,14 +198,12 @@
                         <button onclick="changeMonth(1)" class="neon-card px-2 py-1 text-xs font-bold">&rarr;</button>
                     </div>
                 </div>
-                <!-- Calendar Grid -->
                 <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold opacity-50 pt-2">
                     <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
                 </div>
                 <div class="grid grid-cols-7 gap-1.5" id="monthly-grid"></div>
             </div>
 
-            <!-- Selected Date Planner & Reminders -->
             <div class="neon-card p-4 space-y-3">
                 <div class="flex justify-between items-center">
                     <h4 class="text-xs font-bold text-accent uppercase tracking-wider" id="selected-date-title">Select a date above</h4>
@@ -230,7 +228,7 @@
             </div>
         </div>
 
-        <!-- ================= TAB 4: NOTES & IDEAS (EXPANDED SCREEN SPACE) ================= -->
+        <!-- ================= TAB 4: NOTES & IDEAS ================= -->
         <div id="tab-notes" class="tab-content hidden space-y-4">
             <div class="neon-card p-4 space-y-3 flex flex-col h-[70vh]">
                 <h3 class="font-bold text-xs uppercase tracking-wider opacity-60 flex items-center gap-2">
@@ -243,7 +241,6 @@
 
         <!-- ================= TAB 5: SETTINGS & STATS ================= -->
         <div id="tab-settings" class="tab-content hidden space-y-4">
-            <!-- Stats Card Integrated into Settings -->
             <div class="neon-card p-5 space-y-3">
                 <h3 class="font-bold text-sm mb-1 flex items-center gap-2">
                     <i data-lucide="trending-up" class="w-4 h-4 text-accent"></i> Performance & Stats
@@ -260,13 +257,11 @@
                 </div>
             </div>
 
-            <!-- Customization Settings -->
             <div class="neon-card p-5 space-y-4">
                 <h3 class="font-bold text-sm mb-1 flex items-center gap-2">
                     <i data-lucide="settings" class="w-4 h-4 text-accent"></i> Stunning Theme Settings
                 </h3>
                 
-                <!-- Theme Mode Picker -->
                 <div class="space-y-1.5 py-2 border-b border-white/10">
                     <div class="text-xs font-bold">Display Theme</div>
                     <div class="grid grid-cols-3 gap-2 pt-1">
@@ -276,7 +271,6 @@
                     </div>
                 </div>
 
-                <!-- Neon Accent Color Picker -->
                 <div class="space-y-1.5 py-2 border-b border-white/10">
                     <div class="text-xs font-bold">Neon Accent Color</div>
                     <div class="grid grid-cols-5 gap-2 pt-1">
@@ -288,7 +282,6 @@
                     </div>
                 </div>
 
-                <!-- Reset Data -->
                 <div class="flex items-center justify-between py-2">
                     <div>
                         <div class="text-xs font-bold text-red-500">Reset Habit Data</div>
@@ -303,7 +296,7 @@
 
     </main>
 
-    <!-- Bottom Navigation Bar (Stats Tab Removed) -->
+    <!-- Bottom Navigation Bar -->
     <nav class="neon-card fixed bottom-0 left-0 right-0 py-2.5 px-3 z-20 transition-all duration-300 mx-3 mb-3 sm:mx-auto sm:max-w-md">
         <div class="flex justify-around">
             <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn flex flex-col items-center gap-0.5 text-accent transition">
@@ -367,8 +360,13 @@
         </div>
     </div>
 
-    <!-- App Logic -->
+    <!-- App Logic & Service Worker Registration -->
     <script>
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed'));
+        }
+
         let habits = JSON.parse(localStorage.getItem('habitflow_habits')) || [
             { id: '1', name: 'Morning Skincare Routine', category: 'Wellness', history: {}, streak: 0 },
             { id: '2', name: 'Drink 8 Glasses of Water', category: 'Fitness', history: {}, streak: 0 }
@@ -492,7 +490,6 @@
             document.getElementById('water-status').innerText = `${waterData[getTodayKey()] || 0} / 8 glasses today`;
         }
 
-        // Monthly Calendar Logic
         function renderMonthlyCalendar() {
             const grid = document.getElementById('monthly-grid');
             const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
