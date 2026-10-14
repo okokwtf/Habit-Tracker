@@ -1,5 +1,5 @@
 {
-  "id": "/Habit-Tracker/",
+  "id": "/",
   "name": "HabitFlow for Eku",
   "short_name": "HabitFlow",
   "start_url": "./index.html",
@@ -9,7 +9,7 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/3208/3208750.png",
+      "src": "icon.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
