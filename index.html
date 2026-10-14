@@ -150,7 +150,7 @@
                 </div>
             </div>
 
-            <!-- Date Header & Habits List (Now Above Progress) -->
+            <!-- Date Header & Habits List -->
             <div class="flex justify-between items-center pt-2">
                 <h2 class="text-xs font-bold uppercase tracking-wider opacity-60" id="current-date-label">Today</h2>
                 <span class="text-[11px] text-accent bg-accent/10 px-2.5 py-1 rounded-full font-bold">Keep shining!</span>
@@ -168,7 +168,7 @@
                 <button onclick="openAddModal()" class="text-accent font-semibold text-xs hover:underline">Add a Habit Now</button>
             </div>
 
-            <!-- Weekly Progress (Moved near the bottom) -->
+            <!-- Weekly Progress -->
             <div class="neon-card p-4">
                 <h3 class="text-[11px] font-bold uppercase tracking-wider opacity-60 mb-3 flex items-center justify-between">
                     <span>Last 7 Days Progress</span>
@@ -177,14 +177,14 @@
                 <div class="grid grid-cols-7 gap-2" id="weekly-chart-container"></div>
             </div>
 
-            <!-- Daily Bottom Quote (At the very end) -->
+            <!-- Daily Bottom Quote -->
             <div class="mt-6 p-4 neon-card text-center">
                 <div class="text-[10px] uppercase font-bold tracking-widest opacity-40 mb-1">Daily Inspiration</div>
                 <p class="text-xs italic opacity-80 font-medium" id="dynamic-bottom-quote">"Loading quote..."</p>
             </div>
         </div>
 
-        <!-- ================= TAB 2: FOCUS TIMER (POMODORO WITH SELECTOR) ================= -->
+        <!-- ================= TAB 2: FOCUS TIMER (POMODORO) ================= -->
         <div id="tab-focus" class="tab-content hidden space-y-4">
             <div class="neon-card p-6 text-center space-y-5">
                 <h3 class="font-bold text-xs uppercase tracking-wider opacity-60 flex items-center justify-center gap-2">
@@ -264,17 +264,36 @@
             </div>
         </div>
 
-        <!-- ================= TAB 4: JOURNAL (NOTES & CALENDAR PLANNER) ================= -->
+        <!-- ================= TAB 4: JOURNAL (NOTES, VOICE MEMOS & CALENDAR) ================= -->
         <div id="tab-journal" class="tab-content hidden space-y-4">
-            <!-- Top Half: Scratchpad Notes -->
-            <div class="neon-card p-4 space-y-3 flex flex-col h-[45vh]">
+            <!-- Scratchpad Notes -->
+            <div class="neon-card p-4 space-y-3 flex flex-col h-[35vh]">
                 <h3 class="font-bold text-xs uppercase tracking-wider opacity-60 flex items-center gap-2">
                     <i data-lucide="book-open" class="w-4 h-4 text-accent"></i> Quick Journal Scratchpad
                 </h3>
                 <textarea id="scratchpad-input" placeholder="Jot down random thoughts, book ideas, or daily reflections... (Saves automatically)" oninput="saveScratchpad()" class="w-full flex-grow neon-card rounded-xl p-3 text-xs font-medium placeholder-slate-500 focus:outline-none resize-none"></textarea>
             </div>
 
-            <!-- Bottom Half: Monthly Calendar & Date Notes -->
+            <!-- Voice Memos Recorder -->
+            <div class="neon-card p-4 space-y-3 border-accent/40">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-bold text-xs uppercase tracking-wider opacity-60 flex items-center gap-2">
+                        <i data-lucide="mic" class="w-4 h-4 text-accent"></i> Voice Memos / Audio Notes
+                    </h3>
+                    <span class="text-[10px] text-accent font-bold" id="rec-status">Ready</span>
+                </div>
+                <div class="flex gap-2">
+                    <button type="button" id="record-btn" onclick="toggleRecording()" class="flex-grow bg-accent text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition shadow-md active:scale-95">
+                        <i data-lucide="mic" class="w-4 h-4"></i> Start Recording
+                    </button>
+                    <button type="button" id="stop-btn" onclick="stopRecording()" disabled class="neon-card px-4 py-2.5 rounded-xl text-xs font-bold opacity-50 cursor-not-allowed transition">
+                        Stop
+                    </button>
+                </div>
+                <div id="voice-memos-container" class="space-y-2 pt-1 max-h-40 overflow-y-auto"></div>
+            </div>
+
+            <!-- Monthly Calendar & Date Notes -->
             <div class="neon-card p-4 space-y-3">
                 <div class="flex justify-between items-center">
                     <h3 class="font-bold text-xs uppercase tracking-wider opacity-60 flex items-center gap-2">
@@ -449,6 +468,8 @@
         let plannerNotes = JSON.parse(localStorage.getItem('habitflow_planner')) || {};
         let waterData = JSON.parse(localStorage.getItem('habitflow_water')) || {};
         let scratchpadText = localStorage.getItem('habitflow_notes') || '';
+        let savedVoiceMemos = JSON.parse(localStorage.getItem('habitflow_voicememos')) || [];
+        
         let selectedCategory = 'Fitness';
         let currentTheme = localStorage.getItem('habitflow_theme') || 'neon-black';
         let currentAccentHex = localStorage.getItem('habitflow_accent') || '#f43f5e';
@@ -464,6 +485,10 @@
         let selectedTimerMinutes = 25;
         let timeLeft = selectedTimerMinutes * 60;
         let isTimerRunning = false;
+
+        // Voice Recorder State
+        let mediaRecorder;
+        let audioChunks = [];
 
         function setThemeMode(themeName) {
             currentTheme = themeName;
@@ -574,6 +599,79 @@
 
         function updateWaterDisplay() {
             document.getElementById('water-status').innerText = `${waterData[getTodayKey()] || 0} / 8 glasses today`;
+        }
+
+        // Voice Recording Functions
+        async function toggleRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = event => {
+                    audioChunks.push(event.data);
+                };
+
+                mediaRecorder.onstop = () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    const reader = new FileReader();
+                    reader.readAsDataURL(audioBlob);
+                    reader.onloadend = () => {
+                        const base64Audio = reader.result;
+                        savedVoiceMemos.push({ id: Date.now().toString(), date: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}), audio: base64Audio });
+                        localStorage.setItem('habitflow_voicememos', JSON.stringify(savedVoiceMemos));
+                        renderVoiceMemos();
+                    };
+                };
+
+                mediaRecorder.start();
+                document.getElementById('rec-status').innerText = "🔴 Recording...";
+                document.getElementById('record-btn').className = "flex-grow bg-red-500 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 animate-pulse";
+                document.getElementById('record-btn').innerText = "Recording...";
+                document.getElementById('stop-btn').disabled = false;
+                document.getElementById('stop-btn').className = "neon-card px-4 py-2.5 rounded-xl text-xs font-bold text-accent border-accent active:scale-95 cursor-pointer";
+            } catch (err) {
+                alert("Microphone access is required to record voice notes!");
+            }
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state !== "inactive") {
+                mediaRecorder.stop();
+                document.getElementById('rec-status').innerText = "Saved!";
+                document.getElementById('record-btn').className = "flex-grow bg-accent text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition shadow-md active:scale-95";
+                document.getElementById('record-btn').innerHTML = `<i data-lucide="mic" class="w-4 h-4"></i> Start Recording`;
+                document.getElementById('stop-btn').disabled = true;
+                document.getElementById('stop-btn').className = "neon-card px-4 py-2.5 rounded-xl text-xs font-bold opacity-50 cursor-not-allowed";
+                lucide.createIcons();
+            }
+        }
+
+        function renderVoiceMemos() {
+            const container = document.getElementById('voice-memos-container');
+            if (!container) return;
+
+            if (savedVoiceMemos.length === 0) {
+                container.innerHTML = `<p class="text-[11px] opacity-40 text-center py-2">No voice memos recorded yet.</p>`;
+                return;
+            }
+
+            container.innerHTML = savedVoiceMemos.slice().reverse().map(memo => `
+                <div class="neon-card p-2.5 flex items-center justify-between gap-2">
+                    <div class="text-[10px] opacity-60 font-bold">${memo.date}</div>
+                    <audio controls src="${memo.audio}" class="h-8 max-w-[160px] sm:max-w-[200px]"></audio>
+                    <button onclick="deleteVoiceMemo('${memo.id}')" class="opacity-50 hover:text-red-500 p-1">
+                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                    </button>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function deleteVoiceMemo(id) {
+            savedVoiceMemos = savedVoiceMemos.filter(m => m.id !== id);
+            localStorage.setItem('habitflow_voicememos', JSON.stringify(savedVoiceMemos));
+            renderVoiceMemos();
         }
 
         // Pomodoro Functions
@@ -795,6 +893,7 @@
             renderTodos();
             renderExpenses();
             renderMonthlyCalendar();
+            renderVoiceMemos();
             updateWaterDisplay();
 
             document.getElementById('stats-total-habits').innerText = habits.length;
