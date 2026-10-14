@@ -1,21 +1,18 @@
 <!DOCTYPE html>
-<html lang="en" class="dark" id="html-root" data-theme="neon-black" data-color="rose">
+<html lang="en" class="dark" id="html-root" data-theme="neon-black">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>HabitFlow - Couple's Edition ❤️</title>
     
-    <!-- PWA & Mobile Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="HabitFlow">
-    <meta name="mobile-web-app-capable" content="yes">
     <link rel="manifest" href="manifest.json">
 
-    <!-- Firebase CDN SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDrjNg-l23xjWSDrMJyp0e28ZWjJVIdgD8",
@@ -28,7 +25,7 @@
 
         const app = initializeApp(firebaseConfig);
         window.db = getFirestore(app);
-        window.fbModules = { collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc };
+        window.fbModules = { collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc };
         window.isFirebaseReady = true;
     </script>
 
@@ -71,23 +68,25 @@
             --card-color: rgba(30, 41, 59, 0.75);
             --border-color: rgba(255, 255, 255, 0.08);
         }
-        [data-theme="clean-light"] {
-            --bg-color: #f8fafc;
-            --card-color: #ffffff;
+        [data-theme="light-white"] {
+            --bg-color: #ffffff;
+            --card-color: #f8fafc;
             --border-color: #e2e8f0;
+            --glow-color: rgba(0, 0, 0, 0.05);
         }
-        [data-theme="solar-light"] {
-            --bg-color: #fffbeb;
-            --card-color: #fef3c7;
-            --border-color: #fde68a;
+        [data-theme="clean-light"] {
+            --bg-color: #f1f5f9;
+            --card-color: #ffffff;
+            --border-color: #cbd5e1;
+            --glow-color: rgba(0, 0, 0, 0.08);
         }
 
         body {
             background-color: var(--bg-color);
             color: #f3f4f6;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.2s ease;
         }
-        [data-theme="clean-light"] body, [data-theme="solar-light"] body {
+        [data-theme="light-white"] body, [data-theme="clean-light"] body {
             color: #0f172a;
         }
 
@@ -95,10 +94,8 @@
             background-color: var(--card-color);
             border: 1px solid var(--border-color);
             box-shadow: 0 4px 20px -2px var(--glow-color);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-radius: 1.25rem;
-            transition: all 0.3s ease;
+            border-radius: 1rem;
+            transition: all 0.2s ease;
         }
 
         .text-accent { color: var(--accent-color); }
@@ -108,42 +105,55 @@
 </head>
 <body class="min-h-screen flex flex-col font-sans antialiased overflow-x-hidden">
     
-    <!-- Header -->
-    <header class="neon-card sticky top-0 z-10 mx-3 mt-2 sm:mx-auto sm:max-w-md sm:w-full">
-        <div class="px-3.5 py-2.5 flex justify-between items-center">
-            <div>
-                <h1 class="text-base font-extrabold tracking-tight text-accent" id="app-title">HabitFlow</h1>
-                <p class="text-[10px] opacity-80 font-semibold" id="header-subtitle">Made with love ❤️</p>
-            </div>
-            <div class="flex items-center gap-2">
-                <button onclick="openAddModal()" class="bg-accent text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 transition shadow-lg active:scale-95">
-                    <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add
+    <!-- Setup Modal (First time profile lock) -->
+    <div id="role-setup-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="neon-card w-full max-w-sm p-5 text-center space-y-4 border-accent/50 shadow-2xl">
+            <h2 class="text-base font-extrabold text-accent">Select Your Profile</h2>
+            <p class="text-xs opacity-70">Choose whose device this is. This cannot be changed later.</p>
+            <div class="grid grid-cols-2 gap-3 pt-2">
+                <button onclick="lockUserRole('Grv')" class="neon-card p-4 flex flex-col items-center gap-2 active:scale-95">
+                    <span class="text-xl">👦🏽</span><span class="text-xs font-bold">Grv's Side</span>
+                </button>
+                <button onclick="lockUserRole('Eku')" class="neon-card p-4 flex flex-col items-center gap-2 active:scale-95">
+                    <span class="text-xl">🌸</span><span class="text-xs font-bold">Eku's Side</span>
                 </button>
             </div>
         </div>
+    </div>
+
+    <!-- Header -->
+    <header class="neon-card sticky top-0 z-10 mx-3 mt-2 sm:mx-auto sm:max-w-md sm:w-full">
+        <div class="px-3.5 py-2 flex justify-between items-center">
+            <div>
+                <h1 class="text-sm font-extrabold tracking-tight text-accent" id="app-title">HabitFlow</h1>
+                <p class="text-[10px] opacity-75 font-semibold" id="header-subtitle">Made with love ❤️</p>
+            </div>
+            <button onclick="openAddModal()" class="bg-accent text-white px-3 py-1 rounded-xl text-xs font-bold flex items-center gap-1 shadow-md active:scale-95">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add
+            </button>
+        </div>
     </header>
 
-    <!-- Main Content Area (Zero-Scroll Optimized) -->
-    <main class="max-w-md w-full mx-auto p-3 flex-grow pb-24 space-y-3">
+    <!-- Main Content Area (Zero-Scroll Full Screen Fit) -->
+    <main class="max-w-md w-full mx-auto p-3 flex-grow pb-20 space-y-2.5">
         
         <!-- ================= TAB 1: DASHBOARD ================= -->
-        <div id="tab-dashboard" class="tab-content space-y-3">
-            <div class="neon-card p-3 text-center relative overflow-hidden">
-                <div class="text-[10px] uppercase tracking-wider text-accent font-bold mb-0.5 flex items-center justify-center gap-1">
+        <div id="tab-dashboard" class="tab-content space-y-2.5">
+            <div class="neon-card p-3 text-center relative">
+                <div class="text-[9px] uppercase tracking-wider text-accent font-bold mb-0.5 flex items-center justify-center gap-1">
                     <i data-lucide="sparkles" class="w-3 h-3"></i> <span id="motivation-header-label">Daily Motivation</span>
                 </div>
-                <p class="text-[11px] font-medium opacity-90 mb-2 leading-snug" id="motivation-text">Loading...</p>
-                <button onclick="revealLoveNote()" class="text-[10px] bg-accent text-white font-bold px-3 py-1 rounded-full shadow-md transition active:scale-95">
-                    💌 Tap for Secret Love Note
+                <p class="text-[11px] font-medium opacity-90 mb-2 leading-tight" id="motivation-text">Loading...</p>
+                <button onclick="revealLoveNote()" class="text-[10px] bg-accent text-white font-bold px-3 py-1 rounded-full shadow transition active:scale-95">
+                    💌 Secret Love Note
                 </button>
             </div>
 
-            <!-- Water Tracker & Quick Stats Row -->
-            <div class="grid grid-cols-2 gap-2.5">
-                <div class="neon-card p-3 flex items-center justify-between">
+            <div class="grid grid-cols-2 gap-2">
+                <div class="neon-card p-2.5 flex items-center justify-between">
                     <div class="flex items-center gap-2">
-                        <div class="w-8 h-8 rounded-xl bg-cyan-500/15 text-cyan-400 flex items-center justify-center">
-                            <i data-lucide="droplet" class="w-4 h-4"></i>
+                        <div class="w-7 h-7 rounded-lg bg-cyan-500/15 text-cyan-400 flex items-center justify-center">
+                            <i data-lucide="droplet" class="w-3.5 h-3.5"></i>
                         </div>
                         <div>
                             <h4 class="text-[9px] font-bold uppercase opacity-60">Water</h4>
@@ -151,93 +161,87 @@
                         </div>
                     </div>
                     <div class="flex items-center gap-1">
-                        <button onclick="adjustWater(-1)" class="w-6 h-6 rounded-lg neon-card flex items-center justify-center text-xs font-bold">-</button>
-                        <button onclick="adjustWater(1)" class="w-6 h-6 rounded-lg bg-cyan-500 text-black flex items-center justify-center text-xs font-bold">+</button>
+                        <button onclick="adjustWater(-1)" class="w-6 h-6 rounded-md neon-card flex items-center justify-center text-xs font-bold">-</button>
+                        <button onclick="adjustWater(1)" class="w-6 h-6 rounded-md bg-cyan-500 text-black flex items-center justify-center text-xs font-bold">+</button>
                     </div>
                 </div>
-                <div class="neon-card p-3 flex items-center justify-between">
+                <div class="neon-card p-2.5 flex items-center justify-between">
                     <div>
                         <div class="text-[9px] font-bold uppercase opacity-60">Today / Streak</div>
-                        <div class="text-sm font-extrabold"><span id="today-completed-count">0/0</span> <span class="text-orange-500 text-xs">🔥<span id="max-streak-count">0d</span></span></div>
+                        <div class="text-xs font-extrabold"><span id="today-completed-count">0/0</span> <span class="text-orange-500">🔥<span id="max-streak-count">0d</span></span></div>
                     </div>
                     <i data-lucide="award" class="w-4 h-4 text-accent"></i>
                 </div>
             </div>
 
-            <div class="flex justify-between items-center pt-1">
-                <h2 class="text-[11px] font-bold uppercase tracking-wider opacity-60" id="current-date-label">Today</h2>
-                <span class="text-[10px] text-accent bg-accent/10 px-2 py-0.5 rounded-full font-bold">Keep shining!</span>
+            <div class="flex justify-between items-center pt-0.5 px-1">
+                <h2 class="text-[10px] font-bold uppercase tracking-wider opacity-60" id="current-date-label">Today</h2>
+                <span class="text-[9px] text-accent bg-accent/10 px-2 py-0.5 rounded-full font-bold">Keep shining!</span>
             </div>
 
-            <div id="habits-container" class="space-y-2 max-h-[26vh] overflow-y-auto"></div>
+            <div id="habits-container" class="space-y-2 max-h-[30vh] overflow-y-auto"></div>
 
             <div id="empty-state" class="hidden text-center py-6 px-4">
-                <div class="w-12 h-12 neon-card rounded-full flex items-center justify-center mx-auto mb-2 opacity-50">
-                    <i data-lucide="list-todo" class="w-6 h-6"></i>
+                <div class="w-10 h-10 neon-card rounded-full flex items-center justify-center mx-auto mb-2 opacity-50">
+                    <i data-lucide="list-todo" class="w-5 h-5"></i>
                 </div>
                 <h3 class="text-xs font-bold mb-0.5">No habits tracked yet</h3>
                 <button onclick="openAddModal()" class="text-accent font-semibold text-xs hover:underline">Add a Habit Now</button>
             </div>
 
-            <!-- Weekly Progress -->
-            <div class="neon-card p-3">
-                <h3 class="text-[10px] font-bold uppercase tracking-wider opacity-60 mb-2 flex items-center justify-between">
+            <div class="neon-card p-2.5">
+                <h3 class="text-[9px] font-bold uppercase tracking-wider opacity-60 mb-1.5 flex items-center justify-between">
                     <span>Last 7 Days Progress</span>
-                    <i data-lucide="bar-chart-3" class="w-3.5 h-3.5 text-accent"></i>
+                    <i data-lucide="bar-chart-3" class="w-3 h-3 text-accent"></i>
                 </h3>
-                <div class="grid grid-cols-7 gap-1.5" id="weekly-chart-container"></div>
-            </div>
-
-            <div class="p-2.5 neon-card text-center">
-                <p class="text-[11px] italic opacity-80 font-medium" id="dynamic-bottom-quote">"Loading quote..."</p>
+                <div class="grid grid-cols-7 gap-1" id="weekly-chart-container"></div>
             </div>
         </div>
 
-        <!-- ================= TAB 2: FOCUS TIMER & PERSONAL VOICE MEMOS ================= -->
-        <div id="tab-focus" class="tab-content hidden space-y-3">
-            <div class="neon-card p-4 text-center space-y-3">
-                <h3 class="font-bold text-[11px] uppercase tracking-wider opacity-60 flex items-center justify-center gap-1.5">
+        <!-- ================= TAB 2: FOCUS TIMER & PERSONAL MEMOS ================= -->
+        <div id="tab-focus" class="tab-content hidden space-y-2.5">
+            <div class="neon-card p-3.5 text-center space-y-2.5">
+                <h3 class="font-bold text-[10px] uppercase tracking-wider opacity-60 flex items-center justify-center gap-1">
                     <i data-lucide="timer" class="w-3.5 h-3.5 text-accent"></i> Pomodoro Focus Timer
                 </h3>
-                <div class="flex justify-center gap-1.5">
-                    <button onclick="setTimerDuration(15)" class="duration-btn neon-card px-2.5 py-1 text-[10px] font-bold">15m</button>
-                    <button onclick="setTimerDuration(25)" class="duration-btn bg-accent border-accent text-white px-2.5 py-1 text-[10px] font-bold shadow-md">25m</button>
-                    <button onclick="setTimerDuration(45)" class="duration-btn neon-card px-2.5 py-1 text-[10px] font-bold">45m</button>
-                    <button onclick="setTimerDuration(60)" class="duration-btn neon-card px-2.5 py-1 text-[10px] font-bold">60m</button>
+                <div class="flex justify-center gap-1">
+                    <button onclick="setTimerDuration(15)" class="duration-btn neon-card px-2 py-1 text-[10px] font-bold">15m</button>
+                    <button onclick="setTimerDuration(25)" class="duration-btn bg-accent border-accent text-white px-2 py-1 text-[10px] font-bold shadow-md">25m</button>
+                    <button onclick="setTimerDuration(45)" class="duration-btn neon-card px-2 py-1 text-[10px] font-bold">45m</button>
+                    <button onclick="setTimerDuration(60)" class="duration-btn neon-card px-2 py-1 text-[10px] font-bold">60m</button>
                 </div>
-                <div id="timer-display" class="text-4xl font-extrabold tracking-wider text-accent py-1">25:00</div>
+                <div id="timer-display" class="text-4xl font-extrabold tracking-wider text-accent py-0.5">25:00</div>
                 <div class="flex justify-center gap-2">
-                    <button onclick="startTimer()" class="bg-accent text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md active:scale-95">Start</button>
-                    <button onclick="pauseTimer()" class="neon-card px-4 py-2 rounded-xl text-xs font-bold active:scale-95">Pause</button>
-                    <button onclick="resetTimer()" class="neon-card px-4 py-2 rounded-xl text-xs font-bold active:scale-95">Reset</button>
+                    <button onclick="startTimer()" class="bg-accent text-white px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-md active:scale-95">Start</button>
+                    <button onclick="pauseTimer()" class="neon-card px-3.5 py-1.5 rounded-xl text-xs font-bold active:scale-95">Pause</button>
+                    <button onclick="resetTimer()" class="neon-card px-3.5 py-1.5 rounded-xl text-xs font-bold active:scale-95">Reset</button>
                 </div>
             </div>
 
-            <!-- Personal Voice Memos (Stored in Device) -->
             <div class="neon-card p-3 space-y-2">
                 <div class="flex items-center justify-between">
-                    <h3 class="font-bold text-[11px] uppercase tracking-wider opacity-60 flex items-center gap-1.5">
-                        <i data-lucide="mic" class="w-3.5 h-3.5 text-accent"></i> Personal Voice Memos
+                    <h3 class="font-bold text-[10px] uppercase tracking-wider opacity-60 flex items-center gap-1">
+                        <i data-lucide="mic" class="w-3.5 h-3.5 text-accent"></i> Personal Voice Memos (Device Only)
                     </h3>
                     <span class="text-[9px] text-accent font-bold" id="personal-rec-status">Ready</span>
                 </div>
                 <div class="flex gap-2">
-                    <button type="button" id="personal-record-btn" onclick="togglePersonalRecording()" class="flex-grow bg-accent text-white font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 active:scale-95">
-                        <i data-lucide="mic" class="w-3.5 h-3.5"></i> Record Memo
+                    <button type="button" id="personal-record-btn" onclick="togglePersonalRecording()" class="flex-grow bg-accent text-white font-bold py-1.5 rounded-xl text-xs flex items-center justify-center gap-1 active:scale-95">
+                        <i data-lucide="mic" class="w-3 h-3"></i> Record Memo
                     </button>
-                    <button type="button" id="personal-stop-btn" onclick="stopPersonalRecording()" disabled class="neon-card px-3 py-2 rounded-xl text-xs font-bold opacity-50 cursor-not-allowed">
+                    <button type="button" id="personal-stop-btn" onclick="stopPersonalRecording()" disabled class="neon-card px-3 py-1.5 rounded-xl text-xs font-bold opacity-50 cursor-not-allowed">
                         Stop
                     </button>
                 </div>
-                <div id="personal-voice-memos-container" class="space-y-1.5 max-h-24 overflow-y-auto"></div>
+                <div id="personal-voice-memos-container" class="space-y-1.5 max-h-28 overflow-y-auto"></div>
             </div>
         </div>
 
         <!-- ================= TAB 3: BUDGET ================= -->
-        <div id="tab-budget" class="tab-content hidden space-y-3">
-            <div class="neon-card p-3.5 space-y-2.5">
+        <div id="tab-budget" class="tab-content hidden space-y-2.5">
+            <div class="neon-card p-3 space-y-2">
                 <div class="flex justify-between items-center">
-                    <h3 class="font-bold text-[11px] uppercase tracking-wider opacity-60 flex items-center gap-1.5">
+                    <h3 class="font-bold text-[10px] uppercase tracking-wider opacity-60 flex items-center gap-1">
                         <i data-lucide="wallet" class="w-3.5 h-3.5 text-accent"></i> Expense Tracker
                     </h3>
                     <div class="text-right">
@@ -246,7 +250,7 @@
                     </div>
                 </div>
 
-                <form onsubmit="handleExpenseSubmit(event)" class="space-y-2">
+                <form onsubmit="handleExpenseSubmit(event)" class="space-y-1.5">
                     <div class="grid grid-cols-2 gap-2">
                         <input type="text" id="expense-name" required placeholder="Item / Title" class="neon-card rounded-xl px-3 py-2 placeholder-slate-500 focus:outline-none text-xs font-medium">
                         <input type="number" id="expense-amount" required placeholder="Amount (₹)" class="neon-card rounded-xl px-3 py-2 placeholder-slate-500 focus:outline-none text-xs font-medium">
@@ -264,109 +268,106 @@
             </div>
 
             <div class="neon-card p-3 space-y-2">
-                <h4 class="text-[11px] font-bold uppercase tracking-wider opacity-60">Recent Spends</h4>
+                <h4 class="text-[10px] font-bold uppercase tracking-wider opacity-60">Recent Spends</h4>
                 <div id="expense-list-container" class="space-y-1.5 max-h-36 overflow-y-auto"></div>
             </div>
         </div>
 
-        <!-- ================= TAB 4: JOURNAL (QUICK PAD, VOICE DROP & MINIMAL CALENDAR) ================= -->
-        <div id="tab-journal" class="tab-content hidden space-y-3">
-            <div class="grid grid-cols-2 gap-2.5">
-                <!-- Scratchpad -->
-                <div class="neon-card p-3 space-y-1.5 flex flex-col h-[26vh]">
-                    <h3 class="font-bold text-[10px] uppercase tracking-wider opacity-60 flex items-center gap-1">
-                        <i data-lucide="book-open" class="w-3.5 h-3.5 text-accent"></i> Scratchpad
+        <!-- ================= TAB 4: JOURNAL (SCRATCHPAD + CALENDAR + SHARED DROP/TEXT) ================= -->
+        <div id="tab-journal" class="tab-content hidden space-y-2.5">
+            <div class="grid grid-cols-2 gap-2">
+                <div class="neon-card p-2.5 space-y-1 flex flex-col h-[23vh]">
+                    <h3 class="font-bold text-[9px] uppercase tracking-wider opacity-60 flex items-center gap-1">
+                        <i data-lucide="book-open" class="w-3 h-3 text-accent"></i> Scratchpad
                     </h3>
-                    <textarea id="scratchpad-input" placeholder="Jot down notes..." oninput="saveScratchpad()" class="w-full flex-grow neon-card rounded-xl p-2.5 text-[11px] font-medium placeholder-slate-500 focus:outline-none resize-none"></textarea>
+                    <textarea id="scratchpad-input" placeholder="Jot down notes..." oninput="saveScratchpad()" class="w-full flex-grow neon-card rounded-lg p-2 text-[10px] font-medium placeholder-slate-500 focus:outline-none resize-none"></textarea>
                 </div>
 
-                <!-- Minimal Calendar -->
-                <div class="neon-card p-3 space-y-1.5 flex flex-col h-[26vh]">
+                <div class="neon-card p-2.5 space-y-1 flex flex-col h-[23vh]">
                     <div class="flex justify-between items-center">
-                        <h3 class="font-bold text-[10px] uppercase tracking-wider opacity-60 flex items-center gap-1">
-                            <i data-lucide="calendar" class="w-3.5 h-3.5 text-accent"></i> Planner
+                        <h3 class="font-bold text-[9px] uppercase tracking-wider opacity-60 flex items-center gap-1">
+                            <i data-lucide="calendar" class="w-3 h-3 text-accent"></i> Planner
                         </h3>
                         <div class="flex items-center gap-1">
-                            <button onclick="changeMonth(-1)" class="neon-card px-1.5 py-0.5 text-[10px] font-bold">&larr;</button>
-                            <span id="calendar-month-year" class="text-[10px] font-bold text-accent"></span>
-                            <button onclick="changeMonth(1)" class="neon-card px-1.5 py-0.5 text-[10px] font-bold">&rarr;</button>
+                            <button onclick="changeMonth(-1)" class="neon-card px-1 py-0.5 text-[9px] font-bold">&larr;</button>
+                            <span id="calendar-month-year" class="text-[9px] font-bold text-accent"></span>
+                            <button onclick="changeMonth(1)" class="neon-card px-1 py-0.5 text-[9px] font-bold">&rarr;</button>
                         </div>
                     </div>
-                    <div class="grid grid-cols-7 gap-0.5 text-center text-[9px] font-bold opacity-50">
+                    <div class="grid grid-cols-7 gap-0.5 text-center text-[8px] font-bold opacity-50">
                         <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
                     </div>
-                    <div class="grid grid-cols-7 gap-1" id="monthly-grid"></div>
+                    <div class="grid grid-cols-7 gap-1 overflow-y-auto" id="monthly-grid"></div>
                 </div>
             </div>
 
-            <!-- Couple's Synchronized Voice Drop -->
-            <div class="neon-card p-3 space-y-2 border-accent/60 shadow-xl">
+            <!-- Couple Synchronized Drops (Voice & Text with Rules) -->
+            <div class="neon-card p-3 space-y-2 border-accent/60 shadow-lg">
                 <div class="flex items-center justify-between">
-                    <h3 class="font-bold text-[11px] uppercase tracking-wider text-accent flex items-center gap-1.5">
-                        <i data-lucide="heart-handshake" class="w-3.5 h-3.5"></i> <span id="partner-drop-title">Partner's Voice Drop</span> 💕
+                    <h3 class="font-bold text-[10px] uppercase tracking-wider text-accent flex items-center gap-1">
+                        <i data-lucide="heart-handshake" class="w-3.5 h-3.5"></i> <span id="partner-drop-title">Partner Drop</span> 💕
                     </h3>
-                    <span class="text-[10px] text-accent font-bold" id="rec-status">Ready</span>
+                    <span class="text-[9px] text-accent font-bold" id="rec-status">Ready</span>
                 </div>
                 
-                <div class="flex gap-2">
-                    <button type="button" id="record-btn" onclick="toggleRecording()" class="flex-grow bg-accent text-white font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition active:scale-95">
-                        <i data-lucide="mic" class="w-3.5 h-3.5"></i> Record Voice Note (< 2m)
+                <div class="flex gap-1.5">
+                    <button type="button" id="record-btn" onclick="toggleRecording()" class="flex-grow bg-accent text-white font-bold py-1.5 rounded-xl text-xs flex items-center justify-center gap-1 active:scale-95">
+                        <i data-lucide="mic" class="w-3 h-3"></i> Record (< 2m)
                     </button>
-                    <button type="button" id="stop-btn" onclick="stopRecording()" disabled class="neon-card px-3 py-2 rounded-xl text-xs font-bold opacity-50 cursor-not-allowed">
+                    <button type="button" id="stop-btn" onclick="stopRecording()" disabled class="neon-card px-3 py-1.5 rounded-xl text-xs font-bold opacity-50 cursor-not-allowed">
                         Send
                     </button>
                 </div>
 
-                <div id="voice-memos-container" class="space-y-2 pt-1 max-h-32 overflow-y-auto">
-                    <p class="text-[10px] opacity-40 text-center py-1">No voice drops yet.</p>
+                <form onsubmit="handleCoupleTextSubmit(event)" class="flex gap-1.5 pt-0.5">
+                    <input type="text" id="couple-text-input" placeholder="Send a synchronized text message..." class="flex-grow neon-card rounded-xl px-3 py-1.5 text-xs focus:outline-none placeholder-slate-500">
+                    <button type="submit" class="bg-accent text-white font-bold px-3 py-1.5 rounded-xl text-xs active:scale-95">Send</button>
+                </form>
+
+                <div id="voice-memos-container" class="space-y-1.5 pt-1 max-h-32 overflow-y-auto">
+                    <p class="text-[9px] opacity-40 text-center py-1">No drops yet.</p>
                 </div>
             </div>
         </div>
 
-        <!-- ================= TAB 5: SETTINGS & ROLE LOCK ================= -->
-        <div id="tab-settings" class="tab-content hidden space-y-3">
-            <div class="neon-card p-4 space-y-3">
-                <h3 class="font-bold text-xs mb-1 flex items-center gap-1.5">
-                    <i data-lucide="settings" class="w-4 h-4 text-accent"></i> Couple Side Selection
+        <!-- ================= TAB 5: SETTINGS ================= -->
+        <div id="tab-settings" class="tab-content hidden space-y-2.5">
+            <div class="neon-card p-3.5 space-y-2">
+                <h3 class="font-bold text-xs mb-1 flex items-center gap-1">
+                    <i data-lucide="settings" class="w-3.5 h-3.5 text-accent"></i> Device Profile (Locked)
                 </h3>
-                <div class="grid grid-cols-2 gap-2">
-                    <button onclick="selectUserRole('Grv')" id="btn-role-grv" class="neon-card p-3 text-center transition active:scale-95">
-                        <span class="text-lg">👦🏽</span>
-                        <div class="text-[11px] font-bold mt-1">Grv's Side</div>
-                    </button>
-                    <button onclick="selectUserRole('Eku')" id="btn-role-eku" class="neon-card p-3 text-center transition active:scale-95">
-                        <span class="text-lg">🌸</span>
-                        <div class="text-[11px] font-bold mt-1">Eku's Side</div>
-                    </button>
+                <div class="grid grid-cols-2 gap-2" id="role-container-view">
+                    <div class="neon-card p-2.5 text-center opacity-70" id="view-grv">
+                        <span class="text-base">👦🏽</span><div class="text-[10px] font-bold mt-0.5">Grv's Side</div>
+                    </div>
+                    <div class="neon-card p-2.5 text-center opacity-70" id="view-eku">
+                        <span class="text-base">🌸</span><div class="text-[10px] font-bold mt-0.5">Eku's Side</div>
+                    </div>
                 </div>
             </div>
 
-            <div class="neon-card p-4 space-y-3">
-                <h3 class="font-bold text-xs mb-1 flex items-center gap-1.5">
-                    <i data-lucide="palette" class="w-4 h-4 text-accent"></i> Theme & Accent Settings
+            <div class="neon-card p-3.5 space-y-2.5">
+                <h3 class="font-bold text-xs mb-1 flex items-center gap-1">
+                    <i data-lucide="palette" class="w-3.5 h-3.5 text-accent"></i> Theme & Accent
                 </h3>
                 <div class="space-y-1">
-                    <div class="text-[10px] font-bold uppercase tracking-wider opacity-60">Display Theme</div>
-                    <div class="grid grid-cols-4 gap-1.5">
-                        <button onclick="setThemeMode('neon-black')" class="text-[10px] font-bold py-1.5 px-1 rounded-xl neon-card">OLED</button>
-                        <button onclick="setThemeMode('dark-glass')" class="text-[10px] font-bold py-1.5 px-1 rounded-xl neon-card">Dark</button>
-                        <button onclick="setThemeMode('clean-light')" class="text-[10px] font-bold py-1.5 px-1 rounded-xl neon-card">Light</button>
-                        <button onclick="setThemeMode('solar-light')" class="text-[10px] font-bold py-1.5 px-1 rounded-xl neon-card">Solar</button>
+                    <div class="text-[9px] font-bold uppercase tracking-wider opacity-60">Display Theme</div>
+                    <div class="grid grid-cols-4 gap-1">
+                        <button onclick="setThemeMode('neon-black')" class="text-[9px] font-bold py-1.5 px-1 rounded-lg neon-card">OLED</button>
+                        <button onclick="setThemeMode('dark-glass')" class="text-[9px] font-bold py-1.5 px-1 rounded-lg neon-card">Dark</button>
+                        <button onclick="setThemeMode('light-white')" class="text-[9px] font-bold py-1.5 px-1 rounded-lg neon-card">Light</button>
+                        <button onclick="setThemeMode('clean-light')" class="text-[9px] font-bold py-1.5 px-1 rounded-lg neon-card">Clean</button>
                     </div>
                 </div>
                 <div class="space-y-1 pt-1">
-                    <div class="text-[10px] font-bold uppercase tracking-wider opacity-60">Accent Color</div>
+                    <div class="text-[9px] font-bold uppercase tracking-wider opacity-60">Accent Color</div>
                     <div class="grid grid-cols-5 gap-2">
-                        <button onclick="setAccentColor('#f43f5e', 'rgba(244, 63, 94, 0.25)')" class="h-7 rounded-xl bg-rose-500"></button>
-                        <button onclick="setAccentColor('#10b981', 'rgba(16, 185, 129, 0.25)')" class="h-7 rounded-xl bg-emerald-500"></button>
-                        <button onclick="setAccentColor('#8b5cf6', 'rgba(139, 92, 246, 0.25)')" class="h-7 rounded-xl bg-violet-500"></button>
-                        <button onclick="setAccentColor('#f59e0b', 'rgba(245, 158, 11, 0.25)')" class="h-7 rounded-xl bg-amber-500"></button>
-                        <button onclick="setAccentColor('#06b6d4', 'rgba(6, 182, 212, 0.25)')" class="h-7 rounded-xl bg-cyan-500"></button>
+                        <button onclick="setAccentColor('#f43f5e', 'rgba(244, 63, 94, 0.25)')" class="h-6 rounded-lg bg-rose-500"></button>
+                        <button onclick="setAccentColor('#10b981', 'rgba(16, 185, 129, 0.25)')" class="h-6 rounded-lg bg-emerald-500"></button>
+                        <button onclick="setAccentColor('#8b5cf6', 'rgba(139, 92, 246, 0.25)')" class="h-6 rounded-lg bg-violet-500"></button>
+                        <button onclick="setAccentColor('#f59e0b', 'rgba(245, 158, 11, 0.25)')" class="h-6 rounded-lg bg-amber-500"></button>
+                        <button onclick="setAccentColor('#06b6d4', 'rgba(6, 182, 212, 0.25)')" class="h-6 rounded-lg bg-cyan-500"></button>
                     </div>
-                </div>
-                <div class="pt-2 flex justify-between items-center border-t border-white/10">
-                    <span class="text-xs font-bold text-red-500">Reset Data</span>
-                    <button onclick="resetAllData()" class="bg-red-500/10 text-red-500 px-3 py-1 rounded-xl text-xs font-semibold">Reset</button>
                 </div>
             </div>
         </div>
@@ -374,102 +375,90 @@
     </main>
 
     <!-- Bottom Navigation Bar -->
-    <nav class="neon-card fixed bottom-0 left-0 right-0 py-2 px-3 z-20 transition-all duration-300 mx-3 mb-2 sm:mx-auto sm:max-w-md">
+    <nav class="neon-card fixed bottom-0 left-0 right-0 py-2 px-3 z-20 mx-3 mb-2 sm:mx-auto sm:max-w-md">
         <div class="flex justify-around">
             <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn flex flex-col items-center gap-0.5 text-accent transition">
-                <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-                <span class="text-[9px] font-bold">Habits</span>
+                <i data-lucide="layout-dashboard" class="w-4 h-4"></i><span class="text-[9px] font-bold">Habits</span>
             </button>
             <button onclick="switchTab('focus')" id="nav-focus" class="nav-btn flex flex-col items-center gap-0.5 opacity-50 transition">
-                <i data-lucide="timer" class="w-4 h-4"></i>
-                <span class="text-[9px] font-bold">Focus</span>
+                <i data-lucide="timer" class="w-4 h-4"></i><span class="text-[9px] font-bold">Focus</span>
             </button>
             <button onclick="switchTab('budget')" id="nav-budget" class="nav-btn flex flex-col items-center gap-0.5 opacity-50 transition">
-                <i data-lucide="wallet" class="w-4 h-4"></i>
-                <span class="text-[9px] font-bold">Budget</span>
+                <i data-lucide="wallet" class="w-4 h-4"></i><span class="text-[9px] font-bold">Budget</span>
             </button>
             <button onclick="switchTab('journal')" id="nav-journal" class="nav-btn flex flex-col items-center gap-0.5 opacity-50 transition">
-                <i data-lucide="book-open" class="w-4 h-4"></i>
-                <span class="text-[9px] font-bold">Journal</span>
+                <i data-lucide="book-open" class="w-4 h-4"></i><span class="text-[9px] font-bold">Journal</span>
             </button>
             <button onclick="switchTab('settings')" id="nav-settings" class="nav-btn flex flex-col items-center gap-0.5 opacity-50 transition">
-                <i data-lucide="settings" class="w-4 h-4"></i>
-                <span class="text-[9px] font-bold">Settings</span>
+                <i data-lucide="settings" class="w-4 h-4"></i><span class="text-[9px] font-bold">Settings</span>
             </button>
         </div>
     </nav>
 
     <!-- Modals -->
     <div id="love-note-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="neon-card w-full max-w-sm p-5 text-center space-y-3 border-accent/40 shadow-2xl">
+        <div class="neon-card w-full max-w-sm p-4 text-center space-y-3 border-accent/40 shadow-2xl">
             <div class="text-xs font-bold uppercase tracking-wider text-accent" id="modal-sender-title">Love Note ❤️</div>
-            <p id="love-note-content" class="text-sm font-medium leading-relaxed opacity-90"></p>
-            <button onclick="closeLoveNoteModal()" class="w-full bg-accent text-white font-bold py-2 rounded-xl text-xs active:scale-95 shadow-md">
-                Close with a Smile 😊
-            </button>
+            <p id="love-note-content" class="text-xs font-medium leading-relaxed opacity-90"></p>
+            <button onclick="closeLoveNoteModal()" class="w-full bg-accent text-white font-bold py-2 rounded-xl text-xs active:scale-95">Close</button>
         </div>
     </div>
 
     <div id="add-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
-        <div class="neon-card border w-full max-w-md p-5 shadow-2xl">
-            <div class="flex justify-between items-center mb-3">
-                <h3 class="text-sm font-bold" id="add-modal-title">Add New Habit</h3>
+        <div class="neon-card border w-full max-w-md p-4 shadow-2xl">
+            <div class="flex justify-between items-center mb-2.5">
+                <h3 class="text-xs font-bold" id="add-modal-title">Add New Habit</h3>
                 <button onclick="closeAddModal()" class="opacity-60 hover:opacity-100"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
             <form id="habit-form" onsubmit="handleHabitSubmit(event)">
-                <div class="mb-3">
-                    <label class="block text-[10px] font-bold opacity-60 uppercase tracking-wider mb-1">Habit Name</label>
-                    <input type="text" id="habit-name-input" required placeholder="e.g., Morning Workout" class="w-full neon-card rounded-xl px-3.5 py-2.5 placeholder-slate-500 focus:outline-none text-xs font-semibold">
+                <div class="mb-2.5">
+                    <label class="block text-[9px] font-bold opacity-60 uppercase mb-1">Habit Name</label>
+                    <input type="text" id="habit-name-input" required placeholder="e.g., Morning Workout" class="w-full neon-card rounded-xl px-3 py-2 placeholder-slate-500 focus:outline-none text-xs font-semibold">
                 </div>
-                <div class="mb-4">
-                    <label class="block text-[10px] font-bold opacity-60 uppercase tracking-wider mb-1">Category</label>
-                    <div class="grid grid-cols-3 gap-2">
-                        <button type="button" onclick="setCategory('Fitness')" class="cat-btn py-2 px-2 rounded-xl border border-accent bg-accent/10 text-accent text-xs font-bold" data-cat="Fitness">Fitness</button>
-                        <button type="button" onclick="setCategory('Wellness')" class="cat-btn py-2 px-2 rounded-xl neon-card opacity-70 text-xs font-semibold" data-cat="Wellness">Wellness</button>
-                        <button type="button" onclick="setCategory('Study')" class="cat-btn py-2 px-2 rounded-xl neon-card opacity-70 text-xs font-semibold" data-cat="Study">Study</button>
+                <div class="mb-3">
+                    <label class="block text-[9px] font-bold opacity-60 uppercase mb-1">Category</label>
+                    <div class="grid grid-cols-3 gap-1.5">
+                        <button type="button" onclick="setCategory('Fitness')" class="cat-btn py-1.5 px-2 rounded-lg border border-accent bg-accent/10 text-accent text-xs font-bold" data-cat="Fitness">Fitness</button>
+                        <button type="button" onclick="setCategory('Wellness')" class="cat-btn py-1.5 px-2 rounded-lg neon-card opacity-70 text-xs font-semibold" data-cat="Wellness">Wellness</button>
+                        <button type="button" onclick="setCategory('Study')" class="cat-btn py-1.5 px-2 rounded-lg neon-card opacity-70 text-xs font-semibold" data-cat="Study">Study</button>
                     </div>
                 </div>
-                <button type="submit" class="w-full bg-accent text-white font-bold py-2.5 rounded-xl text-xs shadow-md active:scale-95">Save Habit</button>
+                <button type="submit" class="w-full bg-accent text-white font-bold py-2 rounded-xl text-xs shadow active:scale-95">Save Habit</button>
             </form>
         </div>
     </div>
 
-    <!-- App Logic & Cloud Sync Script -->
+    <!-- App Script -->
     <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').then(reg => {
-                reg.addEventListener('updatefound', () => {
-                    const newWorker = reg.installing;
-                    newWorker.addEventListener('statechange', () => {
-                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                            if (confirm("✨ A new update for HabitFlow is available! Click OK to update.")) {
-                                window.location.reload();
-                            }
-                        }
-                    });
-                });
-            }).catch(err => console.log('SW registration failed', err));
+        let userRole = localStorage.getItem('habitflow_user_role');
+        if (!userRole) {
+            document.getElementById('role-setup-modal').classList.remove('hidden');
         }
 
-        let userRole = localStorage.getItem('habitflow_user_role') || 'Grv';
-        const isGrv = userRole === 'Grv';
-
-        function selectUserRole(role) {
+        function lockUserRole(role) {
             localStorage.setItem('habitflow_user_role', role);
+            document.getElementById('role-setup-modal').classList.add('hidden');
             location.reload();
         }
 
-        // Theme and Accent Config
+        userRole = localStorage.getItem('habitflow_user_role') || 'Grv';
+        const isGrv = userRole === 'Grv';
+
+        if (isGrv) {
+            document.getElementById('view-grv').className = "neon-card p-2.5 text-center border-accent bg-accent/10";
+        } else {
+            document.getElementById('view-eku').className = "neon-card p-2.5 text-center border-accent bg-accent/10";
+        }
+
         let currentTheme = localStorage.getItem('habitflow_theme') || 'neon-black';
         let currentAccentHex = localStorage.getItem('habitflow_accent') || '#f43f5e';
         let currentGlowHex = localStorage.getItem('habitflow_glow') || 'rgba(244, 63, 94, 0.25)';
 
-        function setThemeMode(themeName) {
-            currentTheme = themeName;
-            localStorage.setItem('habitflow_theme', themeName);
-            document.documentElement.setAttribute('data-theme', themeName);
+        function setThemeMode(name) {
+            currentTheme = name;
+            localStorage.setItem('habitflow_theme', name);
+            document.documentElement.setAttribute('data-theme', name);
         }
-
         function setAccentColor(hex, glow) {
             currentAccentHex = hex;
             currentGlowHex = glow;
@@ -478,89 +467,53 @@
             applyAccent();
             render();
         }
-
         function applyAccent() {
             document.documentElement.style.setProperty('--accent-color', currentAccentHex);
             document.documentElement.style.setProperty('--glow-color', currentGlowHex);
         }
-
         setThemeMode(currentTheme);
         applyAccent();
 
-        // Apply UI Branding based on Role
-        document.getElementById('app-title').innerText = isGrv ? "HabitFlow (Grv's Side)" : "HabitFlow (Eku's Side)";
-        document.getElementById('header-subtitle').innerText = isGrv ? "Built for Eku ❤️" : "Built by Grv with love 🌸";
+        document.getElementById('app-title').innerText = isGrv ? "HabitFlow (Grv)" : "HabitFlow (Eku)";
+        document.getElementById('header-subtitle').innerText = isGrv && userRole ? "Built for Eku ❤️" : "Built by Grv with love 🌸";
         document.getElementById('partner-drop-title').innerText = isGrv ? "From Eku to Grv" : "From Grv to Eku";
         document.getElementById('modal-sender-title').innerText = isGrv ? "Eku says ❤️" : "Grv says ❤️";
-        document.getElementById('motivation-header-label').innerText = isGrv ? "Daily Motivation for Grv" : "Daily Motivation for Eku";
-
-        if (isGrv) {
-            document.getElementById('btn-role-grv').className = "neon-card p-3 text-center border-accent bg-accent/10 transition";
-        } else {
-            document.getElementById('btn-role-eku').className = "neon-card p-3 text-center border-accent bg-accent/10 transition";
-        }
 
         let habits = JSON.parse(localStorage.getItem('habitflow_habits')) || [
-            { id: '1', name: isGrv ? 'Morning Workout & Stretch' : 'Morning Skincare Routine', category: 'Wellness', history: {}, streak: 0 },
+            { id: '1', name: isGrv ? 'Morning Workout' : 'Skincare Routine', category: 'Wellness', history: {}, streak: 0 },
             { id: '2', name: 'Drink 8 Glasses of Water', category: 'Fitness', history: {}, streak: 0 }
         ];
-        let todos = JSON.parse(localStorage.getItem('habitflow_todos')) || [{ id: 't1', text: 'Plan daily priorities', completed: false }];
         let expenses = JSON.parse(localStorage.getItem('habitflow_expenses')) || [];
         let plannerNotes = JSON.parse(localStorage.getItem('habitflow_planner')) || {};
         let waterData = JSON.parse(localStorage.getItem('habitflow_water')) || {};
         let scratchpadText = localStorage.getItem('habitflow_notes') || '';
         let savedPersonalMemos = JSON.parse(localStorage.getItem('habitflow_personal_memos')) || [];
-        let sharedVoiceDrops = [];
+        let sharedDrops = [];
 
         let selectedCategory = 'Fitness';
-        let calYear = new Date().getFullYear();
-        let calMonth = new Date().getMonth();
+        let calYear = new Date().getFullYear(), calMonth = new Date().getMonth();
         let selectedDateKey = getDateKey(new Date());
 
-        let timerInterval = null;
-        let selectedTimerMinutes = 25;
-        let timeLeft = selectedTimerMinutes * 60;
-        let isTimerRunning = false;
-        let coupleMediaRecorder, coupleAudioChunks = [];
-        let personalMediaRecorder, personalAudioChunks = [];
+        let timerInterval = null, selectedTimerMinutes = 25, timeLeft = 1500, isTimerRunning = false;
+        let coupleMediaRecorder, coupleAudioChunks = [], personalMediaRecorder, personalAudioChunks = [], maxRecordTimeout;
 
-        const motivations = isGrv ? [
-            "Every step you take today builds your strongest future, Grv! You've got this. 💪",
-            "Focus, discipline, and passion. Make today count, Grv! 🚀"
-        ] : [
-            "Every small step you take today brings your biggest dreams closer. You've got this, Eku! ❤️",
-            "Your dedication inspires everyone around you. Have a wonderful day, Eku! ✨"
-        ];
+        const motivations = isGrv ? ["Make today count, Grv! 💪", "Focus and consistency. 🚀"] : ["You've got this, Eku! ❤️", "Keep shining today, Eku! ✨"];
         document.getElementById('motivation-text').innerText = `"${motivations[Math.floor(Math.random() * motivations.length)]}"`;
-
-        const loveNotes = isGrv ? [
-            "Eku says: You are my rock and my biggest motivation, Grv! 🌸💕",
-            "Eku says: Remember to take a break and drink some water today! 💧"
-        ] : [
-            "Grv says: You have the most beautiful smile, Eku, never stop wearing it! 😊💕",
-            "Grv says: Proud of everything you do. You make the world brighter! 🌟"
-        ];
-
+        const loveNotes = isGrv ? ["Eku says: You are my rock, Grv! 🌸💕"] : ["Grv says: You have the most beautiful smile, Eku! 😊💕"];
         function revealLoveNote() {
-            document.getElementById('love-note-content').innerText = loveNotes[Math.floor(Math.random() * loveNotes.length)];
+            document.getElementById('love-note-content').innerText = loveNotes[0];
             document.getElementById('love-note-modal').classList.remove('hidden');
         }
         function closeLoveNoteModal() { document.getElementById('love-note-modal').classList.add('hidden'); }
-
-        const bottomQuotes = [
-            "“The secret of getting ahead is getting started.” — Mark Twain",
-            "“Success is the sum of small efforts, repeated day in and day out.” — Robert Collier"
-        ];
-        document.getElementById('dynamic-bottom-quote').innerText = bottomQuotes[Math.floor(Math.random() * bottomQuotes.length)];
         document.getElementById('scratchpad-input').value = scratchpadText;
 
-        function switchTab(tabName) {
+        function switchTab(tName) {
             ['dashboard', 'focus', 'budget', 'journal', 'settings'].forEach(t => {
                 document.getElementById(`tab-${t}`).classList.add('hidden');
                 document.getElementById(`nav-${t}`).className = "nav-btn flex flex-col items-center gap-0.5 opacity-50 transition";
             });
-            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
-            document.getElementById(`nav-${tabName}`).className = "nav-btn flex flex-col items-center gap-0.5 text-accent transition";
+            document.getElementById(`tab-${tName}`).classList.remove('hidden');
+            document.getElementById(`nav-${tName}`).className = "nav-btn flex flex-col items-center gap-0.5 text-accent transition";
             render();
         }
 
@@ -568,10 +521,8 @@
         function getTodayKey() { return getDateKey(new Date()); }
 
         function saveHabits() { localStorage.setItem('habitflow_habits', JSON.stringify(habits)); render(); }
-        function saveTodos() { localStorage.setItem('habitflow_todos', JSON.stringify(todos)); renderTodos(); }
         function saveExpenses() { localStorage.setItem('habitflow_expenses', JSON.stringify(expenses)); renderExpenses(); }
         function saveScratchpad() { localStorage.setItem('habitflow_notes', document.getElementById('scratchpad-input').value); }
-
         function adjustWater(amt) {
             const tk = getTodayKey();
             waterData[tk] = Math.max(0, (waterData[tk] || 0) + amt);
@@ -579,7 +530,7 @@
             document.getElementById('water-status').innerText = `${waterData[tk]} / 8`;
         }
 
-        // ================= PERSONAL VOICE MEMOS (FOCUS TAB) =================
+        // Personal Memos
         async function togglePersonalRecording() {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -597,35 +548,30 @@
                     };
                 };
                 personalMediaRecorder.start();
-                document.getElementById('personal-rec-status').innerText = "🔴 Recording...";
-                document.getElementById('personal-record-btn').className = "flex-grow bg-red-500 text-white font-bold py-2 rounded-xl text-xs animate-pulse";
+                document.getElementById('personal-rec-status').innerText = "🔴 Rec...";
+                document.getElementById('personal-record-btn').className = "flex-grow bg-red-500 text-white font-bold py-1.5 rounded-xl text-xs animate-pulse";
                 document.getElementById('personal-stop-btn').disabled = false;
-                document.getElementById('personal-stop-btn').className = "neon-card px-3 py-2 rounded-xl text-xs font-bold text-accent border-accent cursor-pointer";
-            } catch(e) { alert("Microphone access required."); }
+                document.getElementById('personal-stop-btn').className = "neon-card px-3 py-1.5 rounded-xl text-xs font-bold text-accent border-accent cursor-pointer";
+            } catch(e) { alert("Mic required."); }
         }
-
         function stopPersonalRecording() {
             if (personalMediaRecorder && personalMediaRecorder.state !== "inactive") {
                 personalMediaRecorder.stop();
                 document.getElementById('personal-rec-status').innerText = "Saved!";
-                document.getElementById('personal-record-btn').className = "flex-grow bg-accent text-white font-bold py-2 rounded-xl text-xs active:scale-95";
+                document.getElementById('personal-record-btn').className = "flex-grow bg-accent text-white font-bold py-1.5 rounded-xl text-xs active:scale-95";
                 document.getElementById('personal-stop-btn').disabled = true;
-                document.getElementById('personal-stop-btn').className = "neon-card px-3 py-2 rounded-xl text-xs opacity-50 cursor-not-allowed";
+                document.getElementById('personal-stop-btn').className = "neon-card px-3 py-1.5 rounded-xl text-xs opacity-50 cursor-not-allowed";
                 lucide.createIcons();
             }
         }
-
         function renderPersonalMemos() {
             const c = document.getElementById('personal-voice-memos-container');
             if (!c) return;
-            if (savedPersonalMemos.length === 0) {
-                c.innerHTML = `<p class="text-[10px] opacity-40 text-center py-1">No personal memos yet.</p>`;
-                return;
-            }
+            if (savedPersonalMemos.length === 0) { c.innerHTML = `<p class="text-[9px] opacity-40 text-center py-1">No personal memos.</p>`; return; }
             c.innerHTML = savedPersonalMemos.slice().reverse().map(m => `
-                <div class="neon-card p-2 flex items-center justify-between gap-2">
+                <div class="neon-card p-1.5 flex items-center justify-between gap-2">
                     <span class="text-[9px] opacity-60 font-bold">${m.time}</span>
-                    <audio controls src="${m.audio}" class="h-7 max-w-[140px]"></audio>
+                    <audio controls src="${m.audio}" class="h-6 max-w-[130px]"></audio>
                     <button onclick="deletePersonalMemo('${m.id}')" class="opacity-50 hover:text-red-500 p-1"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
                 </div>
             `).join('');
@@ -637,21 +583,13 @@
             renderPersonalMemos();
         }
 
-        // ================= FIREBASE CLOUD SYNC & COUPLE VOICE DROP =================
+        // Couple Firebase Sync (Voice & Text with Rules)
         function initCloudSync() {
-            if (!window.isFirebaseReady) {
-                setTimeout(initCloudSync, 1000);
-                return;
-            }
-            const q = window.fbModules.query(
-                window.fbModules.collection(window.db, "shared_voice_drops"), 
-                window.fbModules.orderBy("createdAt", "asc")
-            );
+            if (!window.isFirebaseReady) { setTimeout(initCloudSync, 1000); return; }
+            const q = window.fbModules.query(window.fbModules.collection(window.db, "shared_voice_drops"), window.fbModules.orderBy("createdAt", "asc"));
             window.fbModules.onSnapshot(q, (snapshot) => {
-                sharedVoiceDrops = [];
-                snapshot.forEach((docSnap) => {
-                    sharedVoiceDrops.push({ firebaseId: docSnap.id, ...docSnap.data() });
-                });
+                sharedDrops = [];
+                snapshot.forEach(docSnap => sharedDrops.push({ firebaseId: docSnap.id, ...docSnap.data() }));
                 renderVoiceMemos();
             });
         }
@@ -660,7 +598,7 @@
         async function toggleRecording() {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                coupleMediaRecorder = new MediaRecorder(stream);
+                coupleMediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm;codecs=opus' });
                 coupleAudioChunks = [];
                 coupleMediaRecorder.ondataavailable = e => coupleAudioChunks.push(e.data);
                 coupleMediaRecorder.onstop = () => {
@@ -670,90 +608,110 @@
                     reader.onloadend = async () => {
                         document.getElementById('rec-status').innerText = "Syncing... 💌";
                         if (window.isFirebaseReady) {
-                            try {
-                                await window.fbModules.addDoc(window.fbModules.collection(window.db, "shared_voice_drops"), {
-                                    sender: userRole,
-                                    time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-                                    audio: reader.result,
-                                    listened: false,
-                                    createdAt: Date.now()
-                                });
-                                document.getElementById('rec-status').innerText = "Sent! ✓";
-                            } catch(err) {
-                                document.getElementById('rec-status').innerText = "Sync Failed";
-                            }
+                            await window.fbModules.addDoc(window.fbModules.collection(window.db, "shared_voice_drops"), {
+                                sender: userRole, type: 'audio',
+                                time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                                audio: reader.result, listCount: 0, createdAt: Date.now()
+                            });
+                            document.getElementById('rec-status').innerText = "Sent! ✓";
                         }
                     };
                 };
                 coupleMediaRecorder.start();
-                document.getElementById('rec-status').innerText = "🔴 Recording...";
-                document.getElementById('record-btn').className = "flex-grow bg-red-500 text-white font-bold py-2 rounded-xl text-xs animate-pulse";
+                document.getElementById('rec-status').innerText = "🔴 Rec...";
+                document.getElementById('record-btn').className = "flex-grow bg-red-500 text-white font-bold py-1.5 rounded-xl text-xs animate-pulse";
                 document.getElementById('stop-btn').disabled = false;
-                document.getElementById('stop-btn').className = "neon-card px-3 py-2 rounded-xl text-xs font-bold text-accent border-accent cursor-pointer";
-            } catch(e) { alert("Microphone access required."); }
+                document.getElementById('stop-btn').className = "neon-card px-3 py-1.5 rounded-xl text-xs font-bold text-accent border-accent cursor-pointer";
+                maxRecordTimeout = setTimeout(() => stopRecording(), 120000);
+            } catch(e) { alert("Mic required."); }
         }
 
         function stopRecording() {
             if (coupleMediaRecorder && coupleMediaRecorder.state !== "inactive") {
+                clearTimeout(maxRecordTimeout);
                 coupleMediaRecorder.stop();
-                document.getElementById('record-btn').className = "flex-grow bg-accent text-white font-bold py-2 rounded-xl text-xs active:scale-95";
+                document.getElementById('record-btn').className = "flex-grow bg-accent text-white font-bold py-1.5 rounded-xl text-xs active:scale-95";
                 document.getElementById('stop-btn').disabled = true;
-                document.getElementById('stop-btn').className = "neon-card px-3 py-2 rounded-xl text-xs opacity-50 cursor-not-allowed";
+                document.getElementById('stop-btn').className = "neon-card px-3 py-1.5 rounded-xl text-xs opacity-50 cursor-not-allowed";
                 lucide.createIcons();
+            }
+        }
+
+        async function handleCoupleTextSubmit(e) {
+            e.preventDefault();
+            const input = document.getElementById('couple-text-input');
+            const txt = input.value.trim();
+            if (!txt) return;
+            if (window.isFirebaseReady) {
+                await window.fbModules.addDoc(window.fbModules.collection(window.db, "shared_voice_drops"), {
+                    sender: userRole, type: 'text', text: txt,
+                    time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                    listCount: 0, createdAt: Date.now()
+                });
+                input.value = '';
+            }
+        }
+
+        async function triggerPlayRule(firebaseId, currentListCount, sender) {
+            if (!window.isFirebaseReady) return;
+            const docRef = window.fbModules.doc(window.db, "shared_voice_drops", firebaseId);
+            const nextCount = (currentListCount || 0) + 1;
+            if (nextCount >= 3) {
+                await window.fbModules.deleteDoc(docRef);
+            } else {
+                await window.fbModules.updateDoc(docRef, { listCount: nextCount });
             }
         }
 
         function renderVoiceMemos() {
             const container = document.getElementById('voice-memos-container');
             if (!container) return;
-            if (sharedVoiceDrops.length === 0) {
-                container.innerHTML = `<p class="text-[10px] opacity-40 text-center py-1">No voice drops yet.</p>`;
-                return;
-            }
-            container.innerHTML = sharedVoiceDrops.slice().reverse().map(memo => `
-                <div class="neon-card p-2.5 space-y-1 border ${memo.listened ? 'border-white/10' : 'border-accent/60 bg-accent/5'}">
-                    <div class="flex items-center justify-between">
-                        <span class="text-[9px] font-bold uppercase tracking-wider text-accent">${memo.sender} 🎙️</span>
-                        <span class="text-[9px] opacity-50">${memo.time}</span>
+            if (sharedDrops.length === 0) { container.innerHTML = `<p class="text-[9px] opacity-40 text-center py-1">No partner drops.</p>`; return; }
+
+            container.innerHTML = sharedDrops.slice().reverse().map(drop => {
+                const isMine = drop.sender === userRole;
+                const playedCount = drop.listCount || 0;
+                const statusLabel = playedCount > 0 ? "Listened ✓" : "Sent (Unplayed)";
+
+                return `
+                    <div class="neon-card p-2 space-y-1 border ${playedCount > 0 ? 'border-accent/40 bg-accent/5' : 'border-white/10'}">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[9px] font-bold text-accent">${drop.sender} 🎙️</span>
+                            <span class="text-[9px] opacity-50">${drop.time}</span>
+                        </div>
+                        ${drop.type === 'text' ? `<p class="text-xs font-semibold py-1">${drop.text}</p>` : `
+                        <div class="flex items-center justify-between gap-1">
+                            <audio controls src="${drop.audio}" onplay="triggerPlayRule('${drop.firebaseId}', ${playedCount}, '${drop.sender}')" class="h-6 w-full"></audio>
+                        </div>`}
+                        <div class="flex justify-between items-center text-[8px] opacity-60 pt-0.5">
+                            <span>${statusLabel} (Plays left: ${3 - playedCount})</span>
+                            ${!isMine || playedCount === 0 ? `<button onclick="deleteDrop('${drop.firebaseId}', ${playedCount}, '${isMine}')" class="hover:text-red-500">Delete</button>` : `<span class="text-red-400">Locked after played</span>`}
+                        </div>
                     </div>
-                    <div class="flex items-center justify-between gap-1.5">
-                        <audio controls src="${memo.audio}" onplay="markAsListened('${memo.firebaseId}')" class="h-7 w-full"></audio>
-                        <button onclick="deleteVoiceMemo('${memo.firebaseId}')" class="opacity-50 hover:text-red-500 p-1"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
             lucide.createIcons();
         }
 
-        function markAsListened(id) {
-            sharedVoiceDrops = sharedVoiceDrops.map(m => m.firebaseId === id ? {...m, listened: true} : m);
-            renderVoiceMemos();
-        }
-
-        async function deleteVoiceMemo(firebaseId) {
-            const drop = sharedVoiceDrops.find(d => d.firebaseId === firebaseId);
-            if (drop && !drop.listened) {
-                alert("Listen to this voice drop before deleting it!");
+        async function deleteDrop(firebaseId, playedCount, isMineStr) {
+            const isMine = isMineStr === 'true';
+            if (isMine && playedCount > 0) {
+                alert("Cannot delete after your partner has listened to it!");
                 return;
             }
-            if (window.isFirebaseReady && firebaseId) {
+            if (window.isFirebaseReady) {
                 await window.fbModules.deleteDoc(window.fbModules.doc(window.db, "shared_voice_drops", firebaseId));
             }
         }
 
         // Pomodoro
-        function setTimerDuration(mins) {
-            pauseTimer();
-            selectedTimerMinutes = mins;
-            timeLeft = mins * 60;
-            updateTimerDisplay();
-        }
+        function setTimerDuration(m) { pauseTimer(); selectedTimerMinutes = m; timeLeft = m * 60; updateTimerDisplay(); }
         function startTimer() {
             if (isTimerRunning) return;
             isTimerRunning = true;
             timerInterval = setInterval(() => {
                 if (timeLeft > 0) { timeLeft--; updateTimerDisplay(); }
-                else { clearInterval(timerInterval); isTimerRunning = false; alert("Pomodoro session completed! 🎉"); }
+                else { clearInterval(timerInterval); isTimerRunning = false; alert("Pomodoro complete! 🎉"); }
             }, 1000);
         }
         function pauseTimer() { clearInterval(timerInterval); isTimerRunning = false; }
@@ -763,33 +721,26 @@
             document.getElementById('timer-display').innerText = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
         }
 
-        // Minimal Calendar
+        // Calendar
         function renderMonthlyCalendar() {
             const grid = document.getElementById('monthly-grid');
             if(!grid) return;
             const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
             document.getElementById('calendar-month-year').innerText = `${monthNames[calMonth]} ${calYear}`;
-
             const firstDayIndex = new Date(calYear, calMonth, 1).getDay();
             const totalDays = new Date(calYear, calMonth + 1, 0).getDate();
-
             let html = '';
             for (let i = 0; i < firstDayIndex; i++) html += `<div></div>`;
-
             for (let day = 1; day <= totalDays; day++) {
                 const dKey = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const isSelected = dKey === selectedDateKey;
-                let btnClass = 'neon-card opacity-70';
-                if (isSelected) btnClass = 'bg-accent border-accent text-white font-bold';
-
-                html += `<button onclick="selectCalendarDate('${dKey}')" class="aspect-square rounded-lg ${btnClass} flex items-center justify-center text-[10px]">${day}</button>`;
+                html += `<button onclick="selectCalendarDate('${dKey}')" class="aspect-square rounded ${isSelected ? 'bg-accent text-white font-bold' : 'neon-card'} flex items-center justify-center text-[9px]">${day}</button>`;
             }
             grid.innerHTML = html;
         }
         function changeMonth(dir) {
             calMonth += dir;
-            if (calMonth > 11) { calMonth = 0; calYear++; }
-            else if (calMonth < 0) { calMonth = 11; calYear--; }
+            if (calMonth > 11) { calMonth = 0; calYear++; } else if (calMonth < 0) { calMonth = 11; calYear--; }
             renderMonthlyCalendar();
         }
         function selectCalendarDate(dKey) { selectedDateKey = dKey; renderMonthlyCalendar(); }
@@ -798,19 +749,18 @@
         function renderExpenses() {
             const container = document.getElementById('expense-list-container');
             if (!container) return;
-            let total = 0;
-            expenses.forEach(e => total += Number(e.amount));
+            let total = 0; expenses.forEach(e => total += Number(e.amount));
             document.getElementById('total-expense-amount').innerText = `₹${total}`;
-            if (expenses.length === 0) { container.innerHTML = `<p class="text-[10px] opacity-40 text-center py-2">No expenses logged.</p>`; return; }
+            if (expenses.length === 0) { container.innerHTML = `<p class="text-[9px] opacity-40 text-center py-1">No expenses.</p>`; return; }
             container.innerHTML = expenses.slice().reverse().map(exp => `
-                <div class="neon-card p-2.5 flex items-center justify-between">
+                <div class="neon-card p-2 flex items-center justify-between">
                     <div>
                         <h4 class="text-xs font-bold">${exp.name}</h4>
-                        <span class="text-[9px] opacity-60">${exp.category} • ${exp.date || 'Today'}</span>
+                        <span class="text-[8px] opacity-60">${exp.category} • ${exp.date || 'Today'}</span>
                     </div>
                     <div class="flex items-center gap-2">
                         <span class="text-xs font-extrabold text-accent">₹${exp.amount}</span>
-                        <button onclick="deleteExpense('${exp.id}')" class="opacity-50 hover:text-red-500 p-1"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                        <button onclick="deleteExpense('${exp.id}')" class="opacity-50 hover:text-red-500 p-1"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
                     </div>
                 </div>
             `).join('');
@@ -822,10 +772,8 @@
             const amount = document.getElementById('expense-amount').value.trim();
             const category = document.getElementById('expense-category').value;
             if (!name || !amount) return;
-            const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-            expenses.push({ id: Date.now().toString(), name, amount, category, date: dateStr });
-            document.getElementById('expense-name').value = '';
-            document.getElementById('expense-amount').value = '';
+            expenses.push({ id: Date.now().toString(), name, amount, category, date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) });
+            document.getElementById('expense-name').value = ''; document.getElementById('expense-amount').value = '';
             saveExpenses();
         }
         function deleteExpense(id) { expenses = expenses.filter(e => e.id !== id); saveExpenses(); }
@@ -834,47 +782,39 @@
             const container = document.getElementById('habits-container');
             const emptyState = document.getElementById('empty-state');
             const todayKey = getTodayKey();
-            
             document.getElementById('current-date-label').innerText = new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 
-            renderWeeklyChart();
-            renderExpenses();
-            renderMonthlyCalendar();
-            renderPersonalMemos();
-            updateWaterDisplay();
+            renderWeeklyChart(); renderExpenses(); renderMonthlyCalendar(); renderPersonalMemos();
 
             let completedTodayCount = 0, maxStreak = 0;
             habits.forEach(h => {
                 if (h.history[todayKey]) completedTodayCount++;
                 if (h.streak > maxStreak) maxStreak = h.streak;
             });
-
             document.getElementById('today-completed-count').innerText = `${completedTodayCount}/${habits.length}`;
             document.getElementById('max-streak-count').innerText = `${maxStreak}d`;
 
             if (habits.length === 0) {
                 if (container) container.innerHTML = '';
                 if (emptyState) emptyState.classList.remove('hidden');
-                lucide.createIcons();
-                return;
+                lucide.createIcons(); return;
             }
-
             if (emptyState) emptyState.classList.add('hidden');
             if (container) {
                 container.innerHTML = habits.map(habit => {
                     const isCompleted = habit.history[todayKey] || false;
                     return `
-                        <div class="neon-card p-3 flex items-center justify-between">
-                            <div class="flex items-center gap-2.5">
-                                <button onclick="toggleHabit('${habit.id}')" class="w-6 h-6 rounded-lg border ${isCompleted ? 'bg-accent border-accent text-white' : 'border-slate-600 neon-card text-transparent'} flex items-center justify-center active:scale-95">
-                                    <i data-lucide="check" class="w-3.5 h-3.5 stroke-[3]"></i>
+                        <div class="neon-card p-2.5 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <button onclick="toggleHabit('${habit.id}')" class="w-5 h-5 rounded-md border ${isCompleted ? 'bg-accent border-accent text-white' : 'border-slate-600 neon-card text-transparent'} flex items-center justify-center active:scale-95">
+                                    <i data-lucide="check" class="w-3 h-3 stroke-[3]"></i>
                                 </button>
                                 <div>
                                     <h4 class="text-xs font-bold ${isCompleted ? 'line-through opacity-40' : ''}">${habit.name}</h4>
-                                    <span class="text-[9px] font-bold opacity-60">${habit.category} • 🔥 ${habit.streak}d</span>
+                                    <span class="text-[8px] font-bold opacity-60">${habit.category} • 🔥 ${habit.streak}d</span>
                                 </div>
                             </div>
-                            <button onclick="deleteHabit('${habit.id}')" class="opacity-50 hover:text-red-500 p-1"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                            <button onclick="deleteHabit('${habit.id}')" class="opacity-50 hover:text-red-500 p-1"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
                         </div>
                     `;
                 }).join('');
@@ -887,22 +827,18 @@
             if (!chartContainer) return;
             let daysHtml = '';
             for (let i = 6; i >= 0; i--) {
-                const d = new Date();
-                d.setDate(d.getDate() - i);
+                const d = new Date(); d.setDate(d.getDate() - i);
                 const dateKey = getDateKey(d);
                 const dayName = d.toLocaleDateString('en-US', { weekday: 'narrow' });
-
-                let totalHabits = habits.length, completedOnDay = 0;
+                let completedOnDay = 0;
                 habits.forEach(h => { if (h.history && h.history[dateKey]) completedOnDay++; });
-
-                const ratio = totalHabits > 0 ? (completedOnDay / totalHabits) : 0;
+                const ratio = habits.length > 0 ? (completedOnDay / habits.length) : 0;
                 let bgClass = 'neon-card opacity-60';
-                if (totalHabits > 0 && ratio === 1) bgClass = 'bg-accent border-accent text-white font-bold shadow-md';
-                else if (totalHabits > 0 && ratio > 0) bgClass = 'bg-accent/20 border-accent/40 text-accent font-bold';
-
+                if (habits.length > 0 && ratio === 1) bgClass = 'bg-accent border-accent text-white font-bold';
+                else if (habits.length > 0 && ratio > 0) bgClass = 'bg-accent/20 border-accent/40 text-accent font-bold';
                 daysHtml += `
                     <div class="flex flex-col items-center">
-                        <div class="w-full aspect-square rounded-lg border ${bgClass} flex items-center justify-center text-[10px] mb-0.5">${completedOnDay > 0 ? completedOnDay : ''}</div>
+                        <div class="w-full aspect-square rounded border ${bgClass} flex items-center justify-center text-[9px] mb-0.5">${completedOnDay > 0 ? completedOnDay : ''}</div>
                         <span class="text-[8px] font-bold opacity-50 uppercase">${dayName}</span>
                     </div>
                 `;
@@ -923,14 +859,13 @@
             saveHabits();
         }
         function deleteHabit(id) { habits = habits.filter(h => h.id !== id); saveHabits(); }
-        function resetAllData() { if (confirm("Reset local app data?")) { localStorage.clear(); location.reload(); } }
 
         function openAddModal() { document.getElementById('add-modal').classList.remove('hidden'); document.getElementById('habit-name-input').focus(); }
         function closeAddModal() { document.getElementById('add-modal').classList.add('hidden'); document.getElementById('habit-form').reset(); }
         function setCategory(cat) {
             selectedCategory = cat;
             document.querySelectorAll('.cat-btn').forEach(btn => {
-                btn.className = btn.dataset.cat === cat ? "cat-btn py-2 px-2 rounded-xl border border-accent bg-accent/10 text-accent text-xs font-bold" : "cat-btn py-2 px-2 rounded-xl neon-card opacity-70 text-xs font-semibold";
+                btn.className = btn.dataset.cat === cat ? "cat-btn py-1.5 px-2 rounded-lg border border-accent bg-accent/10 text-accent text-xs font-bold" : "cat-btn py-1.5 px-2 rounded-lg neon-card opacity-70 text-xs font-semibold";
             });
         }
         function handleHabitSubmit(e) {
