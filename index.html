@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HabitFlow - Habit Tracking Dashboard</title>
+    <title>HabitFlow - Built for Eku ❤️</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
@@ -29,9 +29,9 @@
         <div class="max-w-md mx-auto px-4 py-4 flex justify-between items-center">
             <div>
                 <h1 class="text-xl font-bold tracking-tight flex items-center gap-2">
-                    <i data-lucide="check-circle-2" class="text-emerald-500 w-6 h-6"></i> HabitFlow
+                    <i data-lucide="heart" class="text-rose-500 w-6 h-6 fill-rose-500"></i> HabitFlow
                 </h1>
-                <p class="text-xs text-slate-500 dark:text-slate-400">Build better daily routines</p>
+                <p class="text-xs text-rose-500 dark:text-rose-400 font-medium">Made with love for Eku ❤️</p>
             </div>
             <div class="flex items-center gap-2">
                 <button onclick="openAddModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-xl text-sm font-medium flex items-center gap-1 transition shadow-lg shadow-emerald-900/10">
@@ -46,6 +46,16 @@
         
         <!-- ================= TAB 1: DASHBOARD ================= -->
         <div id="tab-dashboard" class="tab-content space-y-4">
+            <!-- Love & Motivation Banner for Eku -->
+            <div class="bg-gradient-to-r from-rose-500/15 via-pink-500/15 to-emerald-500/15 border border-rose-500/30 rounded-2xl p-4 shadow-sm text-center relative overflow-hidden">
+                <div class="text-xs uppercase tracking-wider text-rose-500 dark:text-rose-400 font-bold mb-1 flex items-center justify-center gap-1">
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Daily Motivation for Eku
+                </div>
+                <p class="text-sm font-medium text-slate-800 dark:text-slate-200" id="motivation-text">
+                    "Every small step you take today brings your biggest dreams closer. You've got this, Eku!"
+                </p>
+            </div>
+
             <!-- Stats Summary Card -->
             <div class="grid grid-cols-2 gap-3">
                 <div class="bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl p-4 shadow-sm">
@@ -70,21 +80,17 @@
                     <span>Last 7 Days Progress</span>
                     <i data-lucide="bar-chart-3" class="w-4 h-4 text-emerald-500"></i>
                 </h3>
-                <div class="grid grid-cols-7 gap-2" id="weekly-chart-container">
-                    <!-- Populated dynamically -->
-                </div>
+                <div class="grid grid-cols-7 gap-2" id="weekly-chart-container"></div>
             </div>
 
             <!-- Date Header -->
             <div class="flex justify-between items-center pt-2">
                 <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400" id="current-date-label">Today</h2>
-                <span class="text-xs text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full font-medium" id="streak-label">Keep it up!</span>
+                <span class="text-xs text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full font-medium" id="streak-label">Keep shining!</span>
             </div>
 
             <!-- Habits List -->
-            <div id="habits-container" class="space-y-3">
-                <!-- Dynamically populated habits -->
-            </div>
+            <div id="habits-container" class="space-y-3"></div>
 
             <!-- Empty State -->
             <div id="empty-state" class="hidden text-center py-12 px-4">
@@ -92,12 +98,57 @@
                     <i data-lucide="list-todo" class="w-8 h-8"></i>
                 </div>
                 <h3 class="font-medium mb-1">No habits tracked yet</h3>
-                <p class="text-slate-500 dark:text-slate-400 text-sm mb-4">Add your first daily habit to start building your streak.</p>
+                <p class="text-slate-500 dark:text-slate-400 text-sm mb-4">Add your first habit to start building your routine.</p>
                 <button onclick="openAddModal()" class="text-emerald-600 dark:text-emerald-400 font-medium text-sm hover:underline">Add a Habit Now</button>
             </div>
         </div>
 
-        <!-- ================= TAB 2: ANALYTICS ================= -->
+        <!-- ================= TAB 2: CALENDAR & PLANNER ================= -->
+        <div id="tab-calendar" class="tab-content hidden space-y-4">
+            <div class="bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl p-4 shadow-sm">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="font-bold text-sm uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                        <i data-lucide="calendar" class="w-4 h-4 text-emerald-500"></i> Day Planner & Notes
+                    </h3>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Select Date</label>
+                    <input type="date" id="planner-date-picker" onchange="loadDayPlanner()" class="w-full bg-slate-50 dark:bg-dark-bg border border-slate-200 dark:border-dark-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-500">
+                </div>
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Daily Notes & Reminders</label>
+                        <textarea id="planner-notes-input" rows="3" placeholder="Write reminders, schedule, or thoughts for this day..." oninput="saveDayPlannerNotes()" class="w-full bg-slate-50 dark:bg-dark-bg border border-slate-200 dark:border-dark-border rounded-xl p-3 text-sm placeholder-slate-400 focus:outline-none focus:border-emerald-500"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Today's Calendar Tasks Preview -->
+            <div class="bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl p-4 shadow-sm">
+                <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Today's Scheduled Focus</h4>
+                <div id="calendar-daily-summary" class="text-sm text-slate-600 dark:text-slate-300">
+                    No special notes for today yet. Use the planner above to record your day!
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 3: TO-DO LIST ================= -->
+        <div id="tab-todo" class="tab-content hidden space-y-4">
+            <div class="bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl p-4 shadow-sm">
+                <h3 class="font-bold text-sm uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3 flex items-center gap-2">
+                    <i data-lucide="check-square" class="w-4 h-4 text-emerald-500"></i> Eku's To-Do List
+                </h3>
+                <form onsubmit="handleTodoSubmit(event)" class="flex gap-2 mb-4">
+                    <input type="text" id="todo-input" required placeholder="Add a quick task..." class="flex-grow bg-slate-50 dark:bg-dark-bg border border-slate-200 dark:border-dark-border rounded-xl px-3 py-2 text-sm placeholder-slate-400 focus:outline-none focus:border-emerald-500">
+                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-sm font-medium transition">Add</button>
+                </form>
+                <div id="todo-list-container" class="space-y-2">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 4: ANALYTICS ================= -->
         <div id="tab-analytics" class="tab-content hidden space-y-4">
             <div class="bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl p-5 shadow-sm">
                 <h3 class="font-bold text-base mb-1 flex items-center gap-2">
@@ -124,7 +175,7 @@
             </div>
         </div>
 
-        <!-- ================= TAB 3: SETTINGS ================= -->
+        <!-- ================= TAB 5: SETTINGS ================= -->
         <div id="tab-settings" class="tab-content hidden space-y-4">
             <div class="bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl p-5 shadow-sm space-y-4">
                 <h3 class="font-bold text-base mb-1 flex items-center gap-2">
@@ -158,19 +209,27 @@
     </main>
 
     <!-- Bottom Navigation Bar -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-dark-card border-t border-slate-200 dark:border-dark-border py-2 px-6 z-20 transition-colors duration-200">
+    <nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-dark-card border-t border-slate-200 dark:border-dark-border py-2 px-3 z-20 transition-colors duration-200">
         <div class="max-w-md mx-auto flex justify-around">
             <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn flex flex-col items-center gap-1 text-emerald-600 dark:text-emerald-400 transition">
                 <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
-                <span class="text-[10px] font-medium">Dashboard</span>
+                <span class="text-[9px] font-medium">Dashboard</span>
+            </button>
+            <button onclick="switchTab('calendar')" id="nav-calendar" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition">
+                <i data-lucide="calendar" class="w-5 h-5"></i>
+                <span class="text-[9px] font-medium">Planner</span>
+            </button>
+            <button onclick="switchTab('todo')" id="nav-todo" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition">
+                <i data-lucide="check-square" class="w-5 h-5"></i>
+                <span class="text-[9px] font-medium">To-Do</span>
             </button>
             <button onclick="switchTab('analytics')" id="nav-analytics" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition">
                 <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
-                <span class="text-[10px] font-medium">Analytics</span>
+                <span class="text-[9px] font-medium">Analytics</span>
             </button>
             <button onclick="switchTab('settings')" id="nav-settings" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition">
                 <i data-lucide="settings" class="w-5 h-5"></i>
-                <span class="text-[10px] font-medium">Settings</span>
+                <span class="text-[9px] font-medium">Settings</span>
             </button>
         </div>
     </nav>
@@ -179,7 +238,7 @@
     <div id="add-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
         <div class="bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border w-full max-w-md rounded-t-3xl sm:rounded-2xl p-6 shadow-2xl">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold">Create New Habit</h3>
+                <h3 class="text-lg font-bold">Add New Habit for Eku</h3>
                 <button onclick="closeAddModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white p-1">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
@@ -187,14 +246,14 @@
             <form id="habit-form" onsubmit="handleHabitSubmit(event)">
                 <div class="mb-4">
                     <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Habit Name</label>
-                    <input type="text" id="habit-name-input" required placeholder="e.g., Morning Meditation" class="w-full bg-slate-50 dark:bg-dark-bg border border-slate-200 dark:border-dark-border rounded-xl px-4 py-3 placeholder-slate-400 focus:outline-none focus:border-emerald-500 text-sm">
+                    <input type="text" id="habit-name-input" required placeholder="e.g., Skincare routine, Drink water" class="w-full bg-slate-50 dark:bg-dark-bg border border-slate-200 dark:border-dark-border rounded-xl px-4 py-3 placeholder-slate-400 focus:outline-none focus:border-emerald-500 text-sm">
                 </div>
                 <div class="mb-6">
                     <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Category</label>
                     <div class="grid grid-cols-3 gap-2">
                         <button type="button" onclick="setCategory('Fitness')" class="cat-btn py-2.5 px-3 rounded-xl border border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-medium transition" data-cat="Fitness">Fitness</button>
-                        <button type="button" onclick="setCategory('Mind')" class="cat-btn py-2.5 px-3 rounded-xl border border-slate-200 dark:border-dark-border bg-slate-50 dark:bg-dark-bg text-slate-500 dark:text-slate-400 text-xs font-medium transition" data-cat="Mind">Mind</button>
-                        <button type="button" onclick="setCategory('Health')" class="cat-btn py-2.5 px-3 rounded-xl border border-slate-200 dark:border-dark-border bg-slate-50 dark:bg-dark-bg text-slate-500 dark:text-slate-400 text-xs font-medium transition" data-cat="Health">Health</button>
+                        <button type="button" onclick="setCategory('Wellness')" class="cat-btn py-2.5 px-3 rounded-xl border border-slate-200 dark:border-dark-border bg-slate-50 dark:bg-dark-bg text-slate-500 dark:text-slate-400 text-xs font-medium transition" data-cat="Wellness">Wellness</button>
+                        <button type="button" onclick="setCategory('Study')" class="cat-btn py-2.5 px-3 rounded-xl border border-slate-200 dark:border-dark-border bg-slate-50 dark:bg-dark-bg text-slate-500 dark:text-slate-400 text-xs font-medium transition" data-cat="Study">Study</button>
                     </div>
                 </div>
                 <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 rounded-xl transition shadow-lg shadow-emerald-900/10 text-sm">Save Habit</button>
@@ -205,13 +264,25 @@
     <!-- App Logic -->
     <script>
         let habits = JSON.parse(localStorage.getItem('habitflow_habits')) || [
-            { id: '1', name: 'Morning Walk 30m', category: 'Fitness', history: {}, streak: 0 },
-            { id: '2', name: 'Read 15 Pages', category: 'Mind', history: {}, streak: 0 }
+            { id: '1', name: 'Morning Skincare Routine', category: 'Wellness', history: {}, streak: 0 },
+            { id: '2', name: 'Drink 8 Glasses of Water', category: 'Fitness', history: {}, streak: 0 }
         ];
+        let todos = JSON.parse(localStorage.getItem('habitflow_todos')) || [
+            { id: 't1', text: 'Plan weekend outing', completed: false }
+        ];
+        let plannerNotes = JSON.parse(localStorage.getItem('habitflow_planner')) || {};
         let selectedCategory = 'Fitness';
         let currentTheme = localStorage.getItem('habitflow_theme') || 'dark';
 
-        // Initialize Theme
+        const motivations = [
+            "Every small step you take today brings your biggest dreams closer. You've got this, Eku! ❤️",
+            "Your dedication inspires everyone around you. Have a wonderful, productive day, Eku! ✨",
+            "Believe in yourself as much as I believe in you. Make today amazing, Eku! 🌸",
+            "Small daily improvements lead to stunning results over time. Keep shining, Eku! 💫"
+        ];
+        document.getElementById('motivation-text').innerText = `"${motivations[Math.floor(Math.random() * motivations.length)]}"`;
+
+        // Initialize Theme & Date
         if (currentTheme === 'light') {
             document.getElementById('html-root').classList.remove('dark');
             document.getElementById('theme-toggle-btn').innerText = 'Light';
@@ -219,6 +290,9 @@
             document.getElementById('html-root').classList.add('dark');
             document.getElementById('theme-toggle-btn').innerText = 'Dark';
         }
+
+        const todayStr = getDateKey(new Date());
+        document.getElementById('planner-date-picker').value = todayStr;
 
         function toggleTheme() {
             const htmlRoot = document.getElementById('html-root');
@@ -235,7 +309,7 @@
         }
 
         function switchTab(tabName) {
-            ['dashboard', 'analytics', 'settings'].forEach(t => {
+            ['dashboard', 'calendar', 'todo', 'analytics', 'settings'].forEach(t => {
                 document.getElementById(`tab-${t}`).classList.add('hidden');
                 document.getElementById(`nav-${t}`).className = "nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition";
             });
@@ -257,6 +331,78 @@
             render();
         }
 
+        function saveTodos() {
+            localStorage.setItem('habitflow_todos', JSON.stringify(todos));
+            renderTodos();
+        }
+
+        function loadDayPlanner() {
+            const dateVal = document.getElementById('planner-date-picker').value;
+            document.getElementById('planner-notes-input').value = plannerNotes[dateVal] || '';
+            updateCalendarSummary();
+        }
+
+        function saveDayPlannerNotes() {
+            const dateVal = document.getElementById('planner-date-picker').value;
+            const textVal = document.getElementById('planner-notes-input').value;
+            plannerNotes[dateVal] = textVal;
+            localStorage.setItem('habitflow_planner', JSON.stringify(plannerNotes));
+            updateCalendarSummary();
+        }
+
+        function updateCalendarSummary() {
+            const dateVal = document.getElementById('planner-date-picker').value;
+            const note = plannerNotes[dateVal];
+            const summaryEl = document.getElementById('calendar-daily-summary');
+            if (note && note.trim() !== '') {
+                summaryEl.innerHTML = `<p class="italic text-emerald-600 dark:text-emerald-400">${note}</p>`;
+            } else {
+                summaryEl.innerText = "No special notes for this date yet. Use the planner above to record reminders!";
+            }
+        }
+
+        function renderTodos() {
+            const container = document.getElementById('todo-list-container');
+            if (todos.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">No tasks in your to-do list yet.</p>`;
+                return;
+            }
+            container.innerHTML = todos.map(t => `
+                <div class="bg-slate-50 dark:bg-dark-bg border border-slate-200 dark:border-dark-border rounded-xl p-3 flex items-center justify-between shadow-sm">
+                    <div class="flex items-center gap-3">
+                        <button onclick="toggleTodo('${t.id}')" class="w-5 h-5 rounded border ${t.completed ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-400 bg-white dark:bg-dark-card text-transparent'} flex items-center justify-center transition">
+                            <i data-lucide="check" class="w-3 h-3 stroke-[3]"></i>
+                        </button>
+                        <span class="text-sm ${t.completed ? 'line-through text-slate-400 dark:text-slate-500' : ''}">${t.text}</span>
+                    </div>
+                    <button onclick="deleteTodo('${t.id}')" class="text-slate-400 hover:text-red-500 p-1 transition">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function handleTodoSubmit(e) {
+            e.preventDefault();
+            const input = document.getElementById('todo-input');
+            const val = input.value.trim();
+            if(!val) return;
+            todos.push({ id: Date.now().toString(), text: val, completed: false });
+            input.value = '';
+            saveTodos();
+        }
+
+        function toggleTodo(id) {
+            todos = todos.map(t => t.id === id ? {...t, completed: !t.completed} : t);
+            saveTodos();
+        }
+
+        function deleteTodo(id) {
+            todos = todos.filter(t => t.id !== id);
+            saveTodos();
+        }
+
         function render() {
             const container = document.getElementById('habits-container');
             const emptyState = document.getElementById('empty-state');
@@ -266,8 +412,9 @@
             document.getElementById('current-date-label').innerText = new Date().toLocaleDateString('en-US', options);
 
             renderWeeklyChart();
+            renderTodos();
+            loadDayPlanner();
 
-            // Update Analytics metrics
             document.getElementById('stats-total-habits').innerText = habits.length;
             let bestStreak = 0;
             habits.forEach(h => { if (h.streak > bestStreak) bestStreak = h.streak; });
@@ -373,9 +520,14 @@
         }
 
         function resetAllData() {
-            if (confirm("Are you sure you want to reset all habits?")) {
+            if (confirm("Are you sure you want to reset all data?")) {
                 habits = [];
-                saveHabits();
+                todos = [];
+                plannerNotes = {};
+                localStorage.removeItem('habitflow_habits');
+                localStorage.removeItem('habitflow_todos');
+                localStorage.removeItem('habitflow_planner');
+                render();
             }
         }
 
