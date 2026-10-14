@@ -61,6 +61,17 @@
             </div>
         </div>
 
+        <!-- Weekly Consistency Tracker -->
+        <div class="bg-dark-card border border-dark-border rounded-2xl p-4 mb-6 shadow-sm">
+            <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3 flex items-center justify-between">
+                <span>Last 7 Days Progress</span>
+                <i data-lucide="bar-chart-3" class="w-4 h-4 text-emerald-400"></i>
+            </h3>
+            <div class="grid grid-cols-7 gap-2" id="weekly-chart-container">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+
         <!-- Date Header -->
         <div class="flex justify-between items-center mb-4">
             <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400" id="current-date-label">Today</h2>
@@ -80,6 +91,11 @@
             <h3 class="text-white font-medium mb-1">No habits tracked yet</h3>
             <p class="text-slate-400 text-sm mb-4">Add your first daily habit to start building your streak.</p>
             <button onclick="openAddModal()" class="text-emerald-400 font-medium text-sm hover:underline">Add a Habit Now</button>
+        </div>
+
+        <!-- Reset Data Button -->
+        <div class="mt-8 text-center">
+            <button onclick="resetAllData()" class="text-xs text-slate-500 hover:text-red-400 transition underline">Reset all habit data</button>
         </div>
     </main>
 
@@ -118,9 +134,12 @@
         ];
         let selectedCategory = 'Fitness';
 
+        function getDateKey(dateObj) {
+            return `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`;
+        }
+
         function getTodayKey() {
-            const d = new Date();
-            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            return getDateKey(new Date());
         }
 
         function saveHabits() {
@@ -136,6 +155,8 @@
             // Format today date label
             const options = { weekday: 'long', month: 'short', day: 'numeric' };
             document.getElementById('current-date-label').innerText = new Date().toLocaleDateString('en-US', options);
+
+            renderWeeklyChart();
 
             if (habits.length === 0) {
                 container.innerHTML = '';
@@ -180,10 +201,49 @@
             lucide.createIcons();
         }
 
+        function renderWeeklyChart() {
+            const chartContainer = document.getElementById('weekly-chart-container');
+            let daysHtml = '';
+            
+            // Generate last 7 days
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                const dateKey = getDateKey(d);
+                const dayName = d.toLocaleDateString('en-US', { weekday: 'narrow' });
+
+                // Count how many habits were completed on this day
+                let totalHabits = habits.length;
+                let completedOnDay = 0;
+                habits.forEach(h => {
+                    if (h.history && h.history[dateKey]) completedOnDay++;
+                });
+
+                const ratio = totalHabits > 0 ? (completedOnDay / totalHabits) : 0;
+                let bgClass = 'bg-dark-bg border-dark-border text-slate-500';
+                if (totalHabits > 0 && ratio === 1) {
+                    bgClass = 'bg-emerald-500 border-emerald-500 text-white font-bold';
+                } else if (totalHabits > 0 && ratio > 0) {
+                    bgClass = 'bg-emerald-500/30 border-emerald-500/50 text-emerald-300';
+                }
+
+                daysHtml += `
+                    <div class="flex flex-col items-center">
+                        <div class="w-full aspect-square rounded-xl border ${bgClass} flex items-center justify-center text-xs transition mb-1">
+                            ${completedOnDay > 0 ? completedOnDay : ''}
+                        </div>
+                        <span class="text-[10px] text-slate-400 uppercase">${dayName}</span>
+                    </div>
+                `;
+            }
+            chartContainer.innerHTML = daysHtml;
+        }
+
         function toggleHabit(id) {
             const todayKey = getTodayKey();
             habits = habits.map(h => {
                 if (h.id === id) {
+                    if (!h.history) h.history = {};
                     const currentStatus = h.history[todayKey] || false;
                     h.history[todayKey] = !currentStatus;
                     h.streak = h.history[todayKey] ? h.streak + 1 : Math.max(0, h.streak - 1);
@@ -196,6 +256,13 @@
         function deleteHabit(id) {
             habits = habits.filter(h => h.id !== id);
             saveHabits();
+        }
+
+        function resetAllData() {
+            if (confirm("Are you sure you want to reset all habits?")) {
+                habits = [];
+                saveHabits();
+            }
         }
 
         function openAddModal() {
