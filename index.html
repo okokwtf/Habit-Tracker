@@ -69,16 +69,16 @@
             --border-color: rgba(255, 255, 255, 0.1);
         }
         [data-theme="light-white"] {
-            --bg-color: #ffffff;
+            --bg-color: #f8fafc;
             --card-color: #ffffff;
             --border-color: #cbd5e1;
-            --glow-color: rgba(0, 0, 0, 0.06);
+            --glow-color: rgba(0, 0, 0, 0.04);
         }
         [data-theme="clean-light"] {
             --bg-color: #f1f5f9;
             --card-color: #ffffff;
             --border-color: #94a3b8;
-            --glow-color: rgba(0, 0, 0, 0.08);
+            --glow-color: rgba(0, 0, 0, 0.06);
         }
 
         body {
@@ -121,7 +121,7 @@
         </div>
     </div>
 
-    <!-- Header (Logo & Add button visible ONLY in Habits Tab) -->
+    <!-- Header (Dynamic Header Action: Add button on Habits, Digital Clock on other tabs) -->
     <header class="neon-card sticky top-0 z-10 mx-3 mt-2 sm:mx-auto sm:max-w-md sm:w-full">
         <div class="px-4 py-3 flex justify-between items-center">
             <div>
@@ -133,6 +133,10 @@
                     <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add
                 </button>
             </div>
+            <div id="header-clock-container" class="hidden text-right">
+                <div class="text-xs font-extrabold text-accent font-mono" id="live-digital-clock">00:00:00</div>
+                <div class="text-[9px] opacity-60 font-semibold" id="live-header-date">Today</div>
+            </div>
         </div>
     </header>
 
@@ -141,7 +145,7 @@
         
         <!-- ================= TAB 1: DASHBOARD (HABITS) ================= -->
         <div id="tab-dashboard" class="tab-content space-y-3">
-            <div class="neon-card p-4 text-center relative">
+            <div class="neon-card p-3.5 text-center relative">
                 <div class="text-[10px] uppercase tracking-wider text-accent font-bold mb-1 flex items-center justify-center gap-1">
                     <i data-lucide="sparkles" class="w-3 h-3"></i> <span id="motivation-header-label">Daily Motivation</span>
                 </div>
@@ -176,7 +180,7 @@
                 </div>
             </div>
 
-            <!-- Weekly Progress Moved Above Habits -->
+            <!-- Weekly Progress Card -->
             <div class="neon-card p-3.5">
                 <h3 class="text-[10px] font-bold uppercase tracking-wider opacity-60 mb-2 flex items-center justify-between">
                     <span>Last 7 Days Progress</span>
@@ -190,9 +194,9 @@
                 <span class="text-[10px] text-accent bg-accent/10 px-2 py-0.5 rounded-full font-bold">Keep shining!</span>
             </div>
 
-            <div id="habits-container" class="space-y-2.5 max-h-[32vh] overflow-y-auto"></div>
+            <div id="habits-container" class="space-y-2.5 max-h-[30vh] overflow-y-auto"></div>
 
-            <div id="empty-state" class="hidden text-center py-8 px-4">
+            <div id="empty-state" class="hidden text-center py-6 px-4">
                 <div class="w-12 h-12 neon-card rounded-full flex items-center justify-center mx-auto mb-2 opacity-50">
                     <i data-lucide="list-todo" class="w-6 h-6"></i>
                 </div>
@@ -269,41 +273,44 @@
             </div>
         </div>
 
-        <!-- ================= TAB 4: JOURNAL (SCRATCHPAD, PLANNER & PERSONAL VOICE MEMOS) ================= -->
+        <!-- ================= TAB 4: JOURNAL (BALANCED SCRATCHPAD, PLANNER & PERSONAL MEMOS) ================= -->
         <div id="tab-journal" class="tab-content hidden space-y-3">
-            <!-- Scratchpad Card at Top -->
-            <div class="neon-card p-3.5 space-y-2">
-                <h3 class="font-bold text-[10px] uppercase tracking-wider opacity-60 flex items-center gap-1.5">
-                    <i data-lucide="book-open" class="w-4 h-4 text-accent"></i> Scratchpad
-                </h3>
-                <textarea id="scratchpad-input" placeholder="Jot down notes, ideas, reflections..." oninput="saveScratchpad()" class="w-full h-24 neon-card rounded-xl p-3 text-xs font-medium placeholder-slate-500 focus:outline-none resize-none"></textarea>
+            <div class="grid grid-cols-2 gap-2.5">
+                <!-- Scratchpad Card -->
+                <div class="neon-card p-3 space-y-1.5 flex flex-col h-[22vh]">
+                    <h3 class="font-bold text-[9px] uppercase tracking-wider opacity-60 flex items-center gap-1">
+                        <i data-lucide="book-open" class="w-3.5 h-3.5 text-accent"></i> Scratchpad
+                    </h3>
+                    <textarea id="scratchpad-input" placeholder="Jot down notes..." oninput="saveScratchpad()" class="w-full flex-grow neon-card rounded-xl p-2.5 text-[11px] font-medium placeholder-slate-500 focus:outline-none resize-none"></textarea>
+                </div>
+
+                <!-- Planner Calendar Card (Slightly smaller, balanced) -->
+                <div class="neon-card p-3 space-y-1 flex flex-col h-[22vh]">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-bold text-[9px] uppercase tracking-wider opacity-60 flex items-center gap-1">
+                            <i data-lucide="calendar" class="w-3.5 h-3.5 text-accent"></i> Planner
+                        </h3>
+                        <div class="flex items-center gap-1">
+                            <button onclick="changeMonth(-1)" class="neon-card px-1 py-0.5 text-[9px] font-bold">&larr;</button>
+                            <span id="calendar-month-year" class="text-[9px] font-bold text-accent"></span>
+                            <button onclick="changeMonth(1)" class="neon-card px-1 py-0.5 text-[9px] font-bold">&rarr;</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-7 gap-0.5 text-center text-[8px] font-bold opacity-50">
+                        <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
+                    </div>
+                    <div class="grid grid-cols-7 gap-1 overflow-y-auto" id="monthly-grid"></div>
+                </div>
             </div>
 
-            <!-- Planner Card with Date Tapping & Reminder Box -->
-            <div class="neon-card p-3.5 space-y-2">
-                <div class="flex justify-between items-center">
-                    <h3 class="font-bold text-[10px] uppercase tracking-wider opacity-60 flex items-center gap-1.5">
-                        <i data-lucide="calendar" class="w-4 h-4 text-accent"></i> Planner & Date Notes
-                    </h3>
-                    <div class="flex items-center gap-2">
-                        <button onclick="changeMonth(-1)" class="neon-card px-2 py-1 text-xs font-bold">&larr;</button>
-                        <span id="calendar-month-year" class="text-xs font-bold text-accent"></span>
-                        <button onclick="changeMonth(1)" class="neon-card px-2 py-1 text-xs font-bold">&rarr;</button>
-                    </div>
-                </div>
-                <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold opacity-50">
-                    <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
-                </div>
-                <div class="grid grid-cols-7 gap-1.5" id="monthly-grid"></div>
-
-                <div class="pt-2 border-t border-white/10 space-y-1.5">
-                    <div class="text-[10px] font-bold text-accent uppercase" id="selected-date-title">Selected Date Note</div>
-                    <textarea id="planner-notes-input" rows="2" placeholder="Tap any date above to add/edit reminder..." oninput="saveDayPlannerNotes()" class="w-full neon-card rounded-xl p-3 text-xs font-medium placeholder-slate-500 focus:outline-none resize-none"></textarea>
-                </div>
+            <!-- Selected Date Reminder Box -->
+            <div class="neon-card p-3 space-y-1">
+                <div class="text-[10px] font-bold text-accent uppercase" id="selected-date-title">Selected Date Note</div>
+                <textarea id="planner-notes-input" rows="1" placeholder="Tap date above to add reminder..." oninput="saveDayPlannerNotes()" class="w-full neon-card rounded-xl px-3 py-2 text-xs font-medium placeholder-slate-500 focus:outline-none resize-none"></textarea>
             </div>
 
             <!-- Personal Voice Memos at Bottom -->
-            <div class="neon-card p-4 space-y-2.5">
+            <div class="neon-card p-3.5 space-y-2">
                 <div class="flex items-center justify-between">
                     <h3 class="font-bold text-[11px] uppercase tracking-wider opacity-60 flex items-center gap-1.5">
                         <i data-lucide="mic" class="w-4 h-4 text-accent"></i> Personal Voice Memos (Device Only)
@@ -311,14 +318,14 @@
                     <span class="text-[10px] text-accent font-bold" id="personal-rec-status">Ready</span>
                 </div>
                 <div class="flex gap-2">
-                    <button type="button" id="personal-record-btn" onclick="togglePersonalRecording()" class="flex-grow bg-accent text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 active:scale-95">
+                    <button type="button" id="personal-record-btn" onclick="togglePersonalRecording()" class="flex-grow bg-accent text-white font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 active:scale-95">
                         <i data-lucide="mic" class="w-3.5 h-3.5"></i> Record Memo
                     </button>
-                    <button type="button" id="personal-stop-btn" onclick="stopPersonalRecording()" disabled class="neon-card px-4 py-2.5 rounded-xl text-xs font-bold opacity-50 cursor-not-allowed">
+                    <button type="button" id="personal-stop-btn" onclick="stopPersonalRecording()" disabled class="neon-card px-3.5 py-2 rounded-xl text-xs font-bold opacity-50 cursor-not-allowed">
                         Stop
                     </button>
                 </div>
-                <div id="personal-voice-memos-container" class="space-y-2 max-h-36 overflow-y-auto"></div>
+                <div id="personal-voice-memos-container" class="space-y-1.5 max-h-24 overflow-y-auto"></div>
             </div>
         </div>
 
@@ -391,7 +398,7 @@
 
     </main>
 
-    <!-- Bottom Navigation Bar (Renamed Settings to Couple Hub) -->
+    <!-- Bottom Navigation Bar -->
     <nav class="neon-card fixed bottom-0 left-0 right-0 py-2.5 px-3 z-20 mx-3 mb-2 sm:mx-auto sm:max-w-md">
         <div class="flex justify-around">
             <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn flex flex-col items-center gap-0.5 text-accent transition">
@@ -447,6 +454,20 @@
 
     <!-- App Script -->
     <script>
+        // Live Digital Clock & Header Date Updater
+        setInterval(() => {
+            const now = new Date();
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const s = String(now.getSeconds()).padStart(2, '0');
+            const ms = String(Math.floor(now.getMilliseconds() / 10)).padStart(2, '0');
+            const clockEl = document.getElementById('live-digital-clock');
+            if (clockEl) clockEl.innerText = `${h}:${m}:${s}.${ms}`;
+
+            const dateEl = document.getElementById('live-header-date');
+            if (dateEl) dateEl.innerText = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' });
+        }, 50);
+
         let userRole = localStorage.getItem('habitflow_user_role');
         if (!userRole) { document.getElementById('role-setup-modal').classList.remove('hidden'); }
 
@@ -531,10 +552,17 @@
             document.getElementById(`tab-${tName}`).classList.remove('hidden');
             document.getElementById(`nav-${tName}`).className = "nav-btn flex flex-col items-center gap-0.5 text-accent transition";
 
-            // Show Add header button ONLY in Habits tab (dashboard)
+            // Toggle Header view: Add button on Habits tab, Digital Clock on other tabs
             const headerAction = document.getElementById('header-action-container');
-            if (headerAction) {
-                headerAction.style.display = (tName === 'dashboard') ? 'block' : 'none';
+            const headerClock = document.getElementById('header-clock-container');
+            if (headerAction && headerClock) {
+                if (tName === 'dashboard') {
+                    headerAction.style.display = 'block';
+                    headerClock.style.display = 'none';
+                } else {
+                    headerAction.style.display = 'none';
+                    headerClock.style.display = 'block';
+                }
             }
 
             render();
@@ -687,12 +715,11 @@
                     await window.fbModules.updateDoc(docRef, { listCount: nextCount });
                 }
             } else if (type === 'text') {
-                // Text messages delete after 1 hour or when read
                 const nextCount = (currentListCount || 0) + 1;
                 if (nextCount >= 1) {
                     setTimeout(async () => {
                         try { await window.fbModules.deleteDoc(docRef); } catch(e){}
-                    }, 3600000); // 1 hr timer or immediate read count
+                    }, 3600000);
                 }
             }
         }
@@ -789,7 +816,7 @@
                 const dKey = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const isSelected = dKey === selectedDateKey;
                 const hasNote = plannerNotes[dKey] && plannerNotes[dKey].trim() !== '';
-                html += `<button onclick="selectCalendarDate('${dKey}')" class="aspect-square rounded-xl ${isSelected ? 'bg-accent text-white font-bold' : 'neon-card'} flex flex-col items-center justify-center text-xs relative">
+                html += `<button onclick="selectCalendarDate('${dKey}')" class="aspect-square rounded-xl ${isSelected ? 'bg-accent text-white font-bold' : 'neon-card'} flex flex-col items-center justify-center text-[11px] relative">
                     <span>${day}</span>
                     ${hasNote ? '<span class="w-1.5 h-1.5 rounded-full bg-accent mt-0.5"></span>' : ''}
                 </button>`;
