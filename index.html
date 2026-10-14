@@ -50,7 +50,7 @@
     </header>
 
     <!-- Main Content Area -->
-    <main class="max-w-md w-full mx-auto p-4 flex-grow pb-28">
+    <main class="max-w-md w-full mx-auto p-4 flex-grow pb-32">
         
         <!-- ================= TAB 1: DASHBOARD ================= -->
         <div id="tab-dashboard" class="tab-content space-y-4">
@@ -59,9 +59,29 @@
                 <div class="text-xs uppercase tracking-wider text-rose-500 dark:text-rose-400 font-bold mb-1 flex items-center justify-center gap-1">
                     <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Daily Motivation for Eku
                 </div>
-                <p class="text-sm font-medium text-slate-800 dark:text-slate-200" id="motivation-text">
+                <p class="text-sm font-medium text-slate-800 dark:text-slate-200 mb-2" id="motivation-text">
                     "Every small step you take today brings your biggest dreams closer. You've got this, Eku!"
                 </p>
+                <button onclick="revealLoveNote()" class="text-xs bg-rose-500 text-white font-medium px-3 py-1.5 rounded-full shadow-sm hover:bg-rose-600 transition">
+                    💌 Tap for Secret Love Note
+                </button>
+            </div>
+
+            <!-- Water Intake Tracker -->
+            <div class="bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl p-4 shadow-sm flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center">
+                        <i data-lucide="droplet" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-semibold">Hydration Tracker</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400" id="water-status">0 / 8 glasses today</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <button onclick="adjustWater(-1)" class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-dark-bg border border-slate-200 dark:border-dark-border flex items-center justify-center text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-700">-</button>
+                    <button onclick="adjustWater(1)" class="w-8 h-8 rounded-lg bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center text-sm font-bold shadow-sm">+</button>
+                </div>
             </div>
 
             <!-- Stats Summary Card -->
@@ -109,6 +129,12 @@
                 <p class="text-slate-500 dark:text-slate-400 text-sm mb-4">Add your first habit to start building your routine.</p>
                 <button onclick="openAddModal()" class="text-emerald-600 dark:text-emerald-400 font-medium text-sm hover:underline">Add a Habit Now</button>
             </div>
+
+            <!-- Dynamic Bottom Quote Section -->
+            <div class="mt-6 p-4 bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl text-center shadow-sm">
+                <div class="text-[10px] uppercase font-bold tracking-widest text-slate-400 mb-1">Daily Inspiration</div>
+                <p class="text-xs italic text-slate-600 dark:text-slate-300" id="dynamic-bottom-quote">"Loading quote..."</p>
+            </div>
         </div>
 
         <!-- ================= TAB 2: CALENDAR & PLANNER ================= -->
@@ -131,11 +157,11 @@
                 </div>
             </div>
 
-            <!-- Today's Calendar Tasks Preview -->
+            <!-- Calendar Tasks Preview -->
             <div class="bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl p-4 shadow-sm">
-                <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Today's Scheduled Focus</h4>
+                <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Selected Day's Scheduled Focus</h4>
                 <div id="calendar-daily-summary" class="text-sm text-slate-600 dark:text-slate-300">
-                    No special notes for today yet. Use the planner above to record your day!
+                    No special notes for this date yet. Use the planner above to record your schedule!
                 </div>
             </div>
         </div>
@@ -154,7 +180,18 @@
             </div>
         </div>
 
-        <!-- ================= TAB 4: ANALYTICS ================= -->
+        <!-- ================= TAB 4: NOTES & IDEAS ================= -->
+        <div id="tab-notes" class="tab-content hidden space-y-4">
+            <div class="bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl p-4 shadow-sm space-y-3">
+                <h3 class="font-bold text-sm uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                    <i data-lucide="book-open" class="w-4 h-4 text-emerald-500"></i> Notes & Ideas Scratchpad
+                </h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Jot down random thoughts, book ideas, or things to remember anytime.</p>
+                <textarea id="scratchpad-input" rows="8" placeholder="Type your notes and thoughts here... (Saves automatically)" oninput="saveScratchpad()" class="w-full bg-slate-50 dark:bg-dark-bg border border-slate-200 dark:border-dark-border rounded-xl p-3 text-sm placeholder-slate-400 focus:outline-none focus:border-emerald-500"></textarea>
+            </div>
+        </div>
+
+        <!-- ================= TAB 5: ANALYTICS ================= -->
         <div id="tab-analytics" class="tab-content hidden space-y-4">
             <div class="bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl p-5 shadow-sm">
                 <h3 class="font-bold text-base mb-1 flex items-center gap-2">
@@ -181,7 +218,7 @@
             </div>
         </div>
 
-        <!-- ================= TAB 5: SETTINGS ================= -->
+        <!-- ================= TAB 6: SETTINGS ================= -->
         <div id="tab-settings" class="tab-content hidden space-y-4">
             <div class="bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl p-5 shadow-sm space-y-4">
                 <h3 class="font-bold text-base mb-1 flex items-center gap-2">
@@ -215,27 +252,31 @@
     </main>
 
     <!-- Bottom Navigation Bar -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-dark-card border-t border-slate-200 dark:border-dark-border py-2 px-3 z-20 transition-colors duration-200">
+    <nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-dark-card border-t border-slate-200 dark:border-dark-border py-2 px-2 z-20 transition-colors duration-200">
         <div class="max-w-md mx-auto flex justify-around">
-            <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn flex flex-col items-center gap-1 text-emerald-600 dark:text-emerald-400 transition">
-                <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
-                <span class="text-[9px] font-medium">Dashboard</span>
+            <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn flex flex-col items-center gap-0.5 text-emerald-600 dark:text-emerald-400 transition">
+                <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                <span class="text-[8px] font-medium">Dashboard</span>
             </button>
-            <button onclick="switchTab('calendar')" id="nav-calendar" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition">
-                <i data-lucide="calendar" class="w-5 h-5"></i>
-                <span class="text-[9px] font-medium">Planner</span>
+            <button onclick="switchTab('calendar')" id="nav-calendar" class="nav-btn flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition">
+                <i data-lucide="calendar" class="w-4 h-4"></i>
+                <span class="text-[8px] font-medium">Planner</span>
             </button>
-            <button onclick="switchTab('todo')" id="nav-todo" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition">
-                <i data-lucide="check-square" class="w-5 h-5"></i>
-                <span class="text-[9px] font-medium">To-Do</span>
+            <button onclick="switchTab('todo')" id="nav-todo" class="nav-btn flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition">
+                <i data-lucide="check-square" class="w-4 h-4"></i>
+                <span class="text-[8px] font-medium">To-Do</span>
             </button>
-            <button onclick="switchTab('analytics')" id="nav-analytics" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition">
-                <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
-                <span class="text-[9px] font-medium">Analytics</span>
+            <button onclick="switchTab('notes')" id="nav-notes" class="nav-btn flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition">
+                <i data-lucide="book-open" class="w-4 h-4"></i>
+                <span class="text-[8px] font-medium">Notes</span>
             </button>
-            <button onclick="switchTab('settings')" id="nav-settings" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition">
-                <i data-lucide="settings" class="w-5 h-5"></i>
-                <span class="text-[9px] font-medium">Settings</span>
+            <button onclick="switchTab('analytics')" id="nav-analytics" class="nav-btn flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition">
+                <i data-lucide="bar-chart-2" class="w-4 h-4"></i>
+                <span class="text-[8px] font-medium">Stats</span>
+            </button>
+            <button onclick="switchTab('settings')" id="nav-settings" class="nav-btn flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition">
+                <i data-lucide="settings" class="w-4 h-4"></i>
+                <span class="text-[8px] font-medium">Settings</span>
             </button>
         </div>
     </nav>
@@ -277,6 +318,8 @@
             { id: 't1', text: 'Plan weekend outing', completed: false }
         ];
         let plannerNotes = JSON.parse(localStorage.getItem('habitflow_planner')) || {};
+        let waterData = JSON.parse(localStorage.getItem('habitflow_water')) || {};
+        let scratchpadText = localStorage.getItem('habitflow_scratchpad') || '';
         let selectedCategory = 'Fitness';
         let currentTheme = localStorage.getItem('habitflow_theme') || 'dark';
 
@@ -288,38 +331,61 @@
         ];
         document.getElementById('motivation-text').innerText = `"${motivations[Math.floor(Math.random() * motivations.length)]}"`;
 
+        const loveNotes = [
+            "Secret Note from Him: You have the most beautiful smile, Eku, never stop wearing it! 😊💕",
+            "Secret Note from Him: Just a reminder that you are deeply loved and appreciated today and always. 🌹",
+            "Secret Note from Him: No matter how busy your day gets, take a moment to breathe. You're doing amazing! ☕✨",
+            "Secret Note from Him: Proud of everything you do, Eku. You make the world brighter! 🌟"
+        ];
+
+        function revealLoveNote() {
+            const randomNote = loveNotes[Math.floor(Math.random() * loveNotes.length)];
+            alert(randomNote);
+        }
+
+        const bottomQuotes = [
+            "“The secret of getting ahead is getting started.” — Mark Twain",
+            "“Don't watch the clock; do what it does. Keep going.” — Sam Levenson",
+            "“Act as if what you do makes a difference. It does.” — William James",
+            "“Success is the sum of small efforts, repeated day in and day out.” — Robert Collier",
+            "“You are capable of amazing things, Eku!” ✨"
+        ];
+        document.getElementById('dynamic-bottom-quote').innerText = bottomQuotes[Math.floor(Math.random() * bottomQuotes.length)];
+
+        // Initialize Theme Setup
         if (currentTheme === 'light') {
             document.getElementById('html-root').classList.remove('dark');
-            document.getElementById('theme-toggle-btn').innerText = 'Light';
+            document.getElementById('theme-toggle-btn').innerText = 'Light Mode';
         } else {
             document.getElementById('html-root').classList.add('dark');
-            document.getElementById('theme-toggle-btn').innerText = 'Dark';
+            document.getElementById('theme-toggle-btn').innerText = 'Dark Mode';
         }
 
         const todayStr = getDateKey(new Date());
         document.getElementById('planner-date-picker').value = todayStr;
+        document.getElementById('scratchpad-input').value = scratchpadText;
 
         function toggleTheme() {
             const htmlRoot = document.getElementById('html-root');
             if (htmlRoot.classList.contains('dark')) {
                 htmlRoot.classList.remove('dark');
                 currentTheme = 'light';
-                document.getElementById('theme-toggle-btn').innerText = 'Light';
+                document.getElementById('theme-toggle-btn').innerText = 'Light Mode';
             } else {
                 htmlRoot.classList.add('dark');
                 currentTheme = 'dark';
-                document.getElementById('theme-toggle-btn').innerText = 'Dark';
+                document.getElementById('theme-toggle-btn').innerText = 'Dark Mode';
             }
             localStorage.setItem('habitflow_theme', currentTheme);
         }
 
         function switchTab(tabName) {
-            ['dashboard', 'calendar', 'todo', 'analytics', 'settings'].forEach(t => {
+            ['dashboard', 'calendar', 'todo', 'notes', 'analytics', 'settings'].forEach(t => {
                 document.getElementById(`tab-${t}`).classList.add('hidden');
-                document.getElementById(`nav-${t}`).className = "nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition";
+                document.getElementById(`nav-${t}`).className = "nav-btn flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition";
             });
             document.getElementById(`tab-${tabName}`).classList.remove('hidden');
-            document.getElementById(`nav-${tabName}`).className = "nav-btn flex flex-col items-center gap-1 text-emerald-600 dark:text-emerald-400 transition";
+            document.getElementById(`nav-${tabName}`).className = "nav-btn flex flex-col items-center gap-0.5 text-emerald-600 dark:text-emerald-400 transition";
             render();
         }
 
@@ -339,6 +405,26 @@
         function saveTodos() {
             localStorage.setItem('habitflow_todos', JSON.stringify(todos));
             renderTodos();
+        }
+
+        function saveScratchpad() {
+            const val = document.getElementById('scratchpad-input').value;
+            localStorage.setItem('habitflow_scratchpad', val);
+        }
+
+        function adjustWater(amount) {
+            const todayKey = getTodayKey();
+            let currentWater = waterData[todayKey] || 0;
+            currentWater = Math.max(0, currentWater + amount);
+            waterData[todayKey] = currentWater;
+            localStorage.setItem('habitflow_water', JSON.stringify(waterData));
+            updateWaterDisplay();
+        }
+
+        function updateWaterDisplay() {
+            const todayKey = getTodayKey();
+            const count = waterData[todayKey] || 0;
+            document.getElementById('water-status').innerText = `${count} / 8 glasses today`;
         }
 
         function loadDayPlanner() {
@@ -362,7 +448,7 @@
             if (note && note.trim() !== '') {
                 summaryEl.innerHTML = `<p class="italic text-emerald-600 dark:text-emerald-400">${note}</p>`;
             } else {
-                summaryEl.innerText = "No special notes for this date yet. Use the planner above to record reminders!";
+                summaryEl.innerText = "No special notes for this date yet. Use the planner above to record your schedule!";
             }
         }
 
@@ -419,6 +505,7 @@
             renderWeeklyChart();
             renderTodos();
             loadDayPlanner();
+            updateWaterDisplay();
 
             document.getElementById('stats-total-habits').innerText = habits.length;
             let bestStreak = 0;
@@ -466,6 +553,14 @@
 
             document.getElementById('today-completed-count').innerText = `${completedTodayCount}/${habits.length}`;
             document.getElementById('max-streak-count').innerText = `${maxStreak} days`;
+
+            if (habits.length > 0 && completedTodayCount === habits.length && !window.hasCelebratedToday) {
+                window.hasCelebratedToday = true;
+                setTimeout(() => {
+                    alert("🎉 Amazing job, Eku! You completed all your habits for today! You're crushing it! ❤️✨");
+                }, 300);
+            }
+
             lucide.createIcons();
         }
 
@@ -529,9 +624,9 @@
                 habits = [];
                 todos = [];
                 plannerNotes = {};
-                localStorage.removeItem('habitflow_habits');
-                localStorage.removeItem('habitflow_todos');
-                localStorage.removeItem('habitflow_planner');
+                waterData = {};
+                scratchpadText = '';
+                localStorage.clear();
                 render();
             }
         }
