@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en" class="dark" id="html-root">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,105 +23,181 @@
         }
     </script>
 </head>
-<body class="bg-dark-bg text-slate-100 min-h-screen flex flex-col font-sans antialiased">
+<body class="bg-slate-50 dark:bg-dark-bg text-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-sans antialiased transition-colors duration-200">
     <!-- Header -->
-    <header class="bg-dark-card border-b border-dark-border sticky top-0 z-10">
+    <header class="bg-white dark:bg-dark-card border-b border-slate-200 dark:border-dark-border sticky top-0 z-10 transition-colors duration-200">
         <div class="max-w-md mx-auto px-4 py-4 flex justify-between items-center">
             <div>
-                <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                <h1 class="text-xl font-bold tracking-tight flex items-center gap-2">
                     <i data-lucide="check-circle-2" class="text-emerald-500 w-6 h-6"></i> HabitFlow
                 </h1>
-                <p class="text-xs text-slate-400">Build better daily routines</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Build better daily routines</p>
             </div>
             <div class="flex items-center gap-2">
-                <button onclick="openAddModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-xl text-sm font-medium flex items-center gap-1 transition shadow-lg shadow-emerald-900/20">
-                    <i data-lucide="plus" class="w-4 h-4"></i> Add Habit
+                <button onclick="openAddModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-xl text-sm font-medium flex items-center gap-1 transition shadow-lg shadow-emerald-900/10">
+                    <i data-lucide="plus" class="w-4 h-4"></i> Add
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="max-w-md w-full mx-auto p-4 flex-grow pb-24">
-        <!-- Stats Summary Card -->
-        <div class="grid grid-cols-2 gap-3 mb-6">
-            <div class="bg-dark-card border border-dark-border rounded-2xl p-4 shadow-sm">
-                <div class="flex items-center justify-between text-slate-400 mb-1">
-                    <span class="text-xs font-medium uppercase tracking-wider">Completed Today</span>
-                    <i data-lucide="award" class="w-4 h-4 text-emerald-400"></i>
+    <!-- Main Content Area -->
+    <main class="max-w-md w-full mx-auto p-4 flex-grow pb-28">
+        
+        <!-- ================= TAB 1: DASHBOARD ================= -->
+        <div id="tab-dashboard" class="tab-content space-y-4">
+            <!-- Stats Summary Card -->
+            <div class="grid grid-cols-2 gap-3">
+                <div class="bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl p-4 shadow-sm">
+                    <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-1">
+                        <span class="text-xs font-medium uppercase tracking-wider">Today</span>
+                        <i data-lucide="award" class="w-4 h-4 text-emerald-500"></i>
+                    </div>
+                    <div class="text-2xl font-bold" id="today-completed-count">0/0</div>
                 </div>
-                <div class="text-2xl font-bold text-white" id="today-completed-count">0/0</div>
-            </div>
-            <div class="bg-dark-card border border-dark-border rounded-2xl p-4 shadow-sm">
-                <div class="flex items-center justify-between text-slate-400 mb-1">
-                    <span class="text-xs font-medium uppercase tracking-wider">Active Streak</span>
-                    <i data-lucide="flame" class="w-4 h-4 text-orange-400"></i>
+                <div class="bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl p-4 shadow-sm">
+                    <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-1">
+                        <span class="text-xs font-medium uppercase tracking-wider">Streak</span>
+                        <i data-lucide="flame" class="w-4 h-4 text-orange-500"></i>
+                    </div>
+                    <div class="text-2xl font-bold" id="max-streak-count">0 days</div>
                 </div>
-                <div class="text-2xl font-bold text-white" id="max-streak-count">0 days</div>
+            </div>
+
+            <!-- Weekly Consistency Tracker -->
+            <div class="bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl p-4 shadow-sm">
+                <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3 flex items-center justify-between">
+                    <span>Last 7 Days Progress</span>
+                    <i data-lucide="bar-chart-3" class="w-4 h-4 text-emerald-500"></i>
+                </h3>
+                <div class="grid grid-cols-7 gap-2" id="weekly-chart-container">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Date Header -->
+            <div class="flex justify-between items-center pt-2">
+                <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400" id="current-date-label">Today</h2>
+                <span class="text-xs text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full font-medium" id="streak-label">Keep it up!</span>
+            </div>
+
+            <!-- Habits List -->
+            <div id="habits-container" class="space-y-3">
+                <!-- Dynamically populated habits -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="hidden text-center py-12 px-4">
+                <div class="w-16 h-16 bg-slate-200 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
+                    <i data-lucide="list-todo" class="w-8 h-8"></i>
+                </div>
+                <h3 class="font-medium mb-1">No habits tracked yet</h3>
+                <p class="text-slate-500 dark:text-slate-400 text-sm mb-4">Add your first daily habit to start building your streak.</p>
+                <button onclick="openAddModal()" class="text-emerald-600 dark:text-emerald-400 font-medium text-sm hover:underline">Add a Habit Now</button>
             </div>
         </div>
 
-        <!-- Weekly Consistency Tracker -->
-        <div class="bg-dark-card border border-dark-border rounded-2xl p-4 mb-6 shadow-sm">
-            <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3 flex items-center justify-between">
-                <span>Last 7 Days Progress</span>
-                <i data-lucide="bar-chart-3" class="w-4 h-4 text-emerald-400"></i>
-            </h3>
-            <div class="grid grid-cols-7 gap-2" id="weekly-chart-container">
-                <!-- Populated dynamically -->
+        <!-- ================= TAB 2: ANALYTICS ================= -->
+        <div id="tab-analytics" class="tab-content hidden space-y-4">
+            <div class="bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl p-5 shadow-sm">
+                <h3 class="font-bold text-base mb-1 flex items-center gap-2">
+                    <i data-lucide="trending-up" class="w-5 h-5 text-emerald-500"></i> Performance Overview
+                </h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Your habit completion overview and metrics.</p>
+                
+                <div class="space-y-4">
+                    <div class="bg-slate-50 dark:bg-dark-bg p-3.5 rounded-xl border border-slate-200 dark:border-dark-border flex justify-between items-center">
+                        <div>
+                            <div class="text-xs text-slate-500 dark:text-slate-400">Total Active Habits</div>
+                            <div class="text-lg font-bold" id="stats-total-habits">0</div>
+                        </div>
+                        <i data-lucide="layers" class="w-6 h-6 text-emerald-500"></i>
+                    </div>
+                    <div class="bg-slate-50 dark:bg-dark-bg p-3.5 rounded-xl border border-slate-200 dark:border-dark-border flex justify-between items-center">
+                        <div>
+                            <div class="text-xs text-slate-500 dark:text-slate-400">Best Streak Achieved</div>
+                            <div class="text-lg font-bold" id="stats-best-streak">0 Days</div>
+                        </div>
+                        <i data-lucide="award" class="w-6 h-6 text-orange-500"></i>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Date Header -->
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400" id="current-date-label">Today</h2>
-            <span class="text-xs text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full font-medium" id="streak-label">Keep it up!</span>
-        </div>
+        <!-- ================= TAB 3: SETTINGS ================= -->
+        <div id="tab-settings" class="tab-content hidden space-y-4">
+            <div class="bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl p-5 shadow-sm space-y-4">
+                <h3 class="font-bold text-base mb-1 flex items-center gap-2">
+                    <i data-lucide="settings" class="w-5 h-5 text-emerald-500"></i> App Preferences
+                </h3>
+                
+                <!-- Theme Toggle -->
+                <div class="flex items-center justify-between py-2 border-b border-slate-200 dark:border-dark-border">
+                    <div>
+                        <div class="text-sm font-medium">Dark Mode</div>
+                        <div class="text-xs text-slate-500 dark:text-slate-400">Switch between dark and light themes</div>
+                    </div>
+                    <button onclick="toggleTheme()" id="theme-toggle-btn" class="bg-slate-200 dark:bg-slate-700 px-3.5 py-1.5 rounded-xl text-xs font-medium transition">
+                        Dark
+                    </button>
+                </div>
 
-        <!-- Habits List -->
-        <div id="habits-container" class="space-y-3">
-            <!-- Dynamically populated habits -->
-        </div>
-
-        <!-- Empty State -->
-        <div id="empty-state" class="hidden text-center py-12 px-4">
-            <div class="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-500">
-                <i data-lucide="list-todo" class="w-8 h-8"></i>
+                <!-- Reset Data -->
+                <div class="flex items-center justify-between py-2">
+                    <div>
+                        <div class="text-sm font-medium text-red-500">Reset Habit Data</div>
+                        <div class="text-xs text-slate-500 dark:text-slate-400">Clear all habits and history</div>
+                    </div>
+                    <button onclick="resetAllData()" class="bg-red-500/10 hover:bg-red-500/20 text-red-500 px-3.5 py-1.5 rounded-xl text-xs font-medium transition">
+                        Reset
+                    </button>
+                </div>
             </div>
-            <h3 class="text-white font-medium mb-1">No habits tracked yet</h3>
-            <p class="text-slate-400 text-sm mb-4">Add your first daily habit to start building your streak.</p>
-            <button onclick="openAddModal()" class="text-emerald-400 font-medium text-sm hover:underline">Add a Habit Now</button>
         </div>
 
-        <!-- Reset Data Button -->
-        <div class="mt-8 text-center">
-            <button onclick="resetAllData()" class="text-xs text-slate-500 hover:text-red-400 transition underline">Reset all habit data</button>
-        </div>
     </main>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-dark-card border-t border-slate-200 dark:border-dark-border py-2 px-6 z-20 transition-colors duration-200">
+        <div class="max-w-md mx-auto flex justify-around">
+            <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn flex flex-col items-center gap-1 text-emerald-600 dark:text-emerald-400 transition">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                <span class="text-[10px] font-medium">Dashboard</span>
+            </button>
+            <button onclick="switchTab('analytics')" id="nav-analytics" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition">
+                <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
+                <span class="text-[10px] font-medium">Analytics</span>
+            </button>
+            <button onclick="switchTab('settings')" id="nav-settings" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition">
+                <i data-lucide="settings" class="w-5 h-5"></i>
+                <span class="text-[10px] font-medium">Settings</span>
+            </button>
+        </div>
+    </nav>
 
     <!-- Add Habit Modal -->
     <div id="add-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
-        <div class="bg-dark-card border border-dark-border w-full max-w-md rounded-t-3xl sm:rounded-2xl p-6 shadow-2xl animate-in fade-in slide-in-from-bottom duration-200">
+        <div class="bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border w-full max-w-md rounded-t-3xl sm:rounded-2xl p-6 shadow-2xl">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold text-white">Create New Habit</h3>
-                <button onclick="closeAddModal()" class="text-slate-400 hover:text-white p-1">
+                <h3 class="text-lg font-bold">Create New Habit</h3>
+                <button onclick="closeAddModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white p-1">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
             <form id="habit-form" onsubmit="handleHabitSubmit(event)">
                 <div class="mb-4">
-                    <label class="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">Habit Name</label>
-                    <input type="text" id="habit-name-input" required placeholder="e.g., Morning Meditation, Read 20 pages" class="w-full bg-dark-bg border border-dark-border rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 text-sm">
+                    <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Habit Name</label>
+                    <input type="text" id="habit-name-input" required placeholder="e.g., Morning Meditation" class="w-full bg-slate-50 dark:bg-dark-bg border border-slate-200 dark:border-dark-border rounded-xl px-4 py-3 placeholder-slate-400 focus:outline-none focus:border-emerald-500 text-sm">
                 </div>
                 <div class="mb-6">
-                    <label class="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">Category</label>
+                    <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Category</label>
                     <div class="grid grid-cols-3 gap-2">
-                        <button type="button" onclick="setCategory('Fitness')" class="cat-btn py-2.5 px-3 rounded-xl border border-emerald-500 bg-emerald-500/10 text-emerald-400 text-xs font-medium transition" data-cat="Fitness">Fitness</button>
-                        <button type="button" onclick="setCategory('Mind')" class="cat-btn py-2.5 px-3 rounded-xl border border-dark-border bg-dark-bg text-slate-400 text-xs font-medium transition" data-cat="Mind">Mind</button>
-                        <button type="button" onclick="setCategory('Health')" class="cat-btn py-2.5 px-3 rounded-xl border border-dark-border bg-dark-bg text-slate-400 text-xs font-medium transition" data-cat="Health">Health</button>
+                        <button type="button" onclick="setCategory('Fitness')" class="cat-btn py-2.5 px-3 rounded-xl border border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-medium transition" data-cat="Fitness">Fitness</button>
+                        <button type="button" onclick="setCategory('Mind')" class="cat-btn py-2.5 px-3 rounded-xl border border-slate-200 dark:border-dark-border bg-slate-50 dark:bg-dark-bg text-slate-500 dark:text-slate-400 text-xs font-medium transition" data-cat="Mind">Mind</button>
+                        <button type="button" onclick="setCategory('Health')" class="cat-btn py-2.5 px-3 rounded-xl border border-slate-200 dark:border-dark-border bg-slate-50 dark:bg-dark-bg text-slate-500 dark:text-slate-400 text-xs font-medium transition" data-cat="Health">Health</button>
                     </div>
                 </div>
-                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 rounded-xl transition shadow-lg shadow-emerald-900/20 text-sm">Save Habit</button>
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 rounded-xl transition shadow-lg shadow-emerald-900/10 text-sm">Save Habit</button>
             </form>
         </div>
     </div>
@@ -133,6 +209,40 @@
             { id: '2', name: 'Read 15 Pages', category: 'Mind', history: {}, streak: 0 }
         ];
         let selectedCategory = 'Fitness';
+        let currentTheme = localStorage.getItem('habitflow_theme') || 'dark';
+
+        // Initialize Theme
+        if (currentTheme === 'light') {
+            document.getElementById('html-root').classList.remove('dark');
+            document.getElementById('theme-toggle-btn').innerText = 'Light';
+        } else {
+            document.getElementById('html-root').classList.add('dark');
+            document.getElementById('theme-toggle-btn').innerText = 'Dark';
+        }
+
+        function toggleTheme() {
+            const htmlRoot = document.getElementById('html-root');
+            if (htmlRoot.classList.contains('dark')) {
+                htmlRoot.classList.remove('dark');
+                currentTheme = 'light';
+                document.getElementById('theme-toggle-btn').innerText = 'Light';
+            } else {
+                htmlRoot.classList.add('dark');
+                currentTheme = 'dark';
+                document.getElementById('theme-toggle-btn').innerText = 'Dark';
+            }
+            localStorage.setItem('habitflow_theme', currentTheme);
+        }
+
+        function switchTab(tabName) {
+            ['dashboard', 'analytics', 'settings'].forEach(t => {
+                document.getElementById(`tab-${t}`).classList.add('hidden');
+                document.getElementById(`nav-${t}`).className = "nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition";
+            });
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+            document.getElementById(`nav-${tabName}`).className = "nav-btn flex flex-col items-center gap-1 text-emerald-600 dark:text-emerald-400 transition";
+            render();
+        }
 
         function getDateKey(dateObj) {
             return `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`;
@@ -152,17 +262,23 @@
             const emptyState = document.getElementById('empty-state');
             const todayKey = getTodayKey();
             
-            // Format today date label
             const options = { weekday: 'long', month: 'short', day: 'numeric' };
             document.getElementById('current-date-label').innerText = new Date().toLocaleDateString('en-US', options);
 
             renderWeeklyChart();
+
+            // Update Analytics metrics
+            document.getElementById('stats-total-habits').innerText = habits.length;
+            let bestStreak = 0;
+            habits.forEach(h => { if (h.streak > bestStreak) bestStreak = h.streak; });
+            document.getElementById('stats-best-streak').innerText = `${bestStreak} Days`;
 
             if (habits.length === 0) {
                 container.innerHTML = '';
                 emptyState.classList.remove('hidden');
                 document.getElementById('today-completed-count').innerText = `0/0`;
                 document.getElementById('max-streak-count').innerText = `0 days`;
+                lucide.createIcons();
                 return;
             }
 
@@ -176,20 +292,20 @@
                 if (habit.streak > maxStreak) maxStreak = habit.streak;
 
                 return `
-                    <div class="bg-dark-card border border-dark-border rounded-2xl p-4 flex items-center justify-between shadow-sm transition hover:border-slate-600">
+                    <div class="bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl p-4 flex items-center justify-between shadow-sm transition hover:border-slate-400 dark:hover:border-slate-600">
                         <div class="flex items-center gap-3">
-                            <button onclick="toggleHabit('${habit.id}')" class="w-7 h-7 rounded-lg border ${isCompleted ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-600 bg-dark-bg text-transparent'} flex items-center justify-center transition shadow-sm">
+                            <button onclick="toggleHabit('${habit.id}')" class="w-7 h-7 rounded-lg border ${isCompleted ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-dark-bg text-transparent'} flex items-center justify-center transition shadow-sm">
                                 <i data-lucide="check" class="w-4 h-4 stroke-[3]"></i>
                             </button>
                             <div>
-                                <h4 class="text-sm font-semibold text-white ${isCompleted ? 'line-through text-slate-500' : ''}">${habit.name}</h4>
+                                <h4 class="text-sm font-semibold ${isCompleted ? 'line-through text-slate-400 dark:text-slate-500' : ''}">${habit.name}</h4>
                                 <div class="flex items-center gap-2 mt-0.5">
-                                    <span class="text-[10px] text-slate-400 bg-dark-bg px-2 py-0.5 rounded-md border border-dark-border">${habit.category}</span>
-                                    <span class="text-[10px] text-orange-400 flex items-center gap-0.5"><i data-lucide="flame" class="w-3 h-3"></i> ${habit.streak} streak</span>
+                                    <span class="text-[10px] text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-dark-bg px-2 py-0.5 rounded-md border border-slate-200 dark:border-dark-border">${habit.category}</span>
+                                    <span class="text-[10px] text-orange-500 flex items-center gap-0.5"><i data-lucide="flame" class="w-3 h-3"></i> ${habit.streak} streak</span>
                                 </div>
                             </div>
                         </div>
-                        <button onclick="deleteHabit('${habit.id}')" class="text-slate-500 hover:text-red-400 p-2 transition">
+                        <button onclick="deleteHabit('${habit.id}')" class="text-slate-400 hover:text-red-500 p-2 transition">
                             <i data-lucide="trash-2" class="w-4 h-4"></i>
                         </button>
                     </div>
@@ -205,14 +321,12 @@
             const chartContainer = document.getElementById('weekly-chart-container');
             let daysHtml = '';
             
-            // Generate last 7 days
             for (let i = 6; i >= 0; i--) {
                 const d = new Date();
                 d.setDate(d.getDate() - i);
                 const dateKey = getDateKey(d);
                 const dayName = d.toLocaleDateString('en-US', { weekday: 'narrow' });
 
-                // Count how many habits were completed on this day
                 let totalHabits = habits.length;
                 let completedOnDay = 0;
                 habits.forEach(h => {
@@ -220,11 +334,11 @@
                 });
 
                 const ratio = totalHabits > 0 ? (completedOnDay / totalHabits) : 0;
-                let bgClass = 'bg-dark-bg border-dark-border text-slate-500';
+                let bgClass = 'bg-slate-50 dark:bg-dark-bg border-slate-200 dark:border-dark-border text-slate-400';
                 if (totalHabits > 0 && ratio === 1) {
                     bgClass = 'bg-emerald-500 border-emerald-500 text-white font-bold';
                 } else if (totalHabits > 0 && ratio > 0) {
-                    bgClass = 'bg-emerald-500/30 border-emerald-500/50 text-emerald-300';
+                    bgClass = 'bg-emerald-500/30 border-emerald-500/50 text-emerald-600 dark:text-emerald-300';
                 }
 
                 daysHtml += `
@@ -279,9 +393,9 @@
             selectedCategory = cat;
             document.querySelectorAll('.cat-btn').forEach(btn => {
                 if (btn.dataset.cat === cat) {
-                    btn.className = "cat-btn py-2.5 px-3 rounded-xl border border-emerald-500 bg-emerald-500/10 text-emerald-400 text-xs font-medium transition";
+                    btn.className = "cat-btn py-2.5 px-3 rounded-xl border border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-medium transition";
                 } else {
-                    btn.className = "cat-btn py-2.5 px-3 rounded-xl border border-dark-border bg-dark-bg text-slate-400 text-xs font-medium transition";
+                    btn.className = "cat-btn py-2.5 px-3 rounded-xl border border-slate-200 dark:border-dark-border bg-slate-50 dark:bg-dark-bg text-slate-500 dark:text-slate-400 text-xs font-medium transition";
                 }
             });
         }
