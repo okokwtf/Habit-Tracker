@@ -2,8 +2,16 @@
 <html lang="en" class="dark" id="html-root">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>HabitFlow - Built for Eku ❤️</title>
+    
+    <!-- PWA & Full-Screen Mobile Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="HabitFlow">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="manifest.json">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
@@ -142,9 +150,7 @@
                     <input type="text" id="todo-input" required placeholder="Add a quick task..." class="flex-grow bg-slate-50 dark:bg-dark-bg border border-slate-200 dark:border-dark-border rounded-xl px-3 py-2 text-sm placeholder-slate-400 focus:outline-none focus:border-emerald-500">
                     <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-sm font-medium transition">Add</button>
                 </form>
-                <div id="todo-list-container" class="space-y-2">
-                    <!-- Populated dynamically -->
-                </div>
+                <div id="todo-list-container" class="space-y-2"></div>
             </div>
         </div>
 
@@ -282,7 +288,6 @@
         ];
         document.getElementById('motivation-text').innerText = `"${motivations[Math.floor(Math.random() * motivations.length)]}"`;
 
-        // Initialize Theme & Date
         if (currentTheme === 'light') {
             document.getElementById('html-root').classList.remove('dark');
             document.getElementById('theme-toggle-btn').innerText = 'Light';
