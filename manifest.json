@@ -2,6 +2,7 @@
   "id": "/",
   "name": "HabitFlow for Eku",
   "short_name": "HabitFlow",
+  "description": "A personalized minimalist habit tracker and daily planner built with love.",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#000000",
@@ -9,7 +10,7 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "icon.png",
+      "src": "./icon.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
