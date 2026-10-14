@@ -121,7 +121,7 @@
         </div>
     </div>
 
-    <!-- Header (Dynamic Header Action: Add button on Habits, Digital Clock on other tabs) -->
+    <!-- Header -->
     <header class="neon-card sticky top-0 z-10 mx-3 mt-2 sm:mx-auto sm:max-w-md sm:w-full">
         <div class="px-4 py-3 flex justify-between items-center">
             <div>
@@ -180,7 +180,6 @@
                 </div>
             </div>
 
-            <!-- Weekly Progress Card -->
             <div class="neon-card p-3.5">
                 <h3 class="text-[10px] font-bold uppercase tracking-wider opacity-60 mb-2 flex items-center justify-between">
                     <span>Last 7 Days Progress</span>
@@ -273,27 +272,27 @@
             </div>
         </div>
 
-        <!-- ================= TAB 4: JOURNAL (BALANCED SCRATCHPAD, PLANNER & PERSONAL MEMOS) ================= -->
-        <div id="tab-journal" class="tab-content hidden space-y-3">
-            <div class="grid grid-cols-2 gap-2.5">
+        <!-- ================= TAB 4: JOURNAL (BALANCED SCRATCHPAD & COMPACT CALENDAR) ================= -->
+        <div id="tab-journal" class="tab-content hidden space-y-2.5">
+            <div class="grid grid-cols-2 gap-2">
                 <!-- Scratchpad Card -->
-                <div class="neon-card p-3 space-y-1.5 flex flex-col h-[22vh]">
+                <div class="neon-card p-2.5 space-y-1 flex flex-col h-[21vh]">
                     <h3 class="font-bold text-[9px] uppercase tracking-wider opacity-60 flex items-center gap-1">
-                        <i data-lucide="book-open" class="w-3.5 h-3.5 text-accent"></i> Scratchpad
+                        <i data-lucide="book-open" class="w-3 h-3 text-accent"></i> Scratchpad
                     </h3>
-                    <textarea id="scratchpad-input" placeholder="Jot down notes..." oninput="saveScratchpad()" class="w-full flex-grow neon-card rounded-xl p-2.5 text-[11px] font-medium placeholder-slate-500 focus:outline-none resize-none"></textarea>
+                    <textarea id="scratchpad-input" placeholder="Jot down notes..." oninput="saveScratchpad()" class="w-full flex-grow neon-card rounded-lg p-2 text-[10px] font-medium placeholder-slate-500 focus:outline-none resize-none"></textarea>
                 </div>
 
-                <!-- Planner Calendar Card (Slightly smaller, balanced) -->
-                <div class="neon-card p-3 space-y-1 flex flex-col h-[22vh]">
+                <!-- Smaller Minimal Calendar Card -->
+                <div class="neon-card p-2.5 space-y-1 flex flex-col h-[21vh]">
                     <div class="flex justify-between items-center">
                         <h3 class="font-bold text-[9px] uppercase tracking-wider opacity-60 flex items-center gap-1">
-                            <i data-lucide="calendar" class="w-3.5 h-3.5 text-accent"></i> Planner
+                            <i data-lucide="calendar" class="w-3 h-3 text-accent"></i> Planner
                         </h3>
                         <div class="flex items-center gap-1">
-                            <button onclick="changeMonth(-1)" class="neon-card px-1 py-0.5 text-[9px] font-bold">&larr;</button>
+                            <button onclick="changeMonth(-1)" class="neon-card px-1.5 py-0.5 text-[9px] font-bold">&larr;</button>
                             <span id="calendar-month-year" class="text-[9px] font-bold text-accent"></span>
-                            <button onclick="changeMonth(1)" class="neon-card px-1 py-0.5 text-[9px] font-bold">&rarr;</button>
+                            <button onclick="changeMonth(1)" class="neon-card px-1.5 py-0.5 text-[9px] font-bold">&rarr;</button>
                         </div>
                     </div>
                     <div class="grid grid-cols-7 gap-0.5 text-center text-[8px] font-bold opacity-50">
@@ -304,24 +303,24 @@
             </div>
 
             <!-- Selected Date Reminder Box -->
-            <div class="neon-card p-3 space-y-1">
-                <div class="text-[10px] font-bold text-accent uppercase" id="selected-date-title">Selected Date Note</div>
-                <textarea id="planner-notes-input" rows="1" placeholder="Tap date above to add reminder..." oninput="saveDayPlannerNotes()" class="w-full neon-card rounded-xl px-3 py-2 text-xs font-medium placeholder-slate-500 focus:outline-none resize-none"></textarea>
+            <div class="neon-card p-2.5 space-y-1">
+                <div class="text-[9px] font-bold text-accent uppercase" id="selected-date-title">Selected Date Note</div>
+                <textarea id="planner-notes-input" rows="1" placeholder="Tap date above to add reminder..." oninput="saveDayPlannerNotes()" class="w-full neon-card rounded-lg px-2.5 py-1.5 text-[10px] font-medium placeholder-slate-500 focus:outline-none resize-none"></textarea>
             </div>
 
             <!-- Personal Voice Memos at Bottom -->
-            <div class="neon-card p-3.5 space-y-2">
+            <div class="neon-card p-3 space-y-2">
                 <div class="flex items-center justify-between">
-                    <h3 class="font-bold text-[11px] uppercase tracking-wider opacity-60 flex items-center gap-1.5">
-                        <i data-lucide="mic" class="w-4 h-4 text-accent"></i> Personal Voice Memos (Device Only)
+                    <h3 class="font-bold text-[10px] uppercase tracking-wider opacity-60 flex items-center gap-1">
+                        <i data-lucide="mic" class="w-3.5 h-3.5 text-accent"></i> Personal Voice Memos
                     </h3>
-                    <span class="text-[10px] text-accent font-bold" id="personal-rec-status">Ready</span>
+                    <span class="text-[9px] text-accent font-bold" id="personal-rec-status">Ready</span>
                 </div>
                 <div class="flex gap-2">
-                    <button type="button" id="personal-record-btn" onclick="togglePersonalRecording()" class="flex-grow bg-accent text-white font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 active:scale-95">
-                        <i data-lucide="mic" class="w-3.5 h-3.5"></i> Record Memo
+                    <button type="button" id="personal-record-btn" onclick="togglePersonalRecording()" class="flex-grow bg-accent text-white font-bold py-1.5 rounded-xl text-xs flex items-center justify-center gap-1 active:scale-95">
+                        <i data-lucide="mic" class="w-3 h-3"></i> Record Memo
                     </button>
-                    <button type="button" id="personal-stop-btn" onclick="stopPersonalRecording()" disabled class="neon-card px-3.5 py-2 rounded-xl text-xs font-bold opacity-50 cursor-not-allowed">
+                    <button type="button" id="personal-stop-btn" onclick="stopPersonalRecording()" disabled class="neon-card px-3 py-1.5 rounded-xl text-xs font-bold opacity-50 cursor-not-allowed">
                         Stop
                     </button>
                 </div>
@@ -454,19 +453,18 @@
 
     <!-- App Script -->
     <script>
-        // Live Digital Clock & Header Date Updater
+        // Live Digital Clock (Seconds only, no milliseconds) & Date
         setInterval(() => {
             const now = new Date();
             const h = String(now.getHours()).padStart(2, '0');
             const m = String(now.getMinutes()).padStart(2, '0');
             const s = String(now.getSeconds()).padStart(2, '0');
-            const ms = String(Math.floor(now.getMilliseconds() / 10)).padStart(2, '0');
             const clockEl = document.getElementById('live-digital-clock');
-            if (clockEl) clockEl.innerText = `${h}:${m}:${s}.${ms}`;
+            if (clockEl) clockEl.innerText = `${h}:${m}:${s}`;
 
             const dateEl = document.getElementById('live-header-date');
             if (dateEl) dateEl.innerText = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' });
-        }, 50);
+        }, 1000);
 
         let userRole = localStorage.getItem('habitflow_user_role');
         if (!userRole) { document.getElementById('role-setup-modal').classList.remove('hidden'); }
@@ -552,7 +550,6 @@
             document.getElementById(`tab-${tName}`).classList.remove('hidden');
             document.getElementById(`nav-${tName}`).className = "nav-btn flex flex-col items-center gap-0.5 text-accent transition";
 
-            // Toggle Header view: Add button on Habits tab, Digital Clock on other tabs
             const headerAction = document.getElementById('header-action-container');
             const headerClock = document.getElementById('header-clock-container');
             if (headerAction && headerClock) {
@@ -601,30 +598,30 @@
                 };
                 personalMediaRecorder.start();
                 document.getElementById('personal-rec-status').innerText = "🔴 Rec...";
-                document.getElementById('personal-record-btn').className = "flex-grow bg-red-500 text-white font-bold py-2.5 rounded-xl text-xs animate-pulse";
+                document.getElementById('personal-record-btn').className = "flex-grow bg-red-500 text-white font-bold py-1.5 rounded-xl text-xs animate-pulse";
                 document.getElementById('personal-stop-btn').disabled = false;
-                document.getElementById('personal-stop-btn').className = "neon-card px-4 py-2.5 rounded-xl text-xs font-bold text-accent border-accent cursor-pointer";
+                document.getElementById('personal-stop-btn').className = "neon-card px-3 py-1.5 rounded-xl text-xs font-bold text-accent border-accent cursor-pointer";
             } catch(e) { alert("Mic required."); }
         }
         function stopPersonalRecording() {
             if (personalMediaRecorder && personalMediaRecorder.state !== "inactive") {
                 personalMediaRecorder.stop();
                 document.getElementById('personal-rec-status').innerText = "Saved!";
-                document.getElementById('personal-record-btn').className = "flex-grow bg-accent text-white font-bold py-2.5 rounded-xl text-xs active:scale-95";
+                document.getElementById('personal-record-btn').className = "flex-grow bg-accent text-white font-bold py-1.5 rounded-xl text-xs active:scale-95";
                 document.getElementById('personal-stop-btn').disabled = true;
-                document.getElementById('personal-stop-btn').className = "neon-card px-4 py-2.5 rounded-xl text-xs opacity-50 cursor-not-allowed";
+                document.getElementById('personal-stop-btn').className = "neon-card px-3 py-1.5 rounded-xl text-xs opacity-50 cursor-not-allowed";
                 lucide.createIcons();
             }
         }
         function renderPersonalMemos() {
             const c = document.getElementById('personal-voice-memos-container');
             if (!c) return;
-            if (savedPersonalMemos.length === 0) { c.innerHTML = `<p class="text-xs opacity-40 text-center py-2">No personal memos.</p>`; return; }
+            if (savedPersonalMemos.length === 0) { c.innerHTML = `<p class="text-[10px] opacity-40 text-center py-1">No personal memos.</p>`; return; }
             c.innerHTML = savedPersonalMemos.slice().reverse().map(m => `
-                <div class="neon-card p-2.5 flex items-center justify-between gap-2">
-                    <span class="text-xs opacity-60 font-bold">${m.time}</span>
-                    <audio controls src="${m.audio}" class="h-8 max-w-[170px]"></audio>
-                    <button onclick="deletePersonalMemo('${m.id}')" class="opacity-50 hover:text-red-500 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                <div class="neon-card p-2 flex items-center justify-between gap-2">
+                    <span class="text-[10px] opacity-60 font-bold">${m.time}</span>
+                    <audio controls src="${m.audio}" class="h-6 max-w-[140px]"></audio>
+                    <button onclick="deletePersonalMemo('${m.id}')" class="opacity-50 hover:text-red-500 p-1"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
                 </div>
             `).join('');
             lucide.createIcons();
@@ -671,9 +668,9 @@
                 };
                 coupleMediaRecorder.start();
                 document.getElementById('rec-status').innerText = "🔴 Rec...";
-                document.getElementById('record-btn').className = "flex-grow bg-red-500 text-white font-bold py-2.5 rounded-xl text-xs animate-pulse";
+                document.getElementById('record-btn').className = "flex-grow bg-red-500 text-white font-bold py-2 rounded-xl text-xs animate-pulse";
                 document.getElementById('stop-btn').disabled = false;
-                document.getElementById('stop-btn').className = "neon-card px-4 py-2.5 rounded-xl text-xs font-bold text-accent border-accent cursor-pointer";
+                document.getElementById('stop-btn').className = "neon-card px-3 py-2 rounded-xl text-xs font-bold text-accent border-accent cursor-pointer";
                 maxRecordTimeout = setTimeout(() => stopRecording(), 120000);
             } catch(e) { alert("Mic required."); }
         }
@@ -682,9 +679,9 @@
             if (coupleMediaRecorder && coupleMediaRecorder.state !== "inactive") {
                 clearTimeout(maxRecordTimeout);
                 coupleMediaRecorder.stop();
-                document.getElementById('record-btn').className = "flex-grow bg-accent text-white font-bold py-2.5 rounded-xl text-xs active:scale-95";
+                document.getElementById('record-btn').className = "flex-grow bg-accent text-white font-bold py-2 rounded-xl text-xs active:scale-95";
                 document.getElementById('stop-btn').disabled = true;
-                document.getElementById('stop-btn').className = "neon-card px-4 py-2.5 rounded-xl text-xs opacity-50 cursor-not-allowed";
+                document.getElementById('stop-btn').className = "neon-card px-3 py-2 rounded-xl text-xs opacity-50 cursor-not-allowed";
                 lucide.createIcons();
             }
         }
@@ -806,7 +803,7 @@
         function renderMonthlyCalendar() {
             const grid = document.getElementById('monthly-grid');
             if(!grid) return;
-            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
             document.getElementById('calendar-month-year').innerText = `${monthNames[calMonth]} ${calYear}`;
             const firstDayIndex = new Date(calYear, calMonth, 1).getDay();
             const totalDays = new Date(calYear, calMonth + 1, 0).getDate();
@@ -816,9 +813,9 @@
                 const dKey = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const isSelected = dKey === selectedDateKey;
                 const hasNote = plannerNotes[dKey] && plannerNotes[dKey].trim() !== '';
-                html += `<button onclick="selectCalendarDate('${dKey}')" class="aspect-square rounded-xl ${isSelected ? 'bg-accent text-white font-bold' : 'neon-card'} flex flex-col items-center justify-center text-[11px] relative">
+                html += `<button onclick="selectCalendarDate('${dKey}')" class="aspect-square rounded-lg ${isSelected ? 'bg-accent text-white font-bold' : 'neon-card'} flex flex-col items-center justify-center text-[10px] relative">
                     <span>${day}</span>
-                    ${hasNote ? '<span class="w-1.5 h-1.5 rounded-full bg-accent mt-0.5"></span>' : ''}
+                    ${hasNote ? '<span class="w-1 h-1 rounded-full bg-accent mt-0.5"></span>' : ''}
                 </button>`;
             }
             grid.innerHTML = html;
