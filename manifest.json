@@ -1,9 +1,18 @@
 {
+  "id": "/Habit-Tracker/",
   "name": "HabitFlow for Eku",
   "short_name": "HabitFlow",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#0f172a",
-  "icons": []
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3208/3208750.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
 }
