@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="dark" id="html-root" data-style="glass" data-color="rose">
+<html lang="en" class="dark" id="html-root" data-theme="neon-black" data-color="rose">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -20,11 +20,12 @@
             theme: {
                 extend: {
                     colors: {
-                        dark: { bg: '#090d16', card: '#162032', border: '#26354d' },
-                        brand: {
-                            500: 'var(--brand-500)',
-                            600: 'var(--brand-600)',
-                            light: 'var(--brand-light)'
+                        neon: {
+                            bg: 'var(--bg-color)',
+                            card: 'var(--card-color)',
+                            border: 'var(--border-color)',
+                            accent: 'var(--accent-color)',
+                            glow: 'var(--glow-color)'
                         }
                     }
                 }
@@ -33,86 +34,69 @@
     </script>
     <style>
         :root {
-            --brand-500: #f43f5e;
-            --brand-600: #e11d48;
-            --brand-light: rgba(244, 63, 94, 0.12);
-        }
-        /* --- STYLE 1: GLASSMORPHISM --- */
-        [data-style="glass"] .app-card {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
-            border-radius: 1.5rem;
-        }
-        .dark [data-style="glass"] .app-card {
-            background: rgba(22, 32, 50, 0.65);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            --bg-color: #030712;
+            --card-color: #0b0f19;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --accent-color: #f43f5e;
+            --glow-color: rgba(244, 63, 94, 0.25);
         }
 
-        /* --- STYLE 2: NEUMORPHISM --- */
-        [data-style="neu"] .app-card {
-            background: #e2e8f0;
-            box-shadow: 6px 6px 14px #cbd5e1, -6px -6px 14px #ffffff;
-            border: none;
-            border-radius: 1.5rem;
+        /* --- THEME DEFINITIONS --- */
+        /* 1. Pitch Black OLED Neon */
+        [data-theme="neon-black"] {
+            --bg-color: #000000;
+            --card-color: #0a0a0a;
+            --border-color: rgba(255, 255, 255, 0.12);
         }
-        .dark [data-style="neu"] .app-card {
-            background: #0f172a;
-            box-shadow: 6px 6px 14px #070b14, -6px -6px 14px #17233e;
-            border: none;
-            border-radius: 1.5rem;
+        /* 2. Sleek Dark Glass */
+        [data-theme="dark-glass"] {
+            --bg-color: #0f172a;
+            --card-color: rgba(30, 41, 59, 0.75);
+            --border-color: rgba(255, 255, 255, 0.08);
         }
-
-        /* --- STYLE 3: CLAYMORPHISM --- */
-        [data-style="clay"] .app-card {
-            background: #ffffff;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.08), inset 0 2px 4px rgba(255, 255, 255, 0.8);
-            border: 3px solid rgba(255, 255, 255, 0.9);
-            border-radius: 2rem;
-        }
-        .dark [data-style="clay"] .app-card {
-            background: #1e293b;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.1);
-            border: 3px solid rgba(255, 255, 255, 0.05);
-            border-radius: 2rem;
+        /* 3. Pure Clean Light */
+        [data-theme="clean-light"] {
+            --bg-color: #f8fafc;
+            --card-color: #ffffff;
+            --border-color: #e2e8f0;
         }
 
-        /* --- STYLE 4: MINIMALISM --- */
-        [data-style="min"] .app-card {
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
-            box-shadow: none;
-            border-radius: 1rem;
+        body {
+            background-color: var(--bg-color);
+            color: #f3f4f6;
+            transition: background-color 0.3s ease;
         }
-        .dark [data-style="min"] .app-card {
-            background: #111827;
-            border: 1px solid #1f2937;
-            box-shadow: none;
-            border-radius: 1rem;
+        [data-theme="clean-light"] body {
+            color: #0f172a;
         }
+
+        .neon-card {
+            background-color: var(--card-color);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 20px -2px var(--glow-color);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .text-accent { color: var(--accent-color); }
+        .bg-accent { background-color: var(--accent-color); }
+        .border-accent { border-color: var(--accent-color); }
     </style>
 </head>
-<body class="bg-slate-100 dark:bg-dark-bg text-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-sans antialiased transition-colors duration-300">
+<body class="min-h-screen flex flex-col font-sans antialiased">
     <!-- Header -->
-    <header class="app-card sticky top-0 z-10 transition-all duration-300 mx-2 mt-2 sm:mx-auto sm:max-w-md sm:w-full">
+    <header class="neon-card sticky top-0 z-10 mx-3 mt-3 sm:mx-auto sm:max-w-md sm:w-full">
         <div class="px-4 py-3.5 flex justify-between items-center">
             <div>
                 <h1 class="text-lg font-extrabold tracking-tight flex items-center gap-2">
-                    <i data-lucide="heart" class="text-brand-500 w-5 h-5 fill-brand-500 animate-pulse"></i> HabitFlow
+                    <i data-lucide="heart" class="text-accent w-5 h-5 fill-current animate-pulse"></i> HabitFlow
                 </h1>
-                <p class="text-[11px] text-brand-500 font-semibold">Made with love for Eku ❤️</p>
+                <p class="text-[11px] text-accent font-semibold">Made with love for Eku ❤️</p>
             </div>
             <div class="flex items-center gap-2">
-                <button onclick="toggleTheme()" class="w-9 h-9 rounded-xl app-card flex items-center justify-center text-slate-600 dark:text-amber-400 transition active:scale-95" title="Toggle Theme">
-                    <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
-                    <i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
-                </button>
-                <button onclick="openAddModal()" class="bg-brand-500 hover:bg-brand-600 text-white px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1 transition shadow-lg active:scale-95">
+                <button onclick="openAddModal()" class="bg-accent text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1 transition shadow-lg active:scale-95">
                     <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add
                 </button>
             </div>
@@ -125,46 +109,46 @@
         <!-- ================= TAB 1: DASHBOARD ================= -->
         <div id="tab-dashboard" class="tab-content space-y-4">
             <!-- Motivation Banner -->
-            <div class="app-card p-4 text-center relative overflow-hidden">
-                <div class="text-[11px] uppercase tracking-wider text-brand-500 font-bold mb-1 flex items-center justify-center gap-1">
+            <div class="neon-card p-4 text-center relative overflow-hidden">
+                <div class="text-[11px] uppercase tracking-wider text-accent font-bold mb-1 flex items-center justify-center gap-1">
                     <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Daily Motivation for Eku
                 </div>
-                <p class="text-xs font-medium text-slate-700 dark:text-slate-200 mb-2.5 leading-relaxed" id="motivation-text">
+                <p class="text-xs font-medium opacity-90 mb-2.5 leading-relaxed" id="motivation-text">
                     "Every small step you take today brings your biggest dreams closer. You've got this, Eku!"
                 </p>
-                <button onclick="revealLoveNote()" class="text-[11px] bg-brand-500 text-white font-semibold px-3.5 py-1.5 rounded-full shadow-md hover:opacity-95 transition active:scale-95">
+                <button onclick="revealLoveNote()" class="text-[11px] bg-accent text-white font-bold px-3.5 py-1.5 rounded-full shadow-md hover:opacity-95 transition active:scale-95">
                     💌 Tap for Secret Love Note
                 </button>
             </div>
 
             <!-- Water Tracker -->
-            <div class="app-card p-4 flex items-center justify-between">
+            <div class="neon-card p-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-blue-500/15 text-blue-500 flex items-center justify-center">
+                    <div class="w-10 h-10 rounded-xl bg-cyan-500/15 text-cyan-400 flex items-center justify-center">
                         <i data-lucide="droplet" class="w-5 h-5"></i>
                     </div>
                     <div>
-                        <h4 class="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Hydration</h4>
+                        <h4 class="text-xs font-bold uppercase tracking-wide opacity-60">Hydration</h4>
                         <p class="text-sm font-bold" id="water-status">0 / 8 glasses today</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-1.5">
-                    <button onclick="adjustWater(-1)" class="w-8 h-8 rounded-xl app-card flex items-center justify-center text-sm font-bold active:scale-95">-</button>
-                    <button onclick="adjustWater(1)" class="w-8 h-8 rounded-xl bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center text-sm font-bold shadow-md active:scale-95">+</button>
+                    <button onclick="adjustWater(-1)" class="w-8 h-8 rounded-xl neon-card flex items-center justify-center text-sm font-bold active:scale-95">-</button>
+                    <button onclick="adjustWater(1)" class="w-8 h-8 rounded-xl bg-cyan-500 text-black flex items-center justify-center text-sm font-bold shadow-md active:scale-95">+</button>
                 </div>
             </div>
 
             <!-- Stats Summary -->
             <div class="grid grid-cols-2 gap-3">
-                <div class="app-card p-4">
-                    <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-1">
+                <div class="neon-card p-4">
+                    <div class="flex items-center justify-between opacity-60 mb-1">
                         <span class="text-[10px] font-bold uppercase tracking-wider">Today</span>
-                        <i data-lucide="award" class="w-4 h-4 text-brand-500"></i>
+                        <i data-lucide="award" class="w-4 h-4 text-accent"></i>
                     </div>
                     <div class="text-xl font-extrabold" id="today-completed-count">0/0</div>
                 </div>
-                <div class="app-card p-4">
-                    <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-1">
+                <div class="neon-card p-4">
+                    <div class="flex items-center justify-between opacity-60 mb-1">
                         <span class="text-[10px] font-bold uppercase tracking-wider">Streak</span>
                         <i data-lucide="flame" class="w-4 h-4 text-orange-500"></i>
                     </div>
@@ -173,18 +157,18 @@
             </div>
 
             <!-- Weekly Progress -->
-            <div class="app-card p-4">
-                <h3 class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3 flex items-center justify-between">
+            <div class="neon-card p-4">
+                <h3 class="text-[11px] font-bold uppercase tracking-wider opacity-60 mb-3 flex items-center justify-between">
                     <span>Last 7 Days Progress</span>
-                    <i data-lucide="bar-chart-3" class="w-4 h-4 text-brand-500"></i>
+                    <i data-lucide="bar-chart-3" class="w-4 h-4 text-accent"></i>
                 </h3>
                 <div class="grid grid-cols-7 gap-2" id="weekly-chart-container"></div>
             </div>
 
             <!-- Date Header -->
             <div class="flex justify-between items-center pt-2">
-                <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400" id="current-date-label">Today</h2>
-                <span class="text-[11px] text-brand-500 bg-brand-light px-2.5 py-1 rounded-full font-bold">Keep shining!</span>
+                <h2 class="text-xs font-bold uppercase tracking-wider opacity-60" id="current-date-label">Today</h2>
+                <span class="text-[11px] text-accent bg-accent/10 px-2.5 py-1 rounded-full font-bold">Keep shining!</span>
             </div>
 
             <!-- Habits List -->
@@ -192,39 +176,39 @@
 
             <!-- Empty State -->
             <div id="empty-state" class="hidden text-center py-12 px-4">
-                <div class="w-16 h-16 app-card rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
+                <div class="w-16 h-16 neon-card rounded-full flex items-center justify-center mx-auto mb-4 opacity-50">
                     <i data-lucide="list-todo" class="w-8 h-8"></i>
                 </div>
                 <h3 class="font-bold mb-1">No habits tracked yet</h3>
-                <p class="text-slate-500 dark:text-slate-400 text-xs mb-4">Add your first habit to start building your routine.</p>
-                <button onclick="openAddModal()" class="text-brand-500 font-semibold text-xs hover:underline">Add a Habit Now</button>
+                <p class="text-xs opacity-60 mb-4">Add your first habit to start building your routine.</p>
+                <button onclick="openAddModal()" class="text-accent font-semibold text-xs hover:underline">Add a Habit Now</button>
             </div>
 
             <!-- Daily Bottom Quote -->
-            <div class="mt-6 p-4 app-card text-center">
-                <div class="text-[10px] uppercase font-bold tracking-widest text-slate-400 mb-1">Daily Inspiration</div>
-                <p class="text-xs italic text-slate-600 dark:text-slate-300 font-medium" id="dynamic-bottom-quote">"Loading quote..."</p>
+            <div class="mt-6 p-4 neon-card text-center">
+                <div class="text-[10px] uppercase font-bold tracking-widest opacity-40 mb-1">Daily Inspiration</div>
+                <p class="text-xs italic opacity-80 font-medium" id="dynamic-bottom-quote">"Loading quote..."</p>
             </div>
         </div>
 
         <!-- ================= TAB 2: CALENDAR & PLANNER ================= -->
         <div id="tab-calendar" class="tab-content hidden space-y-4">
-            <div class="app-card p-4 space-y-3">
-                <h3 class="font-bold text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                    <i data-lucide="calendar" class="w-4 h-4 text-brand-500"></i> Day Planner & Notes
+            <div class="neon-card p-4 space-y-3">
+                <h3 class="font-bold text-xs uppercase tracking-wider opacity-60 flex items-center gap-2">
+                    <i data-lucide="calendar" class="w-4 h-4 text-accent"></i> Day Planner & Notes
                 </h3>
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Select Date</label>
-                    <input type="date" id="planner-date-picker" onchange="loadDayPlanner()" class="w-full app-card rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    <label class="block text-[10px] font-bold opacity-60 uppercase tracking-wider mb-1">Select Date</label>
+                    <input type="date" id="planner-date-picker" onchange="loadDayPlanner()" class="w-full neon-card rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none">
                 </div>
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Daily Notes & Reminders</label>
-                    <textarea id="planner-notes-input" rows="3" placeholder="Write reminders, schedule, or thoughts for this day..." oninput="saveDayPlannerNotes()" class="w-full app-card rounded-xl p-3 text-xs font-medium placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
+                    <label class="block text-[10px] font-bold opacity-60 uppercase tracking-wider mb-1">Daily Notes & Reminders</label>
+                    <textarea id="planner-notes-input" rows="3" placeholder="Write reminders, schedule, or thoughts for this day..." oninput="saveDayPlannerNotes()" class="w-full neon-card rounded-xl p-3 text-xs font-medium placeholder-slate-500 focus:outline-none"></textarea>
                 </div>
             </div>
-            <div class="app-card p-4">
-                <h4 class="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Selected Day's Scheduled Focus</h4>
-                <div id="calendar-daily-summary" class="text-xs font-medium text-slate-600 dark:text-slate-300">
+            <div class="neon-card p-4">
+                <h4 class="text-[10px] font-bold uppercase tracking-wider opacity-60 mb-2">Selected Day's Scheduled Focus</h4>
+                <div id="calendar-daily-summary" class="text-xs font-medium opacity-80">
                     No special notes for this date yet. Use the planner above to record your schedule!
                 </div>
             </div>
@@ -232,13 +216,13 @@
 
         <!-- ================= TAB 3: TO-DO LIST ================= -->
         <div id="tab-todo" class="tab-content hidden space-y-4">
-            <div class="app-card p-4 space-y-3">
-                <h3 class="font-bold text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                    <i data-lucide="check-square" class="w-4 h-4 text-brand-500"></i> Eku's To-Do List
+            <div class="neon-card p-4 space-y-3">
+                <h3 class="font-bold text-xs uppercase tracking-wider opacity-60 flex items-center gap-2">
+                    <i data-lucide="check-square" class="w-4 h-4 text-accent"></i> Eku's To-Do List
                 </h3>
                 <form onsubmit="handleTodoSubmit(event)" class="flex gap-2 mb-2">
-                    <input type="text" id="todo-input" required placeholder="Add a quick task..." class="flex-grow app-card rounded-xl px-3 py-2 text-xs font-medium placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500">
-                    <button type="submit" class="bg-brand-500 hover:bg-brand-600 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-md active:scale-95">Add</button>
+                    <input type="text" id="todo-input" required placeholder="Add a quick task..." class="flex-grow neon-card rounded-xl px-3 py-2 text-xs font-medium placeholder-slate-500 focus:outline-none">
+                    <button type="submit" class="bg-accent text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-md active:scale-95">Add</button>
                 </form>
                 <div id="todo-list-container" class="space-y-2"></div>
             </div>
@@ -246,33 +230,33 @@
 
         <!-- ================= TAB 4: NOTES & IDEAS ================= -->
         <div id="tab-notes" class="tab-content hidden space-y-4">
-            <div class="app-card p-4 space-y-3">
-                <h3 class="font-bold text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                    <i data-lucide="book-open" class="w-4 h-4 text-brand-500"></i> Notes & Ideas Scratchpad
+            <div class="neon-card p-4 space-y-3">
+                <h3 class="font-bold text-xs uppercase tracking-wider opacity-60 flex items-center gap-2">
+                    <i data-lucide="book-open" class="w-4 h-4 text-accent"></i> Notes & Ideas Scratchpad
                 </h3>
-                <p class="text-[11px] text-slate-500 dark:text-slate-400">Jot down random thoughts, book ideas, or things to remember anytime.</p>
-                <textarea id="scratchpad-input" rows="8" placeholder="Type your notes and thoughts here... (Saves automatically)" oninput="saveScratchpad()" class="w-full app-card rounded-xl p-3 text-xs font-medium placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
+                <p class="text-[11px] opacity-60">Jot down random thoughts, book ideas, or things to remember anytime.</p>
+                <textarea id="scratchpad-input" rows="8" placeholder="Type your notes and thoughts here... (Saves automatically)" oninput="saveScratchpad()" class="w-full neon-card rounded-xl p-3 text-xs font-medium placeholder-slate-500 focus:outline-none"></textarea>
             </div>
         </div>
 
         <!-- ================= TAB 5: ANALYTICS ================= -->
         <div id="tab-analytics" class="tab-content hidden space-y-4">
-            <div class="app-card p-5 space-y-3">
+            <div class="neon-card p-5 space-y-3">
                 <h3 class="font-bold text-sm mb-1 flex items-center gap-2">
-                    <i data-lucide="trending-up" class="w-4 h-4 text-brand-500"></i> Performance Overview
+                    <i data-lucide="trending-up" class="w-4 h-4 text-accent"></i> Performance Overview
                 </h3>
-                <p class="text-[11px] text-slate-500 dark:text-slate-400 mb-2">Your habit completion overview and metrics.</p>
+                <p class="text-[11px] opacity-60 mb-2">Your habit completion overview and metrics.</p>
                 <div class="space-y-3">
-                    <div class="app-card p-3.5 flex justify-between items-center">
+                    <div class="neon-card p-3.5 flex justify-between items-center">
                         <div>
-                            <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Active Habits</div>
+                            <div class="text-[10px] font-bold uppercase tracking-wider opacity-60">Total Active Habits</div>
                             <div class="text-base font-extrabold" id="stats-total-habits">0</div>
                         </div>
-                        <i data-lucide="layers" class="w-5 h-5 text-brand-500"></i>
+                        <i data-lucide="layers" class="w-5 h-5 text-accent"></i>
                     </div>
-                    <div class="app-card p-3.5 flex justify-between items-center">
+                    <div class="neon-card p-3.5 flex justify-between items-center">
                         <div>
-                            <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Best Streak Achieved</div>
+                            <div class="text-[10px] font-bold uppercase tracking-wider opacity-60">Best Streak Achieved</div>
                             <div class="text-base font-extrabold" id="stats-best-streak">0 Days</div>
                         </div>
                         <i data-lucide="award" class="w-5 h-5 text-orange-500"></i>
@@ -283,31 +267,30 @@
 
         <!-- ================= TAB 6: SETTINGS ================= -->
         <div id="tab-settings" class="tab-content hidden space-y-4">
-            <div class="app-card p-5 space-y-4">
+            <div class="neon-card p-5 space-y-4">
                 <h3 class="font-bold text-sm mb-1 flex items-center gap-2">
-                    <i data-lucide="settings" class="w-4 h-4 text-brand-500"></i> Customization & Settings
+                    <i data-lucide="settings" class="w-4 h-4 text-accent"></i> Stunning Theme Settings
                 </h3>
                 
-                <!-- Design Style Picker -->
-                <div class="space-y-1.5 py-2 border-b border-slate-200 dark:border-dark-border">
-                    <div class="text-xs font-bold">Design Style</div>
-                    <div class="grid grid-cols-2 gap-2 pt-1">
-                        <button onclick="setStyle('glass')" class="style-btn text-xs font-semibold py-2 px-3 rounded-xl app-card transition">Glassmorphism</button>
-                        <button onclick="setStyle('neu')" class="style-btn text-xs font-semibold py-2 px-3 rounded-xl app-card transition">Neumorphism</button>
-                        <button onclick="setStyle('clay')" class="style-btn text-xs font-semibold py-2 px-3 rounded-xl app-card transition">Claymorphism</button>
-                        <button onclick="setStyle('min')" class="style-btn text-xs font-semibold py-2 px-3 rounded-xl app-card transition">Minimalism</button>
+                <!-- Theme Mode Picker -->
+                <div class="space-y-1.5 py-2 border-b border-white/10">
+                    <div class="text-xs font-bold">Display Theme</div>
+                    <div class="grid grid-cols-3 gap-2 pt-1">
+                        <button onclick="setThemeMode('neon-black')" class="theme-btn text-[11px] font-bold py-2 px-2 rounded-xl neon-card transition">OLED Black</button>
+                        <button onclick="setThemeMode('dark-glass')" class="theme-btn text-[11px] font-bold py-2 px-2 rounded-xl neon-card transition">Dark Glass</button>
+                        <button onclick="setThemeMode('clean-light')" class="theme-btn text-[11px] font-bold py-2 px-2 rounded-xl neon-card transition">Clean Light</button>
                     </div>
                 </div>
 
-                <!-- Color Palette Picker -->
-                <div class="space-y-1.5 py-2 border-b border-slate-200 dark:border-dark-border">
-                    <div class="text-xs font-bold">Color Theme</div>
+                <!-- Neon Accent Color Picker -->
+                <div class="space-y-1.5 py-2 border-b border-white/10">
+                    <div class="text-xs font-bold">Neon Accent Color</div>
                     <div class="grid grid-cols-5 gap-2 pt-1">
-                        <button onclick="setColor('rose')" class="h-9 rounded-xl bg-rose-500 shadow-md active:scale-95" title="Rose Pink"></button>
-                        <button onclick="setColor('emerald')" class="h-9 rounded-xl bg-emerald-500 shadow-md active:scale-95" title="Emerald Green"></button>
-                        <button onclick="setColor('violet')" class="h-9 rounded-xl bg-violet-500 shadow-md active:scale-95" title="Violet Purple"></button>
-                        <button onclick="setColor('amber')" class="h-9 rounded-xl bg-amber-500 shadow-md active:scale-95" title="Amber Gold"></button>
-                        <button onclick="setColor('ocean')" class="h-9 rounded-xl bg-cyan-500 shadow-md active:scale-95" title="Ocean Blue"></button>
+                        <button onclick="setAccentColor('rose', '#f43f5e', 'rgba(244, 63, 94, 0.25)')" class="h-9 rounded-xl bg-rose-500 shadow-lg active:scale-95" title="Neon Rose"></button>
+                        <button onclick="setAccentColor('emerald', '#10b981', 'rgba(16, 185, 129, 0.25)')" class="h-9 rounded-xl bg-emerald-500 shadow-lg active:scale-95" title="Cyber Green"></button>
+                        <button onclick="setAccentColor('violet', '#8b5cf6', 'rgba(139, 92, 246, 0.25)')" class="h-9 rounded-xl bg-violet-500 shadow-lg active:scale-95" title="Electric Violet"></button>
+                        <button onclick="setAccentColor('amber', '#f59e0b', 'rgba(245, 158, 11, 0.25)')" class="h-9 rounded-xl bg-amber-500 shadow-lg active:scale-95" title="Solar Gold"></button>
+                        <button onclick="setAccentColor('cyan', '#06b6d4', 'rgba(6, 182, 212, 0.25)')" class="h-9 rounded-xl bg-cyan-500 shadow-lg active:scale-95" title="Neon Cyan"></button>
                     </div>
                 </div>
 
@@ -315,7 +298,7 @@
                 <div class="flex items-center justify-between py-2">
                     <div>
                         <div class="text-xs font-bold text-red-500">Reset Habit Data</div>
-                        <div class="text-[10px] text-slate-500 dark:text-slate-400">Clear all habits and history</div>
+                        <div class="text-[10px] opacity-60">Clear all habits and history</div>
                     </div>
                     <button onclick="resetAllData()" class="bg-red-500/10 hover:bg-red-500/20 text-red-500 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition active:scale-95">
                         Reset
@@ -327,29 +310,29 @@
     </main>
 
     <!-- Bottom Navigation Bar -->
-    <nav class="app-card fixed bottom-0 left-0 right-0 py-2.5 px-2 z-20 transition-all duration-300 mx-2 mb-2 sm:mx-auto sm:max-w-md">
+    <nav class="neon-card fixed bottom-0 left-0 right-0 py-2.5 px-2 z-20 transition-all duration-300 mx-3 mb-3 sm:mx-auto sm:max-w-md">
         <div class="flex justify-around">
-            <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn flex flex-col items-center gap-0.5 text-brand-500 transition">
+            <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn flex flex-col items-center gap-0.5 text-accent transition">
                 <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
                 <span class="text-[9px] font-bold">Dashboard</span>
             </button>
-            <button onclick="switchTab('calendar')" id="nav-calendar" class="nav-btn flex flex-col items-center gap-0.5 text-slate-400 transition">
+            <button onclick="switchTab('calendar')" id="nav-calendar" class="nav-btn flex flex-col items-center gap-0.5 opacity-50 transition">
                 <i data-lucide="calendar" class="w-4 h-4"></i>
                 <span class="text-[9px] font-bold">Planner</span>
             </button>
-            <button onclick="switchTab('todo')" id="nav-todo" class="nav-btn flex flex-col items-center gap-0.5 text-slate-400 transition">
+            <button onclick="switchTab('todo')" id="nav-todo" class="nav-btn flex flex-col items-center gap-0.5 opacity-50 transition">
                 <i data-lucide="check-square" class="w-4 h-4"></i>
                 <span class="text-[9px] font-bold">To-Do</span>
             </button>
-            <button onclick="switchTab('notes')" id="nav-notes" class="nav-btn flex flex-col items-center gap-0.5 text-slate-400 transition">
+            <button onclick="switchTab('notes')" id="nav-notes" class="nav-btn flex flex-col items-center gap-0.5 opacity-50 transition">
                 <i data-lucide="book-open" class="w-4 h-4"></i>
                 <span class="text-[9px] font-bold">Notes</span>
             </button>
-            <button onclick="switchTab('analytics')" id="nav-analytics" class="nav-btn flex flex-col items-center gap-0.5 text-slate-400 transition">
+            <button onclick="switchTab('analytics')" id="nav-analytics" class="nav-btn flex flex-col items-center gap-0.5 opacity-50 transition">
                 <i data-lucide="bar-chart-2" class="w-4 h-4"></i>
                 <span class="text-[9px] font-bold">Stats</span>
             </button>
-            <button onclick="switchTab('settings')" id="nav-settings" class="nav-btn flex flex-col items-center gap-0.5 text-slate-400 transition">
+            <button onclick="switchTab('settings')" id="nav-settings" class="nav-btn flex flex-col items-center gap-0.5 opacity-50 transition">
                 <i data-lucide="settings" class="w-4 h-4"></i>
                 <span class="text-[9px] font-bold">Settings</span>
             </button>
@@ -357,28 +340,28 @@
     </nav>
 
     <!-- Add Habit Modal -->
-    <div id="add-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
-        <div class="app-card border w-full max-w-md p-6 shadow-2xl">
+    <div id="add-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
+        <div class="neon-card border w-full max-w-md p-6 shadow-2xl">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-base font-bold">Add New Habit for Eku</h3>
-                <button onclick="closeAddModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white p-1">
+                <button onclick="closeAddModal()" class="opacity-60 hover:opacity-100 p-1">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
             <form id="habit-form" onsubmit="handleHabitSubmit(event)">
                 <div class="mb-4">
-                    <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Habit Name</label>
-                    <input type="text" id="habit-name-input" required placeholder="e.g., Skincare routine, Drink water" class="w-full app-card rounded-xl px-4 py-3 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 text-xs font-semibold">
+                    <label class="block text-[10px] font-bold opacity-60 uppercase tracking-wider mb-2">Habit Name</label>
+                    <input type="text" id="habit-name-input" required placeholder="e.g., Skincare routine, Drink water" class="w-full neon-card rounded-xl px-4 py-3 placeholder-slate-500 focus:outline-none text-xs font-semibold">
                 </div>
                 <div class="mb-6">
-                    <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Category</label>
+                    <label class="block text-[10px] font-bold opacity-60 uppercase tracking-wider mb-2">Category</label>
                     <div class="grid grid-cols-3 gap-2">
-                        <button type="button" onclick="setCategory('Fitness')" class="cat-btn py-2.5 px-3 rounded-xl border border-brand-500 bg-brand-light text-brand-500 text-xs font-bold transition" data-cat="Fitness">Fitness</button>
-                        <button type="button" onclick="setCategory('Wellness')" class="cat-btn py-2.5 px-3 rounded-xl app-card text-slate-500 dark:text-slate-400 text-xs font-semibold transition" data-cat="Wellness">Wellness</button>
-                        <button type="button" onclick="setCategory('Study')" class="cat-btn py-2.5 px-3 rounded-xl app-card text-slate-500 dark:text-slate-400 text-xs font-semibold transition" data-cat="Study">Study</button>
+                        <button type="button" onclick="setCategory('Fitness')" class="cat-btn py-2.5 px-3 rounded-xl border border-accent bg-accent/10 text-accent text-xs font-bold transition" data-cat="Fitness">Fitness</button>
+                        <button type="button" onclick="setCategory('Wellness')" class="cat-btn py-2.5 px-3 rounded-xl neon-card opacity-70 text-xs font-semibold transition" data-cat="Wellness">Wellness</button>
+                        <button type="button" onclick="setCategory('Study')" class="cat-btn py-2.5 px-3 rounded-xl neon-card opacity-70 text-xs font-semibold transition" data-cat="Study">Study</button>
                     </div>
                 </div>
-                <button type="submit" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 rounded-xl transition shadow-lg text-xs active:scale-95">Save Habit</button>
+                <button type="submit" class="w-full bg-accent text-white font-bold py-3 rounded-xl transition shadow-lg text-xs active:scale-95">Save Habit</button>
             </form>
         </div>
     </div>
@@ -396,59 +379,32 @@
         let waterData = JSON.parse(localStorage.getItem('habitflow_water')) || {};
         let scratchpadText = localStorage.getItem('habitflow_scratchpad') || '';
         let selectedCategory = 'Fitness';
-        let currentTheme = localStorage.getItem('habitflow_theme') || 'dark';
-        let currentStyle = localStorage.getItem('habitflow_style') || 'glass';
-        let currentColor = localStorage.getItem('habitflow_color') || 'rose';
+        let currentTheme = localStorage.getItem('habitflow_theme') || 'neon-black';
+        let currentAccentHex = localStorage.getItem('habitflow_accent') || '#f43f5e';
+        let currentGlowHex = localStorage.getItem('habitflow_glow') || 'rgba(244, 63, 94, 0.25)';
 
-        const colorMap = {
-            rose: { 500: '#f43f5e', 600: '#e11d48', light: 'rgba(244, 63, 94, 0.12)' },
-            emerald: { 500: '#10b981', 600: '#059669', light: 'rgba(16, 185, 129, 0.12)' },
-            violet: { 500: '#8b5cf6', 600: '#7c3aed', light: 'rgba(139, 92, 246, 0.12)' },
-            amber: { 500: '#f59e0b', 600: '#d97706', light: 'rgba(245, 158, 11, 0.12)' },
-            ocean: { 500: '#06b6d4', 600: '#0891b2', light: 'rgba(6, 182, 212, 0.12)' }
-        };
-
-        function setColor(colorName) {
-            currentColor = colorName;
-            localStorage.setItem('habitflow_color', colorName);
-            applyColorTheme();
+        function setThemeMode(themeName) {
+            currentTheme = themeName;
+            localStorage.setItem('habitflow_theme', themeName);
+            document.documentElement.setAttribute('data-theme', themeName);
         }
 
-        function applyColorTheme() {
-            const c = colorMap[currentColor] || colorMap.rose;
-            const root = document.documentElement;
-            root.style.setProperty('--brand-500', c[500]);
-            root.style.setProperty('--brand-600', c[600]);
-            root.style.setProperty('--brand-light', c.light);
+        function setAccentColor(name, hex, glow) {
+            currentAccentHex = hex;
+            currentGlowHex = glow;
+            localStorage.setItem('habitflow_accent', hex);
+            localStorage.setItem('habitflow_glow', glow);
+            applyAccent();
+            render();
         }
 
-        function setStyle(styleName) {
-            currentStyle = styleName;
-            localStorage.setItem('habitflow_style', styleName);
-            document.documentElement.setAttribute('data-style', styleName);
+        function applyAccent() {
+            document.documentElement.style.setProperty('--accent-color', currentAccentHex);
+            document.documentElement.style.setProperty('--glow-color', currentGlowHex);
         }
 
-        setStyle(currentStyle);
-        setColor(currentColor);
-
-        const htmlRoot = document.getElementById('html-root');
-        if (currentTheme === 'light') {
-            htmlRoot.classList.remove('dark');
-        } else {
-            htmlRoot.classList.add('dark');
-        }
-
-        function toggleTheme() {
-            if (htmlRoot.classList.contains('dark')) {
-                htmlRoot.classList.remove('dark');
-                currentTheme = 'light';
-            } else {
-                htmlRoot.classList.add('dark');
-                currentTheme = 'dark';
-            }
-            localStorage.setItem('habitflow_theme', currentTheme);
-            lucide.createIcons();
-        }
+        setThemeMode(currentTheme);
+        applyAccent();
 
         const motivations = [
             "Every small step you take today brings your biggest dreams closer. You've got this, Eku! ❤️",
@@ -485,10 +441,10 @@
         function switchTab(tabName) {
             ['dashboard', 'calendar', 'todo', 'notes', 'analytics', 'settings'].forEach(t => {
                 document.getElementById(`tab-${t}`).classList.add('hidden');
-                document.getElementById(`nav-${t}`).className = "nav-btn flex flex-col items-center gap-0.5 text-slate-400 transition";
+                document.getElementById(`nav-${t}`).className = "nav-btn flex flex-col items-center gap-0.5 opacity-50 transition";
             });
             document.getElementById(`tab-${tabName}`).classList.remove('hidden');
-            document.getElementById(`nav-${tabName}`).className = "nav-btn flex flex-col items-center gap-0.5 text-brand-500 transition";
+            document.getElementById(`nav-${tabName}`).className = "nav-btn flex flex-col items-center gap-0.5 text-accent transition";
             render();
         }
 
@@ -543,24 +499,24 @@
         function updateCalendarSummary() {
             const note = plannerNotes[document.getElementById('planner-date-picker').value];
             const summaryEl = document.getElementById('calendar-daily-summary');
-            summaryEl.innerHTML = (note && note.trim() !== '') ? `<p class="italic text-brand-500">${note}</p>` : "No special notes for this date yet. Use the planner above to record your schedule!";
+            summaryEl.innerHTML = (note && note.trim() !== '') ? `<p class="italic text-accent">${note}</p>` : "No special notes for this date yet. Use the planner above to record your schedule!";
         }
 
         function renderTodos() {
             const container = document.getElementById('todo-list-container');
             if (todos.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">No tasks in your to-do list yet.</p>`;
+                container.innerHTML = `<p class="text-xs opacity-50 text-center py-4">No tasks in your to-do list yet.</p>`;
                 return;
             }
             container.innerHTML = todos.map(t => `
-                <div class="app-card p-3 flex items-center justify-between">
+                <div class="neon-card p-3 flex items-center justify-between">
                     <div class="flex items-center gap-3">
-                        <button onclick="toggleTodo('${t.id}')" class="w-5 h-5 rounded-lg border ${t.completed ? 'bg-brand-500 border-brand-500 text-white' : 'border-slate-400 app-card text-transparent'} flex items-center justify-center transition">
+                        <button onclick="toggleTodo('${t.id}')" class="w-5 h-5 rounded-lg border ${t.completed ? 'bg-accent border-accent text-white' : 'border-slate-500 neon-card text-transparent'} flex items-center justify-center transition">
                             <i data-lucide="check" class="w-3 h-3 stroke-[3]"></i>
                         </button>
-                        <span class="text-xs font-medium ${t.completed ? 'line-through text-slate-400' : ''}">${t.text}</span>
+                        <span class="text-xs font-medium ${t.completed ? 'line-through opacity-40' : ''}">${t.text}</span>
                     </div>
-                    <button onclick="deleteTodo('${t.id}')" class="text-slate-400 hover:text-red-500 p-1 transition">
+                    <button onclick="deleteTodo('${t.id}')" class="opacity-50 hover:text-red-500 p-1 transition">
                         <i data-lucide="trash-2" class="w-4 h-4"></i>
                     </button>
                 </div>
@@ -623,20 +579,20 @@
                 if (habit.streak > maxStreak) maxStreak = habit.streak;
 
                 return `
-                    <div class="app-card p-3.5 flex items-center justify-between transition">
+                    <div class="neon-card p-3.5 flex items-center justify-between transition">
                         <div class="flex items-center gap-3">
-                            <button onclick="toggleHabit('${habit.id}')" class="w-7 h-7 rounded-xl border ${isCompleted ? 'bg-brand-500 border-brand-500 text-white' : 'border-slate-300 dark:border-slate-600 app-card text-transparent'} flex items-center justify-center transition active:scale-95">
+                            <button onclick="toggleHabit('${habit.id}')" class="w-7 h-7 rounded-xl border ${isCompleted ? 'bg-accent border-accent text-white' : 'border-slate-600 neon-card text-transparent'} flex items-center justify-center transition active:scale-95">
                                 <i data-lucide="check" class="w-4 h-4 stroke-[3]"></i>
                             </button>
                             <div>
-                                <h4 class="text-xs font-bold ${isCompleted ? 'line-through text-slate-400' : ''}">${habit.name}</h4>
+                                <h4 class="text-xs font-bold ${isCompleted ? 'line-through opacity-40' : ''}">${habit.name}</h4>
                                 <div class="flex items-center gap-2 mt-0.5">
-                                    <span class="text-[9px] font-bold text-slate-500 dark:text-slate-400 app-card px-2 py-0.5 rounded-md">${habit.category}</span>
+                                    <span class="text-[9px] font-bold opacity-60 neon-card px-2 py-0.5 rounded-md">${habit.category}</span>
                                     <span class="text-[9px] font-bold text-orange-500 flex items-center gap-0.5"><i data-lucide="flame" class="w-3 h-3"></i> ${habit.streak} streak</span>
                                 </div>
                             </div>
                         </div>
-                        <button onclick="deleteHabit('${habit.id}')" class="text-slate-400 hover:text-red-500 p-2 transition">
+                        <button onclick="deleteHabit('${habit.id}')" class="opacity-50 hover:text-red-500 p-2 transition">
                             <i data-lucide="trash-2" class="w-4 h-4"></i>
                         </button>
                     </div>
@@ -669,11 +625,11 @@
                 habits.forEach(h => { if (h.history && h.history[dateKey]) completedOnDay++; });
 
                 const ratio = totalHabits > 0 ? (completedOnDay / totalHabits) : 0;
-                let bgClass = 'app-card text-slate-400';
+                let bgClass = 'neon-card opacity-60';
                 if (totalHabits > 0 && ratio === 1) {
-                    bgClass = 'bg-brand-500 border-brand-500 text-white font-bold shadow-md';
+                    bgClass = 'bg-accent border-accent text-white font-bold shadow-lg';
                 } else if (totalHabits > 0 && ratio > 0) {
-                    bgClass = 'bg-brand-light border-brand-500/40 text-brand-500 font-bold';
+                    bgClass = 'bg-accent/20 border-accent/40 text-accent font-bold';
                 }
 
                 daysHtml += `
@@ -681,7 +637,7 @@
                         <div class="w-full aspect-square rounded-xl border ${bgClass} flex items-center justify-center text-xs transition mb-1">
                             ${completedOnDay > 0 ? completedOnDay : ''}
                         </div>
-                        <span class="text-[9px] font-bold text-slate-400 uppercase">${dayName}</span>
+                        <span class="text-[9px] font-bold opacity-50 uppercase">${dayName}</span>
                     </div>
                 `;
             }
@@ -727,9 +683,9 @@
             selectedCategory = cat;
             document.querySelectorAll('.cat-btn').forEach(btn => {
                 if (btn.dataset.cat === cat) {
-                    btn.className = "cat-btn py-2.5 px-3 rounded-xl border border-brand-500 bg-brand-light text-brand-500 text-xs font-bold transition";
+                    btn.className = "cat-btn py-2.5 px-3 rounded-xl border border-accent bg-accent/10 text-accent text-xs font-bold transition";
                 } else {
-                    btn.className = "cat-btn py-2.5 px-3 rounded-xl app-card text-slate-500 dark:text-slate-400 text-xs font-semibold transition";
+                    btn.className = "cat-btn py-2.5 px-3 rounded-xl neon-card opacity-70 text-xs font-semibold transition";
                 }
             });
         }
