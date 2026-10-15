@@ -14,8 +14,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc }
             from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject }
-            from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDrjNg-l23xjWSDrMJyp0e28ZWjJVIdgD8",
@@ -27,12 +25,13 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        window.db      = getFirestore(app);
-        window.storage = getStorage(app);
-        window.fbModules = {
-            collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc,
-            ref, uploadBytes, getDownloadURL, deleteObject
-        };
+        window.db = getFirestore(app);
+        window.fbModules = { collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc };
+
+        // ---- Cloudinary (voice note hosting) ----
+        window.CLOUDINARY_CLOUD  = "p9pcbime";
+        window.CLOUDINARY_PRESET = "habitflow";
+
         window.isFirebaseReady = true;
     </script>
 
@@ -655,7 +654,7 @@
             renderPersonalMemos();
         }
 
-        // ============ COUPLE HUB (Firebase Storage + Firestore) ============
+        // ============ COUPLE HUB (Cloudinary + Firestore) ============
         const PLAYS_LIMIT = 3;
         const TEXT_TTL_MS = 3 * 60 * 60 * 1000;
 
@@ -699,18 +698,28 @@
 
                     document.getElementById('rec-status').innerText = "Uploading... ⏳";
                     try {
-                        const path = `sharedDrops/${userRole}_${Date.now()}.webm`;
-                        const storageRef = window.fbModules.ref(window.storage, path);
-                        await window.fbModules.uploadBytes(storageRef, blob, { contentType: 'audio/webm' });
-                        const url = await window.fbModules.getDownloadURL(storageRef);
+                        const fd = new FormData();
+                        fd.append('file', blob, `voice_${userRole}_${Date.now()}.webm`);
+                        fd.append('upload_preset', window.CLOUDINARY_PRESET);
+                        fd.append('folder', 'habitflow/sharedDrops');
+
+                        const res = await fetch(
+                            `https://api.cloudinary.com/v1_1/${window.CLOUDINARY_CLOUD}/auto/upload`,
+                            { method: 'POST', body: fd }
+                        );
+                        if (!res.ok) {
+                            const errTxt = await res.text();
+                            throw new Error('Cloudinary ' + res.status + ': ' + errTxt);
+                        }
+                        const json = await res.json();
 
                         await window.fbModules.addDoc(
                             window.fbModules.collection(window.db, "shared_voice_drops"),
                             {
                                 sender: userRole,
                                 type: 'audio',
-                                audioUrl: url,
-                                audioPath: path,
+                                audioUrl: json.secure_url,
+                                cloudinaryId: json.public_id,
                                 time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                                 createdAt: Date.now(),
                                 plays: { Grv: 0, Eku: 0 },
@@ -722,7 +731,7 @@
                     } catch (err) {
                         console.error("Upload failed:", err);
                         document.getElementById('rec-status').innerText = "Failed ✗";
-                        alert("Send failed: " + (err.message || err.code || err));
+                        alert("Send failed: " + (err.message || err));
                     }
                 };
                 coupleMediaRecorder.start();
@@ -775,12 +784,9 @@
 
         async function deleteDropFully(drop) {
             try {
-                if (drop.audioPath) {
-                    try {
-                        await window.fbModules.deleteObject(window.fbModules.ref(window.storage, drop.audioPath));
-                    } catch (e) { /* file may already be gone */ }
-                }
-                await window.fbModules.deleteDoc(window.fbModules.doc(window.db, "shared_voice_drops", drop.firebaseId));
+                await window.fbModules.deleteDoc(
+                    window.fbModules.doc(window.db, "shared_voice_drops", drop.firebaseId)
+                );
             } catch (e) { console.warn("Delete failed:", e); }
         }
 
