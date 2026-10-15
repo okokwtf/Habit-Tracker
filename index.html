@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>HabitFlow - Couple's Edition ❤️</title>
-    
+
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="HabitFlow">
@@ -12,7 +12,10 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc }
+            from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject }
+            from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDrjNg-l23xjWSDrMJyp0e28ZWjJVIdgD8",
@@ -24,8 +27,12 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        window.db = getFirestore(app);
-        window.fbModules = { collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc };
+        window.db      = getFirestore(app);
+        window.storage = getStorage(app);
+        window.fbModules = {
+            collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc,
+            ref, uploadBytes, getDownloadURL, deleteObject
+        };
         window.isFirebaseReady = true;
     </script>
 
@@ -120,7 +127,7 @@
     </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans antialiased overflow-x-hidden">
-    
+
     <!-- Setup Modal -->
     <div id="role-setup-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
         <div class="neon-card w-full max-w-sm p-6 text-center space-y-4 border-accent/50 shadow-2xl">
@@ -158,7 +165,7 @@
 
     <!-- Main Content Area -->
     <main class="max-w-md w-full mx-auto p-3 flex-grow pb-24 space-y-3">
-        
+
         <!-- ================= TAB 1: DASHBOARD (HABITS) ================= -->
         <div id="tab-dashboard" class="tab-content space-y-3">
             <div class="neon-card p-3.5 text-center relative">
@@ -288,9 +295,8 @@
             </div>
         </div>
 
-        <!-- ================= TAB 4: JOURNAL (STACKED SCRATCHPAD + USABLE FULL CALENDAR) ================= -->
+        <!-- ================= TAB 4: JOURNAL ================= -->
         <div id="tab-journal" class="tab-content hidden space-y-3">
-            <!-- 1. Scratchpad Card at Top -->
             <div class="neon-card p-3.5 space-y-1.5">
                 <h3 class="font-bold text-[10px] uppercase tracking-wider opacity-60 flex items-center gap-1.5">
                     <i data-lucide="book-open" class="w-3.5 h-3.5 text-accent"></i> Scratchpad
@@ -298,7 +304,6 @@
                 <textarea id="scratchpad-input" rows="3" placeholder="Jot down notes, thoughts, reminders..." oninput="saveScratchpad()" class="w-full neon-card rounded-xl p-3 text-xs font-medium placeholder-slate-500 focus:outline-none resize-none"></textarea>
             </div>
 
-            <!-- 2. Planner Calendar Below Scratchpad (Full Width & Tap-Friendly) -->
             <div class="neon-card p-3.5 space-y-2.5">
                 <div class="flex justify-between items-center">
                     <h3 class="font-bold text-[10px] uppercase tracking-wider opacity-60 flex items-center gap-1.5">
@@ -310,21 +315,19 @@
                         <button onclick="changeMonth(1)" class="neon-card px-2.5 py-1 text-xs font-bold active:scale-95">&rarr;</button>
                     </div>
                 </div>
-                
+
                 <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold opacity-50">
                     <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
                 </div>
-                
+
                 <div class="grid grid-cols-7 gap-1.5" id="monthly-grid"></div>
 
-                <!-- Date Reminder Box Integrated Directly Into Calendar -->
                 <div class="pt-2 border-t border-white/10 space-y-1">
                     <div class="text-[10px] font-bold text-accent uppercase" id="selected-date-title">Selected Date Note</div>
                     <textarea id="planner-notes-input" rows="1" placeholder="Tap any date above to add or view reminder..." oninput="saveDayPlannerNotes()" class="w-full neon-card rounded-xl px-3 py-2 text-xs font-medium placeholder-slate-500 focus:outline-none resize-none"></textarea>
                 </div>
             </div>
 
-            <!-- 3. Personal Voice Memos at Bottom -->
             <div class="neon-card p-3.5 space-y-2">
                 <div class="flex items-center justify-between">
                     <h3 class="font-bold text-[10px] uppercase tracking-wider opacity-60 flex items-center gap-1.5">
@@ -344,7 +347,7 @@
             </div>
         </div>
 
-        <!-- ================= TAB 5: COUPLE HUB (SETTINGS & SYNC FEED) ================= -->
+        <!-- ================= TAB 5: COUPLE HUB ================= -->
         <div id="tab-settings" class="tab-content hidden space-y-3">
             <div class="neon-card p-4 space-y-3">
                 <h3 class="font-bold text-xs mb-1 flex items-center gap-1.5">
@@ -360,7 +363,6 @@
                 </div>
             </div>
 
-            <!-- Partner Synchronized Drop Feed Card in Couple Hub -->
             <div class="neon-card p-4 space-y-3 border-accent/60 shadow-md">
                 <div class="flex items-center justify-between">
                     <h3 class="font-bold text-xs uppercase tracking-wider text-accent flex items-center gap-1.5">
@@ -469,7 +471,7 @@
 
     <!-- App Script -->
     <script>
-        // Live Digital Clock (HH:MM:SS) & Header Date
+        // Live Digital Clock
         setInterval(() => {
             const now = new Date();
             const h = String(now.getHours()).padStart(2, '0');
@@ -508,8 +510,6 @@
             currentTheme = name;
             localStorage.setItem('habitflow_theme', name);
             document.documentElement.setAttribute('data-theme', name);
-            
-            // Cleanly toggle Tailwind dark mode class
             if (name === 'light-white' || name === 'clean-light') {
                 document.documentElement.classList.remove('dark');
             } else {
@@ -655,56 +655,94 @@
             renderPersonalMemos();
         }
 
-        // Couple Firebase Sync
+        // ============ COUPLE HUB (Firebase Storage + Firestore) ============
+        const PLAYS_LIMIT = 3;
+        const TEXT_TTL_MS = 3 * 60 * 60 * 1000;
+
+        function getRecipient(sender) { return sender === 'Grv' ? 'Eku' : 'Grv'; }
+
         function initCloudSync() {
-            if (!window.isFirebaseReady) { setTimeout(initCloudSync, 1000); return; }
-            const q = window.fbModules.query(window.fbModules.collection(window.db, "shared_voice_drops"), window.fbModules.orderBy("createdAt", "asc"));
+            if (!window.isFirebaseReady) { setTimeout(initCloudSync, 500); return; }
+            const q = window.fbModules.query(
+                window.fbModules.collection(window.db, "shared_voice_drops"),
+                window.fbModules.orderBy("createdAt", "asc")
+            );
             window.fbModules.onSnapshot(q, (snapshot) => {
                 sharedDrops = [];
                 snapshot.forEach(docSnap => sharedDrops.push({ firebaseId: docSnap.id, ...docSnap.data() }));
+                sharedDrops.forEach(d => {
+                    if (d.deleteAt && Date.now() >= d.deleteAt) deleteDropFully(d);
+                });
                 renderVoiceMemos();
+            }, (err) => {
+                console.error("Firestore listen error:", err);
             });
         }
         initCloudSync();
+
+        setInterval(() => {
+            sharedDrops.forEach(d => {
+                if (d.deleteAt && Date.now() >= d.deleteAt) deleteDropFully(d);
+            });
+        }, 60 * 1000);
 
         async function toggleRecording() {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 coupleMediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm;codecs=opus' });
                 coupleAudioChunks = [];
-                coupleMediaRecorder.ondataavailable = e => coupleAudioChunks.push(e.data);
-                coupleMediaRecorder.onstop = () => {
+                coupleMediaRecorder.ondataavailable = e => { if (e.data.size) coupleAudioChunks.push(e.data); };
+                coupleMediaRecorder.onstop = async () => {
+                    stream.getTracks().forEach(t => t.stop());
                     const blob = new Blob(coupleAudioChunks, { type: 'audio/webm' });
-                    const reader = new FileReader();
-                    reader.readAsDataURL(blob);
-                    reader.onloadend = async () => {
-                        document.getElementById('rec-status').innerText = "Syncing... 💌";
-                        if (window.isFirebaseReady) {
-                            await window.fbModules.addDoc(window.fbModules.collection(window.db, "shared_voice_drops"), {
-                                sender: userRole, type: 'audio',
-                                time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-                                audio: reader.result, listCount: 0, createdAt: Date.now()
-                            });
-                            document.getElementById('rec-status').innerText = "Sent! ✓";
-                        }
-                    };
+                    if (blob.size === 0) { document.getElementById('rec-status').innerText = "Empty ✗"; return; }
+
+                    document.getElementById('rec-status').innerText = "Uploading... ⏳";
+                    try {
+                        const path = `sharedDrops/${userRole}_${Date.now()}.webm`;
+                        const storageRef = window.fbModules.ref(window.storage, path);
+                        await window.fbModules.uploadBytes(storageRef, blob, { contentType: 'audio/webm' });
+                        const url = await window.fbModules.getDownloadURL(storageRef);
+
+                        await window.fbModules.addDoc(
+                            window.fbModules.collection(window.db, "shared_voice_drops"),
+                            {
+                                sender: userRole,
+                                type: 'audio',
+                                audioUrl: url,
+                                audioPath: path,
+                                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                                createdAt: Date.now(),
+                                plays: { Grv: 0, Eku: 0 },
+                                playLimit: PLAYS_LIMIT,
+                                deleteAt: null
+                            }
+                        );
+                        document.getElementById('rec-status').innerText = "Sent! ✓";
+                    } catch (err) {
+                        console.error("Upload failed:", err);
+                        document.getElementById('rec-status').innerText = "Failed ✗";
+                        alert("Send failed: " + (err.message || err.code || err));
+                    }
                 };
                 coupleMediaRecorder.start();
                 document.getElementById('rec-status').innerText = "🔴 Rec...";
-                document.getElementById('record-btn').className = "flex-grow bg-red-500 text-white font-bold py-2 rounded-xl text-xs animate-pulse";
+                document.getElementById('record-btn').className = "flex-grow bg-red-500 text-white font-bold py-2.5 rounded-xl text-xs animate-pulse";
                 document.getElementById('stop-btn').disabled = false;
-                document.getElementById('stop-btn').className = "neon-card px-3 py-2 rounded-xl text-xs font-bold text-accent border-accent cursor-pointer";
+                document.getElementById('stop-btn').className = "neon-card px-4 py-2.5 rounded-xl text-xs font-bold text-accent border-accent cursor-pointer";
                 maxRecordTimeout = setTimeout(() => stopRecording(), 120000);
-            } catch(e) { alert("Mic required."); }
+            } catch (e) {
+                alert("Mic permission required.");
+            }
         }
 
         function stopRecording() {
             if (coupleMediaRecorder && coupleMediaRecorder.state !== "inactive") {
                 clearTimeout(maxRecordTimeout);
                 coupleMediaRecorder.stop();
-                document.getElementById('record-btn').className = "flex-grow bg-accent text-white font-bold py-2 rounded-xl text-xs active:scale-95";
+                document.getElementById('record-btn').className = "flex-grow bg-accent text-white font-bold py-2.5 rounded-xl text-xs active:scale-95";
                 document.getElementById('stop-btn').disabled = true;
-                document.getElementById('stop-btn').className = "neon-card px-3 py-2 rounded-xl text-xs opacity-50 cursor-not-allowed";
+                document.getElementById('stop-btn').className = "neon-card px-4 py-2.5 rounded-xl text-xs opacity-50 cursor-not-allowed";
                 lucide.createIcons();
             }
         }
@@ -714,62 +752,116 @@
             const input = document.getElementById('couple-text-input');
             const txt = input.value.trim();
             if (!txt) return;
-            if (window.isFirebaseReady) {
-                await window.fbModules.addDoc(window.fbModules.collection(window.db, "shared_voice_drops"), {
-                    sender: userRole, type: 'text', text: txt,
-                    time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-                    listCount: 0, createdAt: Date.now()
-                });
+            try {
+                await window.fbModules.addDoc(
+                    window.fbModules.collection(window.db, "shared_voice_drops"),
+                    {
+                        sender: userRole,
+                        type: 'text',
+                        text: txt,
+                        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                        createdAt: Date.now(),
+                        plays: { Grv: 0, Eku: 0 },
+                        playLimit: PLAYS_LIMIT,
+                        deleteAt: null
+                    }
+                );
                 input.value = '';
+            } catch (err) {
+                console.error(err);
+                alert("Send failed: " + (err.message || err));
             }
         }
 
-        async function triggerPlayRule(firebaseId, currentListCount, type) {
+        async function deleteDropFully(drop) {
+            try {
+                if (drop.audioPath) {
+                    try {
+                        await window.fbModules.deleteObject(window.fbModules.ref(window.storage, drop.audioPath));
+                    } catch (e) { /* file may already be gone */ }
+                }
+                await window.fbModules.deleteDoc(window.fbModules.doc(window.db, "shared_voice_drops", drop.firebaseId));
+            } catch (e) { console.warn("Delete failed:", e); }
+        }
+
+        async function onTextRead(firebaseId) {
             if (!window.isFirebaseReady) return;
-            const docRef = window.fbModules.doc(window.db, "shared_voice_drops", firebaseId);
-            if (type === 'audio') {
-                const nextCount = (currentListCount || 0) + 1;
-                if (nextCount >= 3) {
-                    await window.fbModules.deleteDoc(docRef);
-                } else {
-                    await window.fbModules.updateDoc(docRef, { listCount: nextCount });
-                }
-            } else if (type === 'text') {
-                const nextCount = (currentListCount || 0) + 1;
-                if (nextCount >= 1) {
-                    setTimeout(async () => {
-                        try { await window.fbModules.deleteDoc(docRef); } catch(e){}
-                    }, 3600000);
-                }
+            const drop = sharedDrops.find(d => d.firebaseId === firebaseId);
+            if (!drop) return;
+            if (drop.sender === userRole) return;
+            if (drop.deleteAt) return;
+            await window.fbModules.updateDoc(
+                window.fbModules.doc(window.db, "shared_voice_drops", firebaseId),
+                { deleteAt: Date.now() + TEXT_TTL_MS }
+            );
+        }
+
+        const countedThisSession = new Set();
+        async function onAudioPlay(firebaseId, audioEl) {
+            if (!window.isFirebaseReady) return;
+            const drop = sharedDrops.find(d => d.firebaseId === firebaseId);
+            if (!drop) return;
+            if (drop.sender === userRole) return;
+
+            const key = firebaseId + ':' + (audioEl.currentTime | 0);
+            if (countedThisSession.has(key)) return;
+            countedThisSession.add(key);
+
+            const current = (drop.plays && drop.plays[userRole]) || 0;
+            const next = current + 1;
+
+            if (next >= (drop.playLimit || PLAYS_LIMIT)) {
+                await deleteDropFully(drop);
+            } else {
+                await window.fbModules.updateDoc(
+                    window.fbModules.doc(window.db, "shared_voice_drops", firebaseId),
+                    { [`plays.${userRole}`]: next }
+                );
             }
         }
+
+        function onAudioEnded(audioEl) { delete audioEl.dataset.counted; }
 
         function renderVoiceMemos() {
             const container = document.getElementById('voice-memos-container');
             if (!container) return;
-            if (sharedDrops.length === 0) { container.innerHTML = `<p class="text-xs opacity-40 text-center py-2">No partner drops.</p>`; return; }
 
-            container.innerHTML = sharedDrops.slice().reverse().map(drop => {
+            const now = Date.now();
+            const visible = sharedDrops.filter(d => !d.deleteAt || now < d.deleteAt);
+
+            if (visible.length === 0) {
+                container.innerHTML = `<p class="text-xs opacity-40 text-center py-2">No partner drops.</p>`;
+                return;
+            }
+
+            container.innerHTML = visible.slice().reverse().map(drop => {
                 const isMine = drop.sender === userRole;
-                const playedCount = drop.listCount || 0;
-                const statusLabel = playedCount > 0 ? "Read / Listened ✓" : "Sent (Unread)";
+                const recipient = getRecipient(drop.sender);
+                const recipientPlays = (drop.plays && drop.plays[recipient]) || 0;
+                const playsLeft = Math.max(0, (drop.playLimit || PLAYS_LIMIT) - recipientPlays);
+                const statusLabel = isMine
+                    ? (recipientPlays > 0 ? `Listened ${recipientPlays}× ✓` : "Sent (Unread)")
+                    : (drop.type === 'audio' ? `Plays left: ${playsLeft}` : 'Tap to read');
 
                 return `
-                    <div class="neon-card p-3 space-y-2 border ${playedCount > 0 ? 'border-accent/40 bg-accent/5' : 'border-white/10'}">
+                    <div class="neon-card p-3 space-y-2 border ${recipientPlays > 0 ? 'border-accent/40 bg-accent/5' : 'border-white/10'}">
                         <div class="flex items-center justify-between">
                             <span class="text-xs font-bold text-accent">${drop.sender} 💌</span>
                             <span class="text-[10px] opacity-50">${drop.time}</span>
                         </div>
                         ${drop.type === 'text' ? `
-                            <p class="text-sm font-medium py-1" onclick="triggerPlayRule('${drop.firebaseId}', ${playedCount}, 'text')">${drop.text}</p>
+                            <p class="text-sm font-medium py-1 cursor-pointer" onclick="onTextRead('${drop.firebaseId}')">${drop.text}</p>
                         ` : `
                             <div class="flex items-center justify-between gap-2">
-                                <audio controls src="${drop.audio}" onplay="triggerPlayRule('${drop.firebaseId}',${playedCount}, 'audio')" class="h-8 w-full"></audio>
+                                <audio controls preload="none" src="${drop.audioUrl}"
+                                       onplay="onAudioPlay('${drop.firebaseId}', this)"
+                                       onended="onAudioEnded(this)"
+                                       class="h-8 w-full"></audio>
                             </div>
                         `}
                         <div class="flex justify-between items-center text-[10px] opacity-60 pt-0.5">
-                            <span>${statusLabel} ${drop.type === 'audio' ? `(Plays left: ${3 - playedCount})` : ''}</span>
-                            <span class="text-red-400 font-semibold">Deletion locked</span>
+                            <span>${statusLabel}</span>
+                            <span class="text-red-400 font-semibold">${drop.type === 'audio' ? '3 plays max' : 'Auto-delete 3h after read'}</span>
                         </div>
                     </div>
                 `;
@@ -822,7 +914,7 @@
             document.getElementById('timer-display').innerText = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
         }
 
-        // Full Width Planner Calendar
+        // Calendar Planner
         function renderMonthlyCalendar() {
             const grid = document.getElementById('monthly-grid');
             if(!grid) return;
