@@ -1,4 +1,4 @@
-const CACHE_NAME = 'habitflow-v5';
+const CACHE_NAME = 'habitflow-v6';
 
 // Install immediately and take control
 self.addEventListener('install', (e) => {
