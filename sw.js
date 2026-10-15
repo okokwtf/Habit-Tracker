@@ -1,6 +1,6 @@
 // HabitFlow service worker: makes the app installable and lets it open offline.
 // The page itself is fetched network-first so new versions show up as soon as you're online.
-const CACHE = 'habitflow-v4';
+const CACHE = 'habitflow-v7';
 const SHELL = ['./', 'index.html', 'manifest.json', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'];
 const CDN_HOSTS = ['cdn.tailwindcss.com', 'unpkg.com', 'www.gstatic.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 
