@@ -1,0 +1,2309 @@
+<!DOCTYPE html>
+<html lang="en" id="html-root" data-theme="neon-black">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0d1220">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>HabitFlow - Couple's Edition ❤️</title>
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="HabitFlow">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, deleteDoc }
+            from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Minimal sync only: partner progress + nudges. No chat, no voice, no uploads.
+        const firebaseConfig = {
+            apiKey: "AIzaSyDrjNg-l23xjWSDrMJyp0e28ZWjJVIdgD8",
+            authDomain: "habitflow-couple.firebaseapp.com",
+            projectId: "habitflow-couple",
+            storageBucket: "habitflow-couple.firebasestorage.app",
+            messagingSenderId: "602214886973",
+            appId: "1:602214886973:web:29224917bdc941c1314454"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        window.db = getFirestore(app);
+        window.fb = { doc, setDoc, onSnapshot, collection, addDoc, deleteDoc };
+        window.isFirebaseReady = true;
+    </script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        neon: {
+                            bg: 'var(--bg-color)',
+                            card: 'var(--card-color)',
+                            border: 'var(--border-color)',
+                            accent: 'var(--accent-color)',
+                            glow: 'var(--glow-color)'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --bg-color: #030712;
+            --card-color: #0b0f19;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --accent-color: #f43f5e;
+            --glow-color: rgba(244, 63, 94, 0.25);
+            --text-color: #f3f4f6;
+        }
+
+        [data-theme="spatial"] {
+            --bg-color: #0d1220;
+            --card-color: rgba(255, 255, 255, 0.07);
+            --border-color: rgba(255, 255, 255, 0.14);
+            --text-color: #f1f4ff;
+            --glow-color: rgba(88, 115, 240, 0.3);
+        }
+        [data-theme="neon-black"] {
+            --bg-color: #09090b;
+            --card-color: #111114;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-color: #f3f4f6;
+            --glow-color: rgba(244, 63, 94, 0.25);
+        }
+        [data-theme="dark-glass"] {
+            --bg-color: #020617;
+            --card-color: rgba(15, 23, 42, 0.85);
+            --border-color: rgba(255, 255, 255, 0.06);
+            --text-color: #e2e8f0;
+            --glow-color: rgba(244, 63, 94, 0.25);
+        }
+        /* Feature 10: True dark mode */
+        [data-theme="true-dark"] {
+            --bg-color: #000000;
+            --card-color: #09090b;
+            --border-color: rgba(255, 255, 255, 0.05);
+            --text-color: #e2e8f0;
+            --glow-color: rgba(244, 63, 94, 0.25);
+        }
+        [data-theme="light-white"] {
+            --bg-color: #ffffff;
+            --card-color: #f7f8fa;
+            --border-color: #e5e7eb;
+            --text-color: #0f172a;
+            --glow-color: rgba(0, 0, 0, 0.06);
+        }
+        [data-theme="clean-light"] {
+            --bg-color: #f4f5f7;
+            --card-color: #ffffff;
+            --border-color: #e5e7eb;
+            --text-color: #0f172a;
+            --glow-color: rgba(0, 0, 0, 0.08);
+        }
+
+        html { scrollbar-gutter: stable; }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .neon-card {
+            background-color: var(--card-color);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 18px -2px var(--glow-color);
+            border-radius: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        [data-theme="light-white"] input, [data-theme="light-white"] textarea, [data-theme="light-white"] select,
+        [data-theme="clean-light"] input, [data-theme="clean-light"] textarea, [data-theme="clean-light"] select {
+            color: #0f172a !important;
+            background-color: var(--card-color) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        [data-theme="light-white"] select option, [data-theme="clean-light"] select option {
+            background-color: #ffffff !important;
+            color: #0f172a !important;
+        }
+
+        .text-accent { color: var(--accent-color); }
+        .bg-accent { background-color: var(--accent-color); }
+        .border-accent { border-color: var(--accent-color); }
+
+        /* ---- Light theme fixes ---- */
+        [data-theme="light-white"] .neon-card .neon-card { background-color: #eef2f7; }
+        [data-theme="clean-light"] .neon-card .neon-card { background-color: #f1f5f9; }
+        [data-theme="light-white"] .neon-card { border-color: #cbd5e1; box-shadow: 0 2px 10px -2px rgba(15, 23, 42, 0.12); }
+        [data-theme="clean-light"] .neon-card { border-color: #cbd5e1; box-shadow: 0 2px 10px -2px rgba(15, 23, 42, 0.12); }
+        [data-theme="light-white"] .opacity-40, [data-theme="clean-light"] .opacity-40 { opacity: 0.6; }
+        [data-theme="light-white"] ::placeholder, [data-theme="clean-light"] ::placeholder { color: #64748b !important; opacity: 1; }
+
+        /* Darken the accent on light themes so text and white-on-accent buttons stay readable (any accent color) */
+        [data-theme="light-white"], [data-theme="clean-light"] { --accent-strong: #be123c; }
+        @supports (color: color-mix(in srgb, red, black)) {
+            [data-theme="light-white"], [data-theme="clean-light"] { --accent-strong: color-mix(in srgb, var(--accent-color) 62%, #000); }
+        }
+        [data-theme="light-white"] .text-accent, [data-theme="clean-light"] .text-accent { color: var(--accent-strong); }
+        [data-theme="light-white"] .bg-accent, [data-theme="clean-light"] .bg-accent { background-color: var(--accent-strong); }
+        [data-theme="light-white"] .border-accent, [data-theme="clean-light"] .border-accent { border-color: var(--accent-strong); }
+        [data-theme="light-white"] .bg-accent\/10, [data-theme="clean-light"] .bg-accent\/10 { background-color: rgba(0, 0, 0, 0.05); }
+        [data-theme="light-white"] .text-orange-500, [data-theme="clean-light"] .text-orange-500 { color: #c2410c; }
+        [data-theme="light-white"] .text-cyan-400, [data-theme="clean-light"] .text-cyan-400 { color: #0e7490; }
+        [data-theme="light-white"] .bg-cyan-500, [data-theme="clean-light"] .bg-cyan-500 { background-color: #0e7490; color: #fff; }
+
+
+        /* ---- Layout alignment: one rhythm for every tab ---- */
+        main .tab-content:not(.hidden) { display: flex; flex-direction: column; gap: 0.75rem; }
+        main .tab-content > * { margin-top: 0 !important; margin-bottom: 0 !important; }
+        main .tab-content > .neon-card:not(.seg):not(details) { padding: 0.875rem; }
+        main .tab-content > .neon-card:not(.seg):not(details) > * + *:not(.mt-pin) { margin-top: 0.625rem !important; }
+        main .tab-content > .neon-card h3 { margin: 0; }
+        
+        /* Header fix: hide empty clock container properly */
+        #header-clock-container.hidden { display: none !important; }
+        #header-clock-container.hidden * { display: none !important; }
+        #habits-container, #todo-list-container, #expense-list-container, #personal-voice-memos-container { display: flex; flex-direction: column; gap: 0.5rem; }
+        #habits-container > *, #todo-list-container > *, #expense-list-container > *, #personal-voice-memos-container > * { margin: 0 !important; }
+        #habits-container > .neon-card, #todo-list-container > .neon-card, #expense-list-container > .neon-card { padding: 0.625rem 0.875rem; }
+
+
+        /* =========================================================
+           MINIMAL LAYER: flat surfaces, quiet borders, accent used sparingly
+           ========================================================= */
+        html[data-theme] .neon-card { box-shadow: none; }
+        html[data-theme] .bg-accent, html[data-theme] .shadow, html[data-theme] .shadow-md, html[data-theme] .shadow-2xl { box-shadow: none; }
+        header.neon-card, nav.fixed.neon-card { -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+        /* Feature 14: Header fix - cleaner layout */
+        header.neon-card { padding: 0.5rem 1rem; }
+        html[data-theme="neon-black"] header.neon-card, html[data-theme="neon-black"] nav.fixed.neon-card { background-color: rgba(10, 10, 10, 0.82); }
+        html[data-theme="dark-glass"] header.neon-card, html[data-theme="dark-glass"] nav.fixed.neon-card { background-color: rgba(30, 41, 59, 0.82); }
+        html[data-theme="light-white"] header.neon-card, html[data-theme="light-white"] nav.fixed.neon-card { background-color: rgba(248, 250, 252, 0.85); }
+        html[data-theme="clean-light"] header.neon-card, html[data-theme="clean-light"] nav.fixed.neon-card { background-color: rgba(255, 255, 255, 0.85); }
+        h1, h2, h3, h4 { letter-spacing: -0.01em; }
+        button, summary { -webkit-tap-highlight-color: transparent; }
+        button, a, summary, input, select, textarea { transition: transform .18s cubic-bezier(.2,.8,.2,1), background-color .2s ease, color .2s ease, border-color .2s ease, opacity .2s ease; }
+        button:active:not(:disabled) { transform: scale(.96); }
+        input:focus, textarea:focus, select:focus { border-color: var(--accent-color) !important; outline: none; }
+
+        /* nav: quiet icons, a dot under the active one */
+        .nav-btn { position: relative; padding: 2px 6px 8px; min-width: 52px; }
+        .nav-btn::after { content: ''; position: absolute; bottom: 1px; left: 50%; width: 4px; height: 4px; margin-left: -2px; border-radius: 9999px; background: var(--accent-color); transform: scale(0); transition: transform .3s cubic-bezier(.3,1.6,.5,1); }
+        .nav-btn.text-accent::after { transform: scale(1); }
+        .nav-btn.text-accent svg { transform: translateY(-1px) scale(1.12); }
+        .nav-btn svg { transition: transform .3s cubic-bezier(.3,1.6,.5,1); }
+
+        /* ---------- Animations ---------- */
+        @keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+        @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes sheet { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: none; } }
+        @keyframes zoomIn { from { opacity: 0; transform: scale(.92); } to { opacity: 1; transform: none; } }
+        @keyframes pop { 0% { transform: scale(.5); } 55% { transform: scale(1.22); } 100% { transform: scale(1); } }
+        @keyframes bump { 0% { transform: scale(1); } 40% { transform: scale(1.25); } 100% { transform: scale(1); } }
+        @keyframes breathe { 0%, 100% { opacity: 1; } 50% { opacity: .72; } }
+        @keyframes msgIn { from { opacity: 0; transform: translateY(8px) scale(.96); } to { opacity: 1; transform: none; } }
+        @keyframes ringGlow { 0%, 100% { filter: drop-shadow(0 0 0 transparent); } 50% { filter: drop-shadow(0 0 6px var(--accent-color)); } }
+
+        /* every time a tab (or Journal pane) appears, its cards rise in one after another */
+        main .tab-content:not(.hidden) > * { animation: rise .5s cubic-bezier(.2,.8,.2,1) both; }
+        main .tab-content:not(.hidden) > *:nth-child(2) { animation-delay: .05s; }
+        main .tab-content:not(.hidden) > *:nth-child(3) { animation-delay: .1s; }
+        main .tab-content:not(.hidden) > *:nth-child(4) { animation-delay: .15s; }
+        main .tab-content:not(.hidden) > *:nth-child(5) { animation-delay: .2s; }
+        main .tab-content:not(.hidden) > *:nth-child(6) { animation-delay: .25s; }
+        main .tab-content:not(.hidden) > *:nth-child(n+7) { animation-delay: .3s; }
+
+        #add-modal:not(.hidden), #love-note-modal:not(.hidden), #role-setup-modal:not(.hidden) { animation: fade .25s ease both; }
+        #add-modal:not(.hidden) > div { animation: sheet .4s cubic-bezier(.2,.9,.3,1) both; }
+        #love-note-modal:not(.hidden) > div, #role-setup-modal:not(.hidden) > div { animation: zoomIn .35s cubic-bezier(.2,.9,.3,1) both; }
+
+        #toast:not(.hidden) { animation: sheet .3s cubic-bezier(.2,.9,.3,1) both; }
+        .quote-in { animation: fade .5s ease both; }
+        .pop { animation: pop .38s cubic-bezier(.3,1.4,.5,1); }
+        .bump { animation: bump .3s ease; }
+        .msg-in { animation: msgIn .35s cubic-bezier(.2,.8,.2,1) both; }
+        .timer-running { animation: breathe 2s ease-in-out infinite; }
+        #timer-ring.timer-running { animation: ringGlow 2s ease-in-out infinite; }
+        .leaving { opacity: 0 !important; transform: translateX(24px) scale(.98) !important; transition: opacity .22s ease, transform .22s ease !important; }
+        details[open] > summary ~ * { animation: rise .35s cubic-bezier(.2,.8,.2,1) both; }
+        #category-bar > div { transition: width .6s cubic-bezier(.2,.8,.2,1); }
+        #monthly-grid > button { transition: transform .15s ease, background-color .2s ease; }
+        #monthly-grid > button:active { transform: scale(.9); }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; }
+        }
+
+
+        /* =========================================================
+           PROFESSIONAL POLISH: Inter, calmer labels, quiet weights
+           ========================================================= */
+        body.font-sans { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; font-feature-settings: 'cv11', 'ss01'; letter-spacing: -0.005em; }
+        html .font-extrabold { font-weight: 700; }
+        html .font-bold { font-weight: 600; }
+        html .uppercase { text-transform: none; }
+        html .tracking-wider, html .tracking-widest { letter-spacing: 0; }
+        html .text-\[9px\] { font-size: 10px; }
+        html .text-\[10px\] { font-size: 11px; }
+        html .text-\[11px\] { font-size: 12px; }
+        .tabular-nums { font-variant-numeric: tabular-nums; }
+        #total-expense-amount { letter-spacing: -0.03em; }
+        #timer-display { font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+        .ghost-add { border: 1px dashed var(--border-color); color: inherit; opacity: .65; background: transparent; }
+        .ghost-add:hover { opacity: 1; border-color: var(--accent-color); }
+        html[data-theme] .neon-card { border-color: var(--border-color); }
+        main .tab-content > .neon-card h3, main .tab-content > .neon-card h4 { font-size: 12px; font-weight: 600; opacity: .55; }
+        main .tab-content > .neon-card h3.text-accent { opacity: 1; }
+        #habits-container > .neon-card, #todo-list-container > .neon-card, #expense-list-container > .neon-card { background-color: transparent; }
+        #habits-container > .neon-card h4, #todo-list-container span, #expense-list-container h4 { font-size: 13.5px; font-weight: 600; }
+        html[data-theme] .nav-btn span { font-size: 10px; font-weight: 500; }
+
+
+        /* ---- Flat header + checklist rows + sheet ---- */
+        header.neon-card { background: var(--bg-color) !important; border: none !important; border-radius: 0; -webkit-backdrop-filter: none; backdrop-filter: none; margin-top: 0 !important; }
+        html[data-theme] header.neon-card { background-color: var(--bg-color); }
+        #habits-container { gap: 0; }
+        .habit-row { display: flex; align-items: center; gap: 14px; padding: 14px 4px; border-bottom: 1px solid var(--border-color); transition: background-color .2s ease; }
+        #habits-container > .habit-row:last-child { border-bottom: none; }
+        .habit-check { width: 30px; height: 30px; border-radius: 9999px; border: 2px solid rgba(128, 128, 128, 0.45); display: flex; align-items: center; justify-content: center; color: transparent; flex-shrink: 0; transition: background-color .25s ease, border-color .25s ease, color .25s ease; }
+        .habit-check.done { background: var(--accent-color); border-color: var(--accent-color); color: #fff; }
+        html[data-theme="light-white"] .habit-check.done, html[data-theme="clean-light"] .habit-check.done { background: var(--accent-strong); border-color: var(--accent-strong); }
+        .habit-name { font-size: 17px; font-weight: 500; letter-spacing: -0.01em; line-height: 1.25; transition: color .25s ease, opacity .25s ease; }
+        .habit-name.is-done { text-decoration: line-through; opacity: .4; }
+        .habit-meta { display: block; font-size: 12px; opacity: .5; margin-top: 2px; }
+        #today-sheet:not(.hidden) { animation: fade .25s ease both; }
+        #today-sheet:not(.hidden) > div { animation: sheet .4s cubic-bezier(.2,.9,.3,1) both; }
+        body[data-tab="dashboard"] #toast, body:not([data-tab]) #toast { bottom: calc(env(safe-area-inset-bottom, 0px) + 9.5rem) !important; }
+        #fab button { transition: transform .2s cubic-bezier(.3,1.5,.5,1); }
+
+
+        /* ---- Warm theme (cream paper, ink accent): rides on the clean-light rules ---- */
+        html.warm[data-theme] { --bg-color: #f6f2ea; --card-color: #ffffff; --border-color: #e4ddd0; --text-color: #1c1b19; }
+        html.warm[data-theme] .neon-card { border-color: #e4ddd0; }
+        html.warm[data-theme] .neon-card .neon-card { background-color: #f3eee4; }
+
+        /* ---- Habits screen: soft cards, colored dots ---- */
+        #tab-dashboard { padding-bottom: 4.5rem; }
+        #habits-container { gap: 0.5rem; }
+        .habit-card { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: var(--card-color); border: 1px solid var(--border-color); border-radius: 14px; position: relative; }
+        .habit-dot { width: 8px; height: 8px; border-radius: 9999px; flex-shrink: 0; }
+        .habit-toggle { width: 36px; height: 36px; margin: -6px -6px -6px 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .habit-toggle svg { width: 24px; height: 24px; }
+        .habit-card .habit-name { font-size: 15px; font-weight: 500; }
+        
+        /* Feature 2: Habit category badge */
+        .habit-category { 
+            position: absolute; 
+            top: 8px; 
+            right: 8px; 
+            font-size: 9px; 
+            padding: 2px 6px; 
+            border-radius: 9999px; 
+            opacity: 0.6; 
+            font-weight: 600;
+        }
+        
+        /* Feature 13: Habit count badge on FAB */
+        .habit-count-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--accent-color);
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--bg-color);
+        }
+        
+        /* Feature 6: Habit completion progress bar */
+        .habit-progress { 
+            position: absolute; 
+            bottom: 0; 
+            left: 0; 
+            right: 0; 
+            height: 2px; 
+            background: transparent; 
+            border-radius: 0 0 14px 14px;
+            overflow: hidden;
+        }
+        .habit-progress-fill { 
+            height: 100%; 
+            background: var(--accent-color); 
+            transition: width 0.5s ease;
+        }
+
+
+        /* ---- Glass tint: frosted panels pick up a whisper of the selected accent ---- */
+        [data-theme="spatial"] { --glass-bg: rgba(255, 255, 255, 0.07); --glass-border: rgba(255, 255, 255, 0.14); --glass-card-bg: rgba(255, 255, 255, 0.08); }
+        html.spl[data-theme="spatial"] { --glass-bg: rgba(255, 255, 255, 0.6); --glass-border: rgba(255, 255, 255, 0.95); --glass-card-bg: rgba(255, 255, 255, 0.7); }
+        @supports (color: color-mix(in srgb, red, black)) {
+            [data-theme="spatial"] {
+                --glass-bg: color-mix(in srgb, var(--accent-color) 10%, rgba(255, 255, 255, 0.03));
+                --glass-border: color-mix(in srgb, var(--accent-color) 26%, rgba(255, 255, 255, 0.14));
+                --glass-card-bg: color-mix(in srgb, var(--accent-color) 10%, rgba(255, 255, 255, 0.04));
+            }
+            html.spl[data-theme="spatial"] {
+                --glass-bg: color-mix(in srgb, var(--accent-color) 8%, rgba(255, 255, 255, 0.6));
+                --glass-border: color-mix(in srgb, var(--accent-color) 14%, rgba(255, 255, 255, 0.95));
+                --glass-card-bg: color-mix(in srgb, var(--accent-color) 8%, rgba(255, 255, 255, 0.7));
+            }
+        }
+
+
+        /* =========================================================
+           SPATIAL: floating glass panels over a soft, colorful scene
+           ========================================================= */
+        .habit-panel { display: block; }
+        .habit-toggle2 { position: relative; width: 30px; height: 30px; border-radius: 9999px; border: 1.5px solid rgba(128,128,128,.5); display: flex; align-items: center; justify-content: center; color: transparent; flex-shrink: 0; transition: background-color .25s ease, border-color .25s ease, color .25s ease, transform .2s ease; }
+        .habit-toggle2::before { content: ''; position: absolute; inset: -9px; }
+        .habit-toggle2.done { background: var(--accent-color); border-color: var(--accent-color); color: #fff; }
+        html[data-theme="light-white"] .habit-toggle2.done, html[data-theme="clean-light"] .habit-toggle2.done { background: var(--accent-strong); border-color: var(--accent-strong); }
+
+        html[data-theme="spatial"], html[data-theme="spatial"] body { background-color: #0d1220; }
+        html[data-theme="spatial"] body::after { content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+            background: radial-gradient(65% 42% at 0% 0%, rgba(58, 86, 214, .55), transparent 72%), radial-gradient(60% 42% at 100% 100%, rgba(122, 63, 209, .45), transparent 72%), radial-gradient(45% 30% at 100% 22%, rgba(30, 160, 200, .22), transparent 72%); }
+        html[data-theme="spatial"] header.neon-card,
+        html[data-theme="spatial"] main .tab-content > .neon-card:not(.seg),
+        html[data-theme="spatial"] .habit-panel,
+        html[data-theme="spatial"] nav.fixed.neon-card,
+        html[data-theme="spatial"] #today-sheet > div,
+        html[data-theme="spatial"] #fab > button {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            -webkit-backdrop-filter: blur(18px) saturate(1.3); backdrop-filter: blur(18px) saturate(1.3);
+            box-shadow: 0 14px 36px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+        }
+        html[data-theme="spatial"] header.neon-card { background: var(--glass-bg) !important; border: 1px solid var(--glass-border) !important; border-radius: 30px; margin-top: 0.5rem !important; }
+        html[data-theme="spatial"] header.neon-card > div { padding: 14px 16px 14px; }
+        html[data-theme="spatial"] .habit-panel { border-radius: 30px; padding: 14px 12px; }
+        html[data-theme="spatial"] main .tab-content > .neon-card:not(.seg) { border-radius: 26px; }
+        html[data-theme="spatial"] .habit-card { background: var(--glass-card-bg); border: 1px solid var(--glass-border); border-radius: 22px; padding: 13px 14px; }
+        html[data-theme="spatial"] .habit-card:has(.habit-toggle2.done) { background: rgba(255, 255, 255, 0.16); border-color: rgba(255, 255, 255, 0.34); }
+        html[data-theme="spatial"] .habit-toggle2.done { background: #e8edff; border-color: #e8edff; color: #0d1220; }
+        html[data-theme="spatial"] .habit-name.is-done { opacity: .55; }
+        html[data-theme="spatial"] nav.fixed.neon-card { border-radius: 32px; }
+        html[data-theme="spatial"] .nav-btn { padding: 6px 12px; border-radius: 22px; min-width: 0; }
+        html[data-theme="spatial"] .nav-btn::after { display: none; }
+        html[data-theme="spatial"] .nav-btn.text-accent { background: rgba(255, 255, 255, 0.2); color: #fff; }
+        html[data-theme="spatial"] .nav-btn.text-accent svg { transform: none; }
+        html[data-theme="spatial"] #fab > button.bg-accent { background: rgba(255, 255, 255, 0.2) !important; border: 1px solid rgba(255, 255, 255, 0.36); }
+        html[data-theme="spatial"] #today-sheet > div { background: rgba(18, 24, 44, 0.96); border-radius: 32px 32px 0 0; }
+        html[data-theme="spatial"] #toast .neon-card { background-color: rgba(20, 26, 48, 0.92) !important; -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
+        html[data-theme="spatial"] select option { background: #141a30; color: #f1f4ff; }
+        html[data-theme="spatial"] input::placeholder, html[data-theme="spatial"] textarea::placeholder { color: rgba(241, 244, 255, 0.45); }
+
+
+        /* ---- Spatial light: pastel scene, bright frosted glass, dark text ---- */
+        html.spl[data-theme="spatial"] { --bg-color: #eaeefb; --card-color: rgba(255, 255, 255, 0.58); --border-color: rgba(30, 40, 90, 0.10); --text-color: #14172a; --accent-strong: #3f55c9; }
+        @supports (color: color-mix(in srgb, red, black)) { html.spl[data-theme="spatial"] { --accent-strong: color-mix(in srgb, var(--accent-color) 78%, #000); } }
+        html.spl[data-theme="spatial"], html.spl[data-theme="spatial"] body { background-color: #eaeefb; color: #14172a; }
+        html.spl[data-theme="spatial"] body::after { background: radial-gradient(65% 42% at 0% 0%, rgba(122, 152, 255, .5), transparent 72%), radial-gradient(60% 42% at 100% 100%, rgba(255, 150, 205, .42), transparent 72%), radial-gradient(45% 30% at 100% 22%, rgba(110, 215, 230, .35), transparent 72%); }
+        html.spl[data-theme="spatial"] header.neon-card,
+        html.spl[data-theme="spatial"] main .tab-content > .neon-card:not(.seg),
+        html.spl[data-theme="spatial"] .habit-panel,
+        html.spl[data-theme="spatial"] nav.fixed.neon-card,
+        html.spl[data-theme="spatial"] #today-sheet > div,
+        html.spl[data-theme="spatial"] #fab > button {
+            background: var(--glass-bg); border: 1px solid var(--glass-border);
+            box-shadow: 0 10px 30px rgba(60, 80, 160, 0.14), inset 0 1px 0 #fff;
+        }
+        html.spl[data-theme="spatial"] header.neon-card { background: var(--glass-bg) !important; border: 1px solid var(--glass-border) !important; }
+        html.spl[data-theme="spatial"] .habit-card { background: var(--glass-card-bg); border: 1px solid var(--glass-border); box-shadow: 0 2px 8px rgba(60, 80, 160, 0.08); }
+        html.spl[data-theme="spatial"] .habit-card:has(.habit-toggle2.done) { background: #ffffff; border-color: #ffffff; }
+        html.spl[data-theme="spatial"] .habit-toggle2 { border-color: rgba(30, 40, 90, 0.3); }
+        html.spl[data-theme="spatial"] .habit-toggle2.done { background: var(--accent-strong); border-color: var(--accent-strong); color: #fff; }
+        html.spl[data-theme="spatial"] .nav-btn.text-accent { background: rgba(255, 255, 255, 0.95); color: var(--accent-strong); }
+        html.spl[data-theme="spatial"] #fab > button.bg-accent { background: var(--accent-strong) !important; border-color: transparent; color: #fff; box-shadow: 0 8px 22px -6px var(--glow-color); }
+        html.spl[data-theme="spatial"] #today-sheet > div { background: rgba(247, 249, 255, 0.97); }
+        html.spl[data-theme="spatial"] #toast .neon-card { background-color: rgba(255, 255, 255, 0.96) !important; }
+        html.spl[data-theme="spatial"] select option { background: #ffffff; color: #14172a; }
+        html.spl[data-theme="spatial"] input::placeholder, html.spl[data-theme="spatial"] textarea::placeholder { color: rgba(20, 23, 42, 0.45); }
+        html.spl[data-theme="spatial"] .neon-card .neon-card { background-color: rgba(255, 255, 255, 0.55); }
+        html.spl[data-theme="spatial"] .text-accent { color: var(--accent-strong); }
+        html.spl[data-theme="spatial"] .bg-accent { background-color: var(--accent-strong); }
+        html.spl[data-theme="spatial"] .border-accent { border-color: var(--accent-strong); }
+        html.spl[data-theme="spatial"] .text-orange-500 { color: #c2410c; }
+        html.spl[data-theme="spatial"] .text-cyan-400 { color: #0e7490; }
+        html.spl[data-theme="spatial"] .bg-cyan-500 { background-color: #0e7490; color: #fff; }
+        html.spl[data-theme="spatial"] .opacity-40 { opacity: 0.6; }
+        html.spl[data-theme="spatial"] .habit-name.is-done { opacity: .5; }
+
+        /* ---- iPhone safe areas: status bar stays dark so its white text is readable on light themes ---- */
+        body { padding-top: env(safe-area-inset-top, 0px); }
+        body::before { content: ''; position: fixed; top: 0; left: 0; right: 0; height: env(safe-area-inset-top, 0px); background: #000; z-index: 60; }
+        nav.fixed.neon-card { margin-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.5rem); }
+        main { padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px)); }
+
+        /* =========================================================
+           PARTNER + STATS + HABIT EDITING
+           ========================================================= */
+        /* --- consistency heatmap --- */
+        .hm-scroll { overflow-x: auto; padding-bottom: 2px; }
+        .hm-grid { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, 12px); grid-auto-columns: 12px; gap: 3px; justify-content: flex-start; }
+        .hm-cell { width: 12px; height: 12px; border-radius: 3px; background: var(--hm-empty); }
+        .hm-legend { display: flex; align-items: center; justify-content: flex-end; gap: 4px; font-size: 10px; opacity: .6; }
+        .hm-legend .hm-cell { width: 10px; height: 10px; }
+        /* the sheet grid is wider and can afford bigger, easier-to-read blocks */
+        #hd-grid { grid-template-rows: repeat(7, 16px); grid-auto-columns: 16px; gap: 4px; }
+        #hd-grid .hm-cell { width: 16px; height: 16px; border-radius: 4px; }
+
+        /* --- habit rows: drag handle + emoji --- */
+        .habit-drag { width: 20px; align-self: stretch; display: flex; align-items: center; justify-content: center; opacity: .28; cursor: grab; touch-action: none; flex-shrink: 0; background: transparent; border: 0; padding: 0; color: inherit; }
+        .habit-drag:active { cursor: grabbing; opacity: .6; }
+        .habit-card { position: relative; }
+        .habit-card.dragging { z-index: 20; box-shadow: 0 14px 34px rgba(0, 0, 0, .4); opacity: .96; }
+        .habit-emoji { width: 34px; height: 34px; border-radius: 9999px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+        .habit-tap { min-width: 0; flex-grow: 1; cursor: pointer; }
+
+        /* --- habit detail sheet --- */
+        .hd-bars { display: flex; align-items: flex-end; gap: 3px; height: 60px; }
+        .hd-bars > i { flex: 1 1 0; min-width: 3px; height: 30%; border-radius: 3px; background: var(--hm-empty); }
+        .hd-bars > i.on { height: 100%; background: var(--accent-color); }
+        .emoji-btn { font-size: 18px; padding: 6px 0; border-radius: 12px; line-height: 1; }
+        .emoji-btn.sel, .color-btn.sel { outline: 2px solid var(--text-color); outline-offset: 2px; }
+        .color-btn { height: 32px; border-radius: 9999px; }
+        #habit-detail-sheet:not(.hidden) { animation: fade .25s ease both; }
+        #habit-detail-sheet:not(.hidden) > div { animation: sheet .4s cubic-bezier(.2,.9,.3,1) both; }
+
+        /* --- budget target --- */
+        .budget-track { height: 8px; border-radius: 9999px; overflow: hidden; background: var(--border-color); }
+        #budget-fill { transition: width .6s cubic-bezier(.2,.8,.2,1); }
+
+        /* --- thoughts for the partner card --- */
+        .partner-flame { font-variant-numeric: tabular-nums; }
+
+        /* --- tappable heatmap cells --- */
+        .hm-tap { cursor: pointer; }
+        .hm-tap:active { transform: scale(.82); }
+        #day-detail-sheet:not(.hidden) { animation: fade .25s ease both; }
+        #day-detail-sheet:not(.hidden) > div { animation: sheet .4s cubic-bezier(.2,.9,.3,1) both; }
+        #expense-scope .scope-btn { transition: background-color .2s ease, color .2s ease, opacity .2s ease; }
+
+        /* =========================================================
+           FROSTED GLASS OVERLAYS
+           --card-color is a whisper-thin tint in the Spatial themes,
+           so overlays need their own opaque frosted layer.
+           ========================================================= */
+        :root {
+            --panel-bg: var(--bg-color);
+            /* "off" heatmap / bar cells: visible in every theme, not just dark ones */
+            --hm-empty: rgba(148, 163, 184, 0.24);
+            --hm-empty: color-mix(in srgb, var(--text-color) 16%, transparent);
+        }
+        .glass-panel {
+            background-color: var(--panel-bg);
+            background-image: linear-gradient(180deg, color-mix(in srgb, var(--accent-color) 14%, transparent), transparent 44%);
+            -webkit-backdrop-filter: blur(30px) saturate(175%);
+            backdrop-filter: blur(30px) saturate(175%);
+            border: 1px solid var(--border-color);
+        }
+        /* Overlays must sit above whatever is behind them -- keep the frosted layer solid. */
+        html[data-theme] #today-sheet > .glass-panel,
+        html[data-theme] #habit-detail-sheet > .glass-panel,
+        html[data-theme] #day-detail-sheet > .glass-panel,
+        html[data-theme] #add-modal > .glass-panel,
+        html[data-theme] #love-note-modal > .glass-panel,
+        html[data-theme] #role-setup-modal > .glass-panel {
+            background-color: var(--panel-bg) !important;
+            background-image: linear-gradient(180deg, color-mix(in srgb, var(--accent-color) 15%, transparent), transparent 44%) !important;
+            box-shadow: 0 -18px 60px -14px rgba(0, 0, 0, .66), 0 14px 48px -18px var(--glow-color), inset 0 1px 0 rgba(255, 255, 255, .07);
+            backdrop-filter: blur(24px) saturate(160%);
+            -webkit-backdrop-filter: blur(24px) saturate(160%);
+        }
+        /* Those same overlays get the accent-tinted glass border in the Spatial themes. */
+        html[data-theme="spatial"] #habit-detail-sheet > .glass-panel,
+        html[data-theme="spatial"] #day-detail-sheet > .glass-panel,
+        html[data-theme="spatial"] #add-modal > .glass-panel,
+        html[data-theme="spatial"] #love-note-modal > .glass-panel,
+        html.spl[data-theme="spatial"] #habit-detail-sheet > .glass-panel,
+        html.spl[data-theme="spatial"] #day-detail-sheet > .glass-panel,
+        html.spl[data-theme="spatial"] #add-modal > .glass-panel,
+        html.spl[data-theme="spatial"] #love-note-modal > .glass-panel {
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 16px 46px rgba(0, 0, 0, .42), inset 0 1px 0 rgba(255, 255, 255, .14);
+        }
+        /* Floating summary pill at the bottom of the Habits tab. */
+        #fab > .glass-pill {
+            background-color: var(--panel-bg) !important;
+            -webkit-backdrop-filter: blur(18px) saturate(160%);
+            backdrop-filter: blur(18px) saturate(160%);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, .45);
+        }
+        .sheet-grabber { width: 38px; height: 4px; border-radius: 9999px; background: var(--border-color); margin: -2px auto 0; }
+        /* Header progress ring */
+        #header-ring { filter: drop-shadow(0 0 6px var(--glow-color)); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans antialiased overflow-x-hidden">
+
+    <!-- Setup Modal -->
+    <div id="role-setup-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="neon-card glass-panel w-full max-w-sm p-6 text-center space-y-4 border-accent/50">
+            <h2 class="text-base font-extrabold text-accent">Select Your Profile</h2>
+            <p class="text-xs opacity-75">Choose whose device this is. This cannot be changed later.</p>
+            <div class="grid grid-cols-2 gap-3 pt-2">
+                <button onclick="lockUserRole('Grv')" class="neon-card p-4 flex flex-col items-center gap-2 active:scale-95">
+                    <span class="text-2xl">👾</span><span class="text-xs font-bold">Grv's Side</span>
+                </button>
+                <button onclick="lockUserRole('Eku')" class="neon-card p-4 flex flex-col items-center gap-2 active:scale-95">
+                    <span class="text-2xl">🌸</span><span class="text-xs font-bold">Eku's Side</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header - Fixed: cleaner layout without blank middle -->
+    <header class="neon-card relative z-10 mx-3 mt-2 sm:mx-auto sm:max-w-[26.5rem] sm:w-full">
+        <div class="px-4 pt-4 pb-3 flex flex-col gap-3">
+            <!-- Top row: greeting | progress/water | action -->
+            <div class="flex items-center justify-between gap-3">
+                <div class="min-w-0 flex-1">
+                    <p class="text-[13px] opacity-60 font-medium leading-tight truncate" id="header-greeting">Good evening,</p>
+                    <h1 class="text-[28px] font-bold leading-tight truncate" id="header-tab-name">Grv</h1>
+                    <span id="header-avatar" class="hidden">👾</span><span id="app-title" class="hidden">HabitFlow</span><span id="header-subtitle" class="hidden"></span>
+                </div>
+                <!-- Progress + Water in one compact row -->
+                <div class="flex items-center gap-2 shrink-0">
+                    <button onclick="openDetails()" aria-label="Today's progress" title="Today's progress" class="relative w-10 h-10 grid place-items-center rounded-full active:scale-90 group">
+                        <svg viewBox="0 0 44 44" class="w-10 h-10 -rotate-90" aria-hidden="true">
+                            <circle cx="22" cy="22" r="18" fill="none" stroke="currentColor" stroke-opacity="0.15" stroke-width="3.5"></circle>
+                            <circle id="header-ring" cx="22" cy="22" r="18" fill="none" stroke="var(--accent-color)" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="113.1" stroke-dashoffset="113.1" style="transition:stroke-dashoffset .6s cubic-bezier(.2,.8,.2,1)"></circle>
+                        </svg>
+                        <span id="header-ring-text" class="absolute text-[10px] font-bold tabular-nums leading-none">0/0</span>
+                        <!-- Feature 8: Water indicator -->
+                        <div id="header-water" class="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-cyan-500 flex items-center justify-center shadow-sm border-2 border-white transition-transform group-hover:scale-110">
+                            <span id="header-water-text" class="text-[7px] font-bold text-black tabular-nums leading-none">0/8</span>
+                        </div>
+                    </button>
+                    <button onclick="openDetails()" aria-label="Streak and today's details" class="w-9 h-9 rounded-full flex flex-col items-center justify-center gap-0.5 active:scale-90" style="background:var(--border-color)">
+                        <i data-lucide="flame" class="w-3.5 h-3.5"></i><span id="max-streak-count" class="text-[11px] font-semibold leading-none tabular-nums">0</span>
+                    </button>
+                </div>
+            </div>
+            <!-- Quote row -->
+            <div onclick="showQuote(true)" title="Tap for another quote" class="flex items-center gap-2 px-3 py-2 rounded-xl cursor-pointer active:scale-[0.99] transition-all" style="background:var(--border-color)">
+                <i data-lucide="sparkles" class="w-4 h-4 shrink-0 opacity-60"></i>
+                <span id="header-quote" class="text-[13px] leading-snug font-medium"></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-md w-full mx-auto p-3 flex-grow pb-24 space-y-3">
+
+        <!-- ================= TAB 1: DASHBOARD (HABITS) ================= -->
+        <div id="tab-dashboard" class="tab-content flex flex-col gap-3">
+            <!-- Partner progress -->
+            <div class="neon-card p-3 space-y-2">
+                <div class="flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <span data-partner-avatar class="text-xl shrink-0">🌸</span>
+                        <div class="min-w-0">
+                            <p class="text-[11px] opacity-55 font-medium" data-partner-label>Partner today</p>
+                            <p class="text-sm font-bold truncate partner-flame" data-partner-progress>Waiting for an update…</p>
+                        </div>
+                    </div>
+                    <button onclick="nudgePartner()" class="shrink-0 text-accent text-[12px] font-semibold px-3 py-1.5 rounded-full active:scale-95" style="border:1px solid var(--border-color)">👏 Nudge</button>
+                </div>
+                <div class="h-1.5 rounded-full overflow-hidden" style="background:var(--border-color)"><div data-partner-bar class="h-full bg-accent rounded-full" style="width:0%"></div></div>
+            </div>
+
+            <div class="habit-panel">
+                <div class="grid grid-cols-7 px-1 pt-1 pb-3" id="weekly-chart-container"></div>
+                <!-- Feature 12: Habit category filter -->
+                <div id="habit-category-filter" class="flex gap-1.5 overflow-x-auto pb-2 mb-1">
+                    <button onclick="setCategoryFilter('all')" id="cat-all" class="py-1 px-3 rounded-full text-[10px] font-semibold border border-accent text-accent bg-accent/10">All</button>
+                    <button onclick="setCategoryFilter('Fitness')" id="cat-Fitness" class="py-1 px-3 rounded-full text-[10px] font-semibold opacity-50 border border-transparent">Fitness</button>
+                    <button onclick="setCategoryFilter('Wellness')" id="cat-Wellness" class="py-1 px-3 rounded-full text-[10px] font-semibold opacity-50 border border-transparent">Wellness</button>
+                    <button onclick="setCategoryFilter('Study')" id="cat-Study" class="py-1 px-3 rounded-full text-[10px] font-semibold opacity-50 border border-transparent">Study</button>
+                </div>
+                <div id="habits-container" class="space-y-2"></div>
+                <p id="habit-hint" class="text-[11px] opacity-35 text-center pt-3">Tap a habit for details · swipe to delete</p>
+            </div>
+
+            <!-- Consistency -->
+            <div class="neon-card p-3 space-y-2">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-bold text-[10px] uppercase tracking-wider opacity-60 flex items-center gap-1.5">
+                        <i data-lucide="activity" class="w-3.5 h-3.5 text-accent"></i> Consistency
+                    </h3>
+                    <span class="text-[10px] opacity-50">last 20 weeks</span>
+                </div>
+                <div class="hm-scroll"><div class="hm-grid" id="heatmap"></div></div>
+                <div class="hm-legend"><span>Less</span><span class="hm-cell" style="background:var(--hm-empty)"></span><span class="hm-cell" style="background:color-mix(in srgb,var(--accent-color) 30%,var(--hm-empty))"></span><span class="hm-cell" style="background:color-mix(in srgb,var(--accent-color) 65%,var(--hm-empty))"></span><span class="hm-cell" style="background:var(--accent-color)"></span><span>More</span></div>
+            </div>
+
+            <div id="empty-state" class="hidden text-center py-10 px-4">
+                <div class="w-12 h-12 neon-card rounded-full flex items-center justify-center mx-auto mb-3 opacity-60">
+                    <i data-lucide="list-todo" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-sm font-semibold mb-1">No habits yet</h3>
+                <button onclick="openAddModal()" class="text-accent font-semibold text-xs hover:underline">Add your first habit</button>
+            </div>
+        </div>
+
+        <!-- ================= TAB 2: FOCUS TIMER & TODO LIST ================= -->
+        <div id="tab-focus" class="tab-content hidden flex-col gap-3">
+            <div class="neon-card px-3 py-3 text-center space-y-2">
+                <div class="flex justify-center gap-1.5">
+                    <button onclick="setTimerDuration(15)" data-min="15" class="duration-btn neon-card px-3 py-1 text-[11px] font-bold">15m</button>
+                    <button onclick="setTimerDuration(25)" data-min="25" class="duration-btn bg-accent border-accent text-white px-3 py-1 text-[11px] font-bold shadow-md rounded-[1.25rem]">25m</button>
+                    <button onclick="setTimerDuration(45)" data-min="45" class="duration-btn neon-card px-3 py-1 text-[11px] font-bold">45m</button>
+                    <button onclick="setTimerDuration(60)" data-min="60" class="duration-btn neon-card px-3 py-1 text-[11px] font-bold">60m</button>
+                </div>
+                <div class="relative w-36 h-36 mx-auto">
+                    <svg viewBox="0 0 120 120" class="w-full h-full -rotate-90">
+                        <circle cx="60" cy="60" r="54" fill="none" stroke="var(--border-color)" stroke-width="8"/>
+                        <circle id="timer-ring" cx="60" cy="60" r="54" fill="none" stroke="var(--accent-color)" stroke-width="8" stroke-linecap="round" stroke-dasharray="339.292" stroke-dashoffset="0" style="transition: stroke-dashoffset 0.9s linear"/>
+                    </svg>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center">
+                        <div id="timer-display" class="text-3xl font-extrabold tracking-wider text-accent leading-none">25:00</div>
+                        <div class="text-[9px] font-bold uppercase tracking-wider opacity-50 mt-1">Focus</div>
+                    </div>
+                </div>
+                <div class="flex justify-center gap-2">
+                    <button onclick="startTimer()" class="bg-accent text-white px-5 py-1.5 rounded-xl text-xs font-bold shadow-md active:scale-95">Start</button>
+                    <button onclick="pauseTimer()" class="neon-card px-4 py-1.5 rounded-xl text-xs font-bold active:scale-95">Pause</button>
+                    <button onclick="resetTimer()" class="neon-card px-4 py-1.5 rounded-xl text-xs font-bold active:scale-95">Reset</button>
+                </div>
+            </div>
+
+            <div class="neon-card p-4 space-y-3">
+                <h3 class="font-bold text-[10px] uppercase tracking-wider opacity-60 flex items-center gap-1.5">
+                    <i data-lucide="check-square" class="w-4 h-4 text-accent"></i> Focus To-Do Tasks
+                </h3>
+                <form onsubmit="handleTodoSubmit(event)" class="flex gap-2">
+                    <input type="text" id="todo-input" required placeholder="What are you focusing on today?" class="min-w-0 flex-grow neon-card rounded-xl px-3.5 py-2.5 text-xs font-medium placeholder-slate-500 focus:outline-none">
+                    <button type="submit" class="bg-accent text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow active:scale-95">Add</button>
+                </form>
+                <div id="todo-list-container" class="space-y-2 overflow-y-auto" style="max-height:calc(100vh - 31rem); min-height:8rem"></div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 3: BUDGET ================= -->
+        <div id="tab-budget" class="tab-content hidden flex-col gap-3">
+            <!-- Hero total + category breakdown -->
+            <div class="neon-card p-4 space-y-3">
+                <div class="grid grid-cols-3 gap-1 neon-card p-1 seg" id="expense-scope">
+                    <button type="button" onclick="setExpenseScope('all')" data-scope="all" class="scope-btn py-1.5 rounded-xl text-xs font-bold">All</button>
+                    <button type="button" onclick="setExpenseScope('month')" data-scope="month" class="scope-btn py-1.5 rounded-xl text-xs font-bold">Month</button>
+                    <button type="button" onclick="setExpenseScope('year')" data-scope="year" class="scope-btn py-1.5 rounded-xl text-xs font-bold">Year</button>
+                </div>
+                <div class="flex items-center justify-between">
+                    <h3 class="font-bold text-[10px] uppercase tracking-wider opacity-60 flex items-center gap-1.5">
+                        <i data-lucide="wallet" class="w-3.5 h-3.5 text-accent"></i> <span id="expense-scope-title">Total Spent</span>
+                    </h3>
+                    <span class="text-[10px] font-bold opacity-50" id="expense-count">0 items</span>
+                </div>
+                <div class="text-4xl font-extrabold text-accent leading-none" id="total-expense-amount">₹0</div>
+                <div id="category-bar" class="flex h-2.5 w-full rounded-full overflow-hidden" style="background:var(--border-color)"></div>
+                <div id="category-legend" class="grid grid-cols-2 gap-x-3 gap-y-1.5"></div>
+                <div class="space-y-1.5 pt-2.5" style="border-top:1px solid var(--border-color)">
+                    <div class="flex items-center justify-between text-[11px]">
+                        <span class="opacity-60 font-semibold">Monthly budget</span>
+                        <button onclick="editBudgetTarget()" class="text-accent font-bold" id="budget-target-label">Set target</button>
+                    </div>
+                    <div class="budget-track"><div id="budget-fill" class="h-full bg-accent rounded-full" style="width:0%"></div></div>
+                    <p class="text-[10px] opacity-55" id="budget-caption">Tap to set a monthly budget</p>
+                </div>
+            </div>
+
+            <!-- Compact add row -->
+            <form onsubmit="handleExpenseSubmit(event)" class="neon-card p-2.5 space-y-2">
+                <div class="grid grid-cols-5 gap-2">
+                    <input type="text" id="expense-name" required placeholder="Item" class="col-span-3 neon-card rounded-xl px-3.5 py-2.5 placeholder-slate-500 focus:outline-none text-xs font-medium">
+                    <input type="number" id="expense-amount" required placeholder="₹" class="col-span-2 neon-card rounded-xl px-3.5 py-2.5 placeholder-slate-500 focus:outline-none text-xs font-medium">
+                </div>
+                <div class="grid grid-cols-5 gap-2">
+                    <select id="expense-category" class="col-span-3 neon-card rounded-xl px-3.5 py-2.5 focus:outline-none text-xs font-medium bg-transparent">
+                        <option value="Food">Food & Dining</option>
+                        <option value="Shopping">Shopping</option>
+                        <option value="Bills">Bills & Utilities</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <button type="submit" class="col-span-2 bg-accent text-white font-bold py-2.5 rounded-xl text-xs active:scale-95">+ Add</button>
+                </div>
+            </form>
+
+            <!-- Spends list -->
+            <div class="neon-card p-3 space-y-2">
+                <h4 class="text-[10px] font-bold uppercase tracking-wider opacity-60">Recent Spends</h4>
+                <div id="expense-list-container" class="space-y-1.5 overflow-y-auto" style="max-height:calc(100vh - 29rem); min-height:6rem"></div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 4: JOURNAL ================= -->
+        <div id="tab-journal" class="tab-content hidden flex-col gap-3">
+            <!-- Calendar | Scratchpad tabs -->
+            <div class="grid grid-cols-2 gap-1.5 neon-card p-1 seg">
+                <button id="jtab-calendar" onclick="switchJournalPane('calendar')" class="py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 bg-accent text-white"><i data-lucide="calendar" class="w-3.5 h-3.5"></i> Calendar</button>
+                <button id="jtab-notes" onclick="switchJournalPane('notes')" class="py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 opacity-60"><i data-lucide="book-open" class="w-3.5 h-3.5"></i> Scratchpad</button>
+            </div>
+
+            <div id="journal-pane-calendar" class="neon-card p-3 space-y-2 flex flex-col" style="height:20rem">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-bold text-[10px] uppercase tracking-wider opacity-60 flex items-center gap-1.5">
+                        <i data-lucide="calendar" class="w-3.5 h-3.5 text-accent"></i> Calendar Planner
+                    </h3>
+                    <div class="flex items-center gap-2">
+                        <button onclick="changeMonth(-1)" class="neon-card px-2.5 py-1 text-xs font-bold active:scale-95">&larr;</button>
+                        <span id="calendar-month-year" class="text-xs font-bold text-accent"></span>
+                        <button onclick="changeMonth(1)" class="neon-card px-2.5 py-1 text-xs font-bold active:scale-95">&rarr;</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold opacity-50">
+                    <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
+                </div>
+
+                <div class="grid grid-cols-7 gap-1" id="monthly-grid" style="flex:1 1 auto;min-height:0;grid-auto-rows:minmax(22px,1fr);margin-bottom:12px"></div>
+
+                <div class="pt-2 border-t space-y-1 mt-pin" style="border-color:var(--border-color); margin-top:auto">
+                    <div class="text-[10px] font-bold text-accent uppercase" id="selected-date-title">Selected Date Note</div>
+                    <textarea id="planner-notes-input" rows="1" placeholder="Tap any date above to add or view reminder..." oninput="saveDayPlannerNotes()" class="w-full neon-card rounded-xl px-3 py-2 text-xs font-medium placeholder-slate-500 focus:outline-none resize-none"></textarea>
+                </div>
+            </div>
+
+            <!-- Scratchpad -->
+            <div id="journal-pane-notes" class="neon-card p-3 space-y-1.5 hidden flex-col" style="height:20rem">
+                <h3 class="font-bold text-[10px] uppercase tracking-wider opacity-60 flex items-center gap-1.5">
+                    <i data-lucide="book-open" class="w-3.5 h-3.5 text-accent"></i> Scratchpad
+                </h3>
+                <textarea id="scratchpad-input" rows="10" style="flex:1 1 0; min-height:0" placeholder="Jot down notes, thoughts, reminders..." oninput="saveScratchpad()" class="w-full neon-card rounded-xl px-3 py-2 text-xs font-medium placeholder-slate-500 focus:outline-none resize-none"></textarea>
+            </div>
+
+            <!-- Voice memos -->
+            <div class="neon-card p-3 space-y-2.5">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-bold text-[10px] uppercase tracking-wider opacity-60 flex items-center gap-1.5">
+                        <i data-lucide="mic" class="w-3.5 h-3.5 text-accent"></i> Voice Memos <span class="opacity-60 normal-case">(this device only)</span>
+                    </h3>
+                    <span class="text-[10px] text-accent font-bold" id="personal-rec-status">Ready</span>
+                </div>
+                <div class="flex gap-2">
+                    <button type="button" id="personal-record-btn" onclick="togglePersonalRecording()" class="flex-grow bg-accent text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 active:scale-95">
+                        <i data-lucide="mic" class="w-3.5 h-3.5"></i> Record Memo
+                    </button>
+                    <button type="button" id="personal-stop-btn" onclick="stopPersonalRecording()" disabled class="neon-card px-4 py-2.5 rounded-xl text-xs font-bold opacity-50 cursor-not-allowed">
+                        Stop
+                    </button>
+                </div>
+                <div id="personal-voice-memos-container" class="space-y-2 overflow-y-auto pr-0.5" style="max-height:42vh"></div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 5: SETTINGS ================= -->
+        <div id="tab-settings" class="tab-content hidden flex-col gap-3">
+            <div class="neon-card p-4 space-y-3">
+                <h3 class="font-bold text-[10px] uppercase tracking-wider opacity-60 flex items-center gap-1.5">
+                    <i data-lucide="settings" class="w-4 h-4 text-accent"></i> Settings
+                </h3>
+                    <button id="install-btn" onclick="installApp()" class="hidden w-full bg-accent text-white font-bold py-2.5 rounded-xl text-xs active:scale-95">📲 Install HabitFlow on this phone</button>
+                    <div class="space-y-1.5">
+                        <div class="text-[10px] font-bold uppercase tracking-wider opacity-60">Device Profile (Locked)</div>
+                        <div class="grid grid-cols-2 gap-2" id="role-container-view">
+                            <div class="neon-card p-2.5 text-center opacity-70" id="view-grv">
+                                <span class="text-xl">👾</span><div class="text-xs font-bold mt-0.5">Grv's Side</div>
+                            </div>
+                            <div class="neon-card p-2.5 text-center opacity-70" id="view-eku">
+                                <span class="text-xl">🌸</span><div class="text-xs font-bold mt-0.5">Eku's Side</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-1.5">
+                        <div class="text-[10px] font-bold uppercase tracking-wider opacity-60">Appearance</div>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button id="mode-dark" onclick="setThemeMode('spatial')" class="text-[10px] font-semibold py-2 rounded-xl flex flex-col items-center justify-center gap-1" style="border:1px solid var(--border-color)"><i data-lucide="moon" class="w-3.5 h-3.5"></i><span>Dark</span></button>
+                            <button id="mode-light" onclick="setThemeMode('spatial-light')" class="text-[10px] font-semibold py-2 rounded-xl flex flex-col items-center justify-center gap-1" style="border:1px solid var(--border-color)"><i data-lucide="sun" class="w-3.5 h-3.5"></i><span>Light</span></button>
+                            <button id="mode-auto" onclick="setThemeMode('spatial-auto')" class="text-[10px] font-semibold py-2 rounded-xl flex flex-col items-center justify-center gap-1" style="border:1px solid var(--border-color)"><i data-lucide="smartphone" class="w-3.5 h-3.5"></i><span>Auto</span></button>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button id="mode-dark-glass" onclick="setThemeMode('dark-glass')" class="text-[10px] font-semibold py-2 rounded-xl flex flex-col items-center justify-center gap-1" style="border:1px solid var(--border-color)"><i data-lucide="glass" class="w-3.5 h-3.5"></i><span>Dark Glass</span></button>
+                            <button id="mode-true-dark" onclick="setThemeMode('true-dark')" class="text-[10px] font-semibold py-2 rounded-xl flex flex-col items-center justify-center gap-1" style="border:1px solid var(--border-color)"><i data-lucide="circle-dot" class="w-3.5 h-3.5"></i><span>True Dark</span></button>
+                        </div>
+                    </div>
+                    <div class="space-y-1.5">
+                        <div class="text-[10px] font-bold uppercase tracking-wider opacity-60">Accent color</div>
+                        <div class="grid grid-cols-6 gap-2" id="accent-swatches">
+                            <button data-hex="#5873f0" onclick="setAccentColor('#5873f0', 'rgba(88, 115, 240, 0.3)')" aria-label="Periwinkle" class="h-9 rounded-full" style="background:#5873f0"></button>
+                            <button data-hex="#8b5cf6" onclick="setAccentColor('#8b5cf6', 'rgba(139, 92, 246, 0.3)')" aria-label="Violet" class="h-9 rounded-full" style="background:#8b5cf6"></button>
+                            <button data-hex="#f43f5e" onclick="setAccentColor('#f43f5e', 'rgba(244, 63, 94, 0.28)')" aria-label="Rose" class="h-9 rounded-full" style="background:#f43f5e"></button>
+                            <button data-hex="#f59e0b" onclick="setAccentColor('#f59e0b', 'rgba(245, 158, 11, 0.28)')" aria-label="Amber" class="h-9 rounded-full" style="background:#f59e0b"></button>
+                            <button data-hex="#10b981" onclick="setAccentColor('#10b981', 'rgba(16, 185, 129, 0.28)')" aria-label="Emerald" class="h-9 rounded-full" style="background:#10b981"></button>
+                            <button data-hex="#06b6d4" onclick="setAccentColor('#06b6d4', 'rgba(6, 182, 212, 0.28)')" aria-label="Cyan" class="h-9 rounded-full" style="background:#06b6d4"></button>
+                        </div>
+                    </div>
+                    <div class="space-y-1.5">
+                        <div class="text-[10px] font-bold uppercase tracking-wider opacity-60">Daily reminder</div>
+                        <div class="flex items-center gap-2">
+                            <input type="time" id="reminder-time" onchange="saveReminder()" class="neon-card rounded-xl px-3 py-2 text-xs font-medium focus:outline-none">
+                            <button id="reminder-toggle" onclick="toggleReminder()" class="flex-grow neon-card rounded-xl py-2.5 text-xs font-bold active:scale-95">Enable</button>
+                        </div>
+                        <p class="text-[10px] opacity-50" id="reminder-note">Fires while HabitFlow is open.</p>
+                    </div>
+                    <div class="space-y-1.5">
+                        <div class="text-[10px] font-bold uppercase tracking-wider opacity-60">Your data</div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="exportData()" class="neon-card rounded-xl py-2.5 text-xs font-bold active:scale-95">Export full backup</button>
+                            <button onclick="exportHabits()" class="neon-card rounded-xl py-2.5 text-xs font-bold active:scale-95">Export habits only</button>
+                        </div>
+                        <label class="neon-card rounded-xl py-2.5 text-xs font-bold text-center active:scale-95 cursor-pointer mt-2">Import<input type="file" accept="application/json,.json" onchange="importData(this)" class="hidden"></label>
+                    </div>
+                </div>
+            </div>
+
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="neon-card fixed bottom-0 left-0 right-0 py-2.5 px-3 z-20 mx-3 mb-2 sm:mx-auto sm:max-w-[26.5rem]">
+        <div class="flex justify-around">
+            <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn flex flex-col items-center gap-0.5 text-accent transition">
+                <i data-lucide="layout-dashboard" class="w-4 h-4"></i><span class="text-[9px] font-bold">Habits</span>
+            </button>
+            <button onclick="switchTab('focus')" id="nav-focus" class="nav-btn flex flex-col items-center gap-0.5 opacity-50 transition">
+                <i data-lucide="timer" class="w-4 h-4"></i><span class="text-[9px] font-bold">Focus</span>
+            </button>
+            <button onclick="switchTab('budget')" id="nav-budget" class="nav-btn flex flex-col items-center gap-0.5 opacity-50 transition">
+                <i data-lucide="wallet" class="w-4 h-4"></i><span class="text-[9px] font-bold">Budget</span>
+            </button>
+            <button onclick="switchTab('journal')" id="nav-journal" class="nav-btn flex flex-col items-center gap-0.5 opacity-50 transition">
+                <i data-lucide="book-open" class="w-4 h-4"></i><span class="text-[9px] font-bold">Journal</span>
+            </button>
+            <button onclick="switchTab('settings')" id="nav-settings" class="nav-btn flex flex-col items-center gap-0.5 opacity-50 transition">
+                <i data-lucide="sliders-horizontal" class="w-4 h-4"></i><span class="text-[9px] font-bold">Settings</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Today details sheet -->
+    <div id="today-sheet" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center hidden" onclick="if(event.target===this)closeDetails()">
+        <div class="glass-panel w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-5 overflow-y-auto" style="max-height:85vh;padding-bottom:calc(1.25rem + env(safe-area-inset-bottom, 0px))">
+            <div class="sheet-grabber sm:hidden"></div>
+            <div class="flex items-center justify-between">
+                <h3 class="text-sm font-semibold">Today</h3>
+                <button onclick="closeDetails()" aria-label="Close" class="opacity-60 p-1"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <!-- Progress strip: all you need at a glance -->
+            <div id="today-hero">
+                <div class="flex items-end justify-between gap-3">
+                    <div>
+                        <p class="text-[12px] opacity-55 font-medium" id="current-date-label">Today</p>
+                        <p class="text-2xl font-bold leading-tight tabular-nums"><span id="today-completed-count">0/0</span> <span class="text-sm font-medium opacity-50">done</span></p>
+                    </div>
+                </div>
+                <div class="h-1.5 rounded-full overflow-hidden mt-2.5" style="background:var(--border-color)"><div id="today-bar" class="h-full bg-accent rounded-full" style="width:0%;transition:width .6s cubic-bezier(.2,.8,.2,1)"></div></div>
+            </div>
+
+                    <div>
+                        <p class="hidden" id="motivation-text">Loading...</p>
+                        <span id="motivation-header-label" class="hidden">Daily motivation</span>
+                        <button onclick="revealLoveNote()" class="mt-1.5 text-xs font-semibold text-accent flex items-center gap-1 active:scale-95">💌 Open love note <span aria-hidden="true">→</span></button>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="droplet" class="w-4 h-4 text-cyan-400"></i>
+                            <span class="text-xs font-medium opacity-60">Water</span>
+                            <span class="text-xs font-semibold tabular-nums" id="water-status">0 / 8</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="adjustWater(-1)" aria-label="Less water" class="w-7 h-7 rounded-lg neon-card flex items-center justify-center text-sm font-bold active:scale-95">-</button>
+                            <button onclick="adjustWater(1)" aria-label="More water" class="w-7 h-7 rounded-lg bg-cyan-500 text-black flex items-center justify-center text-sm font-bold active:scale-95">+</button>
+                        </div>
+                    </div>
+                    <div class="rounded-xl px-3 py-2.5 space-y-2" style="background:var(--border-color)">
+                        <div class="flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <span data-partner-avatar class="text-xl shrink-0">🌸</span>
+                                <div class="min-w-0">
+                                    <p class="text-[11px] opacity-55 font-medium" data-partner-label>Partner today</p>
+                                    <p class="text-sm font-bold truncate partner-flame" data-partner-progress>Waiting for an update…</p>
+                                </div>
+                            </div>
+                            <button onclick="nudgePartner()" class="shrink-0 text-accent text-[12px] font-semibold px-3 py-1.5 rounded-full active:scale-95" style="border:1px solid var(--border-color)">👏 Nudge</button>
+                        </div>
+                        <div class="h-1.5 rounded-full overflow-hidden" style="background:rgba(127,127,127,.25)"><div data-partner-bar class="h-full bg-accent rounded-full" style="width:0%"></div></div>
+                    </div>
+        </div>
+    </div>
+
+    <!-- Bottom bar (Habits tab): summary + add -->
+    <div id="fab" class="fixed left-0 right-0 z-20 mx-3 sm:mx-auto sm:max-w-[26.5rem] pointer-events-none flex items-center justify-between gap-3" style="bottom:calc(env(safe-area-inset-bottom, 0px) + 5.5rem)">
+        <button onclick="openDetails()" class="glass-pill pointer-events-auto min-w-0 flex items-center gap-2 pl-3.5 pr-3 py-2.5 rounded-full text-xs font-medium active:scale-95" style="border:1px solid var(--border-color); position: relative;">
+            <i data-lucide="droplet" class="w-3.5 h-3.5 shrink-0 opacity-60"></i><span id="habit-summary" class="truncate">0/0 done</span><i data-lucide="chevron-right" class="w-3.5 h-3.5 shrink-0 opacity-40"></i>
+            <!-- Feature 13: Habit count badge -->
+            <span id="habit-count-badge" class="habit-count-badge hidden">0</span>
+        </button>
+        <button onclick="openAddModal()" aria-label="Add habit" class="pointer-events-auto shrink-0 w-14 h-14 rounded-full bg-accent text-white flex items-center justify-center active:scale-90" style="box-shadow:0 8px 24px -6px var(--glow-color)">
+            <i data-lucide="plus" class="w-6 h-6"></i>
+        </button>
+    </div>
+
+    <!-- Toast (undo) -->
+    <div id="toast" class="hidden fixed left-0 right-0 z-40 mx-3 sm:mx-auto sm:max-w-[26.5rem]" style="bottom:calc(env(safe-area-inset-bottom, 0px) + 5.5rem)">
+        <div class="neon-card px-4 py-2.5 flex items-center justify-between gap-3 text-xs font-semibold" style="background-color:var(--card-color)">
+            <span id="toast-msg" class="min-w-0 truncate"></span>
+            <button id="toast-undo" class="text-accent font-extrabold shrink-0">Undo</button>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="love-note-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="neon-card glass-panel w-full max-w-sm p-5 text-center space-y-3 border-accent/40">
+            <div class="text-xs font-bold uppercase tracking-wider text-accent" id="modal-sender-title">Love Note ❤️</div>
+            <p id="love-note-content" class="text-xs font-medium leading-relaxed opacity-90"></p>
+            <button onclick="closeLoveNoteModal()" class="w-full bg-accent text-white font-bold py-2.5 rounded-xl text-xs active:scale-95">Close</button>
+        </div>
+    </div>
+
+    <div id="add-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
+        <div class="neon-card glass-panel border w-full max-w-md p-5">
+            <div class="sheet-grabber sm:hidden"></div>
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-xs font-bold" id="add-modal-title">Add New Habit</h3>
+                <button onclick="closeAddModal()" class="opacity-60 hover:opacity-100"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <form id="habit-form" onsubmit="handleHabitSubmit(event)">
+                <div class="mb-3">
+                    <label class="block text-[10px] font-bold opacity-60 uppercase mb-1">Habit Name</label>
+                    <input type="text" id="habit-name-input" required placeholder="e.g., Morning Workout" class="w-full neon-card rounded-xl px-4 py-3 placeholder-slate-500 focus:outline-none text-xs font-semibold">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-[10px] font-bold opacity-60 uppercase mb-1">Category</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button type="button" onclick="setCategory('Fitness')" class="cat-btn py-2.5 px-2 rounded-xl border border-accent bg-accent/10 text-accent text-xs font-bold" data-cat="Fitness">Fitness</button>
+                        <button type="button" onclick="setCategory('Wellness')" class="cat-btn py-2.5 px-2 rounded-xl neon-card opacity-70 text-xs font-semibold" data-cat="Wellness">Wellness</button>
+                        <button type="button" onclick="setCategory('Study')" class="cat-btn py-2.5 px-2 rounded-xl neon-card opacity-70 text-xs font-semibold" data-cat="Study">Study</button>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-[10px] font-bold opacity-60 uppercase mb-1">Icon</label>
+                    <div class="grid grid-cols-8 gap-1.5" id="emoji-picker"></div>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-[10px] font-bold opacity-60 uppercase mb-1">Color</label>
+                    <div class="grid grid-cols-6 gap-2" id="habit-color-picker"></div>
+                </div>
+                <button type="submit" class="w-full bg-accent text-white font-bold py-3 rounded-xl text-xs shadow active:scale-95">Save Habit</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Habit detail sheet -->
+    <div id="habit-detail-sheet" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center hidden" onclick="if(event.target===this)closeHabitDetail()">
+        <div class="glass-panel w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-4 overflow-y-auto" style="max-height:85vh;padding-bottom:calc(1.25rem + env(safe-area-inset-bottom, 0px))">
+            <div class="sheet-grabber sm:hidden"></div>
+            <div class="flex items-center justify-between">
+                <h3 class="text-sm font-semibold flex items-center gap-2"><span id="hd-emoji"></span><span id="hd-name"></span></h3>
+                <button onclick="closeHabitDetail()" aria-label="Close" class="opacity-60 p-1"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <div class="grid grid-cols-3 gap-2 text-center">
+                <div class="neon-card p-3"><div class="text-2xl font-bold tabular-nums" id="hd-current">0</div><div class="text-[10px] opacity-55 font-semibold mt-0.5">Current streak</div></div>
+                <div class="neon-card p-3"><div class="text-2xl font-bold tabular-nums" id="hd-best">0</div><div class="text-[10px] opacity-55 font-semibold mt-0.5">Best streak</div></div>
+                <div class="neon-card p-3"><div class="text-2xl font-bold tabular-nums" id="hd-total">0</div><div class="text-[10px] opacity-55 font-semibold mt-0.5">Days done</div></div>
+            </div>
+            <div>
+                <div class="text-[10px] font-bold uppercase tracking-wider opacity-60 mb-2">Last 30 days</div>
+                <div class="hd-bars" id="hd-bars"></div>
+            </div>
+            <div>
+                <div class="text-[10px] font-bold uppercase tracking-wider opacity-60 mb-2">Last 12 weeks</div>
+                <div class="hm-grid" id="hd-grid"></div>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="duplicateHabit(detailHabitId)" class="flex-grow neon-card py-2.5 rounded-xl text-xs font-bold active:scale-95">Duplicate</button>
+                <button onclick="editHabit()" class="flex-grow neon-card py-2.5 rounded-xl text-xs font-bold active:scale-95">Edit habit</button>
+                <button onclick="deleteHabitFromDetail()" class="neon-card px-4 py-2.5 rounded-xl text-xs font-bold active:scale-95" style="color:#ef4444">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Day detail sheet (tap a heatmap cell) -->
+    <div id="day-detail-sheet" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center hidden" onclick="if(event.target===this)closeDayDetail()">
+        <div class="glass-panel w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-4 overflow-y-auto" style="max-height:85vh;padding-bottom:calc(1.25rem + env(safe-area-inset-bottom, 0px))">
+            <div class="sheet-grabber sm:hidden"></div>
+            <div class="flex items-center justify-between">
+                <h3 class="text-sm font-semibold" id="dd-title">Day</h3>
+                <button onclick="closeDayDetail()" aria-label="Close" class="opacity-60 p-1"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <div>
+                <div class="text-2xl font-bold tabular-nums" id="dd-summary">0/0 done</div>
+                <div class="h-1.5 rounded-full overflow-hidden mt-2.5" style="background:var(--border-color)"><div id="dd-bar" class="h-full bg-accent rounded-full" style="width:0%;transition:width .5s cubic-bezier(.2,.8,.2,1)"></div></div>
+            </div>
+            <div id="dd-list"></div>
+        </div>
+    </div>
+
+    <!-- App Script -->
+    <script>
+
+        let userRole = localStorage.getItem('habitflow_user_role');
+        if (!userRole) { document.getElementById('role-setup-modal').classList.remove('hidden'); }
+
+        function lockUserRole(role) {
+            localStorage.setItem('habitflow_user_role', role);
+            document.getElementById('role-setup-modal').classList.add('hidden');
+            location.reload();
+        }
+
+        userRole = localStorage.getItem('habitflow_user_role') || 'Grv';
+        const isGrv = userRole === 'Grv';
+
+        if (isGrv) {
+            document.getElementById('view-grv').className = "neon-card p-3.5 text-center border-accent bg-accent/10";
+        } else {
+            document.getElementById('view-eku').className = "neon-card p-3.5 text-center border-accent bg-accent/10";
+        }
+
+        try {
+            if (!localStorage.getItem('habitflow_ui_v4')) {
+                localStorage.setItem('habitflow_theme', 'spatial');
+                localStorage.setItem('habitflow_accent', '#5873f0');
+                localStorage.setItem('habitflow_glow', 'rgba(88, 115, 240, 0.3)');
+                localStorage.setItem('habitflow_ui_v4', '1');
+            }
+        } catch (e) {}
+        let currentTheme = localStorage.getItem('habitflow_theme') || 'spatial';
+        // older themes fold into Spatial: light ones become Spatial light, the rest Spatial dark
+        if (['light-white', 'clean-light', 'warm'].includes(currentTheme)) currentTheme = 'spatial-light';
+        else if (!['spatial', 'spatial-light', 'spatial-auto', 'dark-glass', 'true-dark'].includes(currentTheme)) currentTheme = 'spatial';
+        let currentAccentHex = localStorage.getItem('habitflow_accent') || '#5873f0';
+        let currentGlowHex = localStorage.getItem('habitflow_glow') || 'rgba(88, 115, 240, 0.3)';
+
+        function setThemeMode(name) {
+            currentTheme = name;
+            try { localStorage.setItem('habitflow_theme', name); } catch (e) {}
+            let resolved = name;
+            if (name === 'spatial-auto') resolved = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'spatial-light' : 'spatial';
+            if (name === 'dark-glass') resolved = 'dark-glass';
+            if (name === 'true-dark') resolved = 'true-dark';
+            const light = resolved === 'spatial-light';
+            const root = document.documentElement;
+            root.setAttribute('data-theme', 'spatial');
+            root.classList.toggle('spl', light);
+            root.classList.toggle('dark', !light);
+            root.style.colorScheme = light ? 'light' : 'dark';
+            const tc = document.querySelector('meta[name="theme-color"]');
+            if (tc) tc.setAttribute('content', light ? '#eaeefb' : '#0d1220');
+            updateAppearanceUI();
+        }
+        function updateAppearanceUI() {
+            [['mode-dark', 'spatial'], ['mode-light', 'spatial-light'], ['mode-auto', 'spatial-auto'], ['mode-dark-glass', 'dark-glass'], ['mode-true-dark', 'true-dark']].forEach(([id, key]) => {
+                const b = document.getElementById(id); if (!b) return;
+                const on = currentTheme === key;
+                b.className = 'text-[10px] font-semibold py-2 rounded-xl flex flex-col items-center justify-center gap-1 ' + (on ? 'bg-accent text-white' : 'neon-card');
+                b.setAttribute('aria-pressed', on ? 'true' : 'false');
+            });
+            document.querySelectorAll('#accent-swatches button').forEach(b => {
+                const on = b.dataset.hex === currentAccentHex;
+                b.style.outline = on ? '2px solid var(--text-color)' : 'none';
+                b.style.outlineOffset = on ? '2px' : '0';
+            });
+            if (window.lucide) lucide.createIcons();
+        }
+        if (window.matchMedia) {
+            const mq = window.matchMedia('(prefers-color-scheme: light)');
+            const onSystemChange = () => { if (currentTheme === 'spatial-auto') setThemeMode('spatial-auto'); };
+            if (mq.addEventListener) mq.addEventListener('change', onSystemChange); else if (mq.addListener) mq.addListener(onSystemChange);
+        }
+        function setAccentColor(hex, glow) {
+            currentAccentHex = hex;
+            currentGlowHex = glow;
+            localStorage.setItem('habitflow_accent', hex);
+            localStorage.setItem('habitflow_glow', glow);
+            applyAccent();
+            updateAppearanceUI();
+            render();
+        }
+        function applyAccent() {
+            document.documentElement.style.setProperty('--accent-color', currentAccentHex);
+            document.documentElement.style.setProperty('--glow-color', currentGlowHex);
+        }
+        setThemeMode(currentTheme);
+        applyAccent();
+
+        document.getElementById('header-subtitle').innerText = isGrv ? "Built for Eku ❤️" : "Built by Grv with love 🌸";
+        document.getElementById('header-avatar').innerText = isGrv ? '👾' : '🌸';
+        document.getElementById('header-avatar-badge').innerText = isGrv ? '👾' : '🌸';
+        const TAB_NAMES = { dashboard: 'Habits', focus: 'Focus', budget: 'Budget', journal: 'Journal', settings: 'Settings' };
+        function updateHeader(tName) {
+            const h = new Date().getHours();
+            const part = h < 5 ? 'Late night,' : h < 12 ? 'Good morning,' : h < 17 ? 'Good afternoon,' : h < 21 ? 'Good evening,' : 'Good night,';
+            const home = tName === 'dashboard';
+            document.getElementById('header-greeting').innerText = home ? part : new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+            document.getElementById('header-tab-name').innerText = home ? userRole : (TAB_NAMES[tName] || 'Habits');
+        }
+        updateHeader('dashboard');
+        document.getElementById('modal-sender-title').innerText = isGrv ? "Eku says ❤️" : "Grv says ❤️";
+
+        let habits = JSON.parse(localStorage.getItem('habitflow_habits')) || [
+            { id: '1', name: isGrv ? 'Morning Workout' : 'Skincare Routine', category: 'Wellness', history: {}, streak: 0 },
+            { id: '2', name: 'Drink 8 Glasses of Water', category: 'Fitness', history: {}, streak: 0 }
+        ];
+        let todos = JSON.parse(localStorage.getItem('habitflow_todos')) || [{ id: 't1', text: 'Plan daily priorities', completed: false }];
+        let expenses = JSON.parse(localStorage.getItem('habitflow_expenses')) || [];
+        let plannerNotes = JSON.parse(localStorage.getItem('habitflow_planner')) || {};
+        let waterData = JSON.parse(localStorage.getItem('habitflow_water')) || {};
+        let scratchpadText = localStorage.getItem('habitflow_notes') || '';
+        let savedPersonalMemos = JSON.parse(localStorage.getItem('habitflow_personal_memos')) || [];
+
+        let lastPopped = null;
+
+        // ---- Partner sync, stats, habit editing, reminders, backup ----
+        const IS_LOCAL = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
+        const partnerRole = isGrv ? 'Eku' : 'Grv';
+        let partnerStatus = {}, publishTimer = null, lastPublished = '';
+        const seenNudges = new Set();
+        let dragState = null, tapSuppressUntil = 0;
+        const HABIT_EMOJIS = ['💪', '📚', '🧘', '💧', '🏃', '🥗', '😴', '✍️', '🎯', '🎧', '🧹', '💊', '🌞', '💻', '🙏', '🚭'];
+        const HABIT_COLORS = ['#5873f0', '#8b5cf6', '#f43f5e', '#f59e0b', '#10b981', '#06b6d4'];
+        let selectedEmoji = '💪', selectedHabitColor = '#5873f0', editingHabitId = null, detailHabitId = null;
+        let budgetTarget = Number(localStorage.getItem('habitflow_budget_target')) || 0;
+        let expenseScope = (function () { try { return localStorage.getItem('habitflow_expense_scope') || 'all'; } catch (e) { return 'all'; } })();
+        let reminderSettings = (function () {
+            try { return JSON.parse(localStorage.getItem('habitflow_reminder')) || { enabled: false, time: '20:00', lastFired: '' }; }
+            catch (e) { return { enabled: false, time: '20:00', lastFired: '' }; }
+        })();
+        document.querySelectorAll('[data-partner-avatar]').forEach(el => { el.innerText = isGrv ? '🌸' : '👾'; });
+        document.querySelectorAll('[data-partner-label]').forEach(el => { el.innerText = partnerRole + ' today'; });
+
+        function removeWithAnim(then) {
+            const t = window.event && window.event.target;
+            const row = t && t.closest ? t.closest('.neon-card') : null;
+            if (row) { row.classList.add('leaving'); setTimeout(then, 230); } else then();
+        }
+        function bumpEl(el) { if (!el) return; el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+
+        let selectedCategory = 'Fitness';
+        let calYear = new Date().getFullYear(), calMonth = new Date().getMonth();
+        let selectedDateKey = getDateKey(new Date());
+
+        let timerInterval = null, selectedTimerMinutes = 25, timeLeft = 1500, isTimerRunning = false;
+        let personalMediaRecorder, personalAudioChunks = [];
+
+        // Quotes: famous ones with their author, plus lines written for this app. A new one every time the app opens.
+        const QUOTES_SHARED = [
+            { t: "Small steps. Every day." }, { t: "Show up today." }, { t: "Consistency beats intensity." },
+            { t: "One habit at a time." }, { t: "Progress, not perfection." }, { t: "Start before you're ready." },
+            { t: "Do it for future you." }, { t: "Tiny wins add up." }, { t: "Done beats perfect." },
+            { t: "Keep showing up." }, { t: "Make today count." }, { t: "Little by little." },
+            { t: "Today, not someday." }, { t: "Breathe. Then begin." }, { t: "Fall seven, rise eight." },
+            { t: "Quiet work, loud results." }, { t: "You've got this." }, { t: "Keep your promises to yourself." },
+            { t: "Be proud of the effort." }, { t: "Better together." }, { t: "Two hearts, one habit." },
+            { t: "Love the process." }, { t: "Rest is part of the plan." }, { t: "Just one more tick." },
+            { t: "Small habits, big life." }, { t: "Your streak, your story." }, { t: "Choose growth today." },
+            { t: "Slow is still moving." }, { t: "Do the thing." }, { t: "Be the reason you smile later." },
+            { t: "Build what you'll thank yourself for." }, { t: "Every tick is a vote for you." },
+            { t: "Start where you are." }, { t: "Hard days count most." }, { t: "Easy does it. Daily does it." },
+            { t: "One page a day writes the book." }, { t: "Momentum loves a small start." }, { t: "Today's effort is tomorrow's ease." },
+            { t: "Keep the promises you make to yourself." }, { t: "A little progress each day adds up." },
+            { t: "You're one small habit away from a better week." }, { t: "Discipline is self-respect in action." },
+            { t: "Small hinges swing big doors." }, { t: "Future you is watching — make them proud." },
+            { t: "The secret of getting ahead is getting started.", a: "Mark Twain" },
+            { t: "It does not matter how slowly you go as long as you do not stop.", a: "Confucius" },
+            { t: "A journey of a thousand miles begins with a single step.", a: "Lao Tzu" },
+            { t: "Well begun is half done.", a: "Aristotle" },
+            { t: "Motivation is what gets you started. Habit is what keeps you going.", a: "Jim Ryun" },
+            { t: "You do not rise to the level of your goals. You fall to the level of your systems.", a: "James Clear" },
+            { t: "Start where you are. Use what you have. Do what you can.", a: "Arthur Ashe" },
+            { t: "It always seems impossible until it's done.", a: "Nelson Mandela" },
+            { t: "Don't watch the clock; do what it does. Keep going.", a: "Sam Levenson" },
+            { t: "You miss 100% of the shots you don't take.", a: "Wayne Gretzky" },
+            { t: "The best time to plant a tree was twenty years ago. The second best time is now.", a: "Chinese Proverb" },
+            { t: "Success is the sum of small efforts, repeated day in and day out.", a: "Robert Collier" },
+            { t: "What you do every day matters more than what you do once in a while.", a: "Gretchen Rubin" }
+        ];
+        const QUOTES_ROLE = isGrv ? [
+            { t: "Eku's proud of you." }, { t: "Win the morning." }, { t: "Be the man you're building." }, { t: "For you. For us." },
+            { t: "Lead the day, don't chase it." }, { t: "Build it for the both of you." }
+        ] : [
+            { t: "Grv's rooting for you." }, { t: "Be kind to yourself." }, { t: "Glow a little more today." }, { t: "For you. For us." },
+            { t: "Your pace is the right pace." }, { t: "Soften, then shine." }
+        ];
+        const QUOTES = QUOTES_SHARED.concat(QUOTES_ROLE);
+        let lastQuoteIdx = -1;
+        try { lastQuoteIdx = parseInt(localStorage.getItem('habitflow_last_quote'), 10); if (isNaN(lastQuoteIdx)) lastQuoteIdx = -1; } catch (e) {}
+        function showQuote(animate) {
+            let i;
+            do { i = Math.floor(Math.random() * QUOTES.length); } while (QUOTES.length > 1 && i === lastQuoteIdx);
+            lastQuoteIdx = i;
+            try { localStorage.setItem('habitflow_last_quote', String(i)); } catch (e) {}
+            const q = QUOTES[i];
+            const el = document.getElementById('header-quote');
+            el.innerHTML = `“${escapeHtml(q.t)}”` + (q.a ? ` <span style="opacity:.65;white-space:nowrap">— ${escapeHtml(q.a)}</span>` : '');
+            document.getElementById('motivation-text').innerText = `“${q.t}”`;
+            if (animate) { el.classList.remove('quote-in'); void el.offsetWidth; el.classList.add('quote-in'); }
+        }
+        showQuote(false);
+        const loveNotes = isGrv ? [
+            "Eku says: You are my rock, Grv! 🌸💕", "Eku says: Proud of you today and every day. 💖", "Eku says: Even on your tired days, you're my favourite person. 🥹",
+            "Eku says: You make hard days feel easy. 🌷", "Eku says: Go crush it, then come home to me. 😘", "Eku says: Thank you for building this just for me. 💻❤️",
+            "Eku says: You're my calm and my chaos, and I love both. 💞", "Eku says: Whatever happens today, I'm on your team. 🤝💕"
+        ] : [
+            "Grv says: You have the most beautiful smile, Eku! 😊💕", "Grv says: You make every ordinary day feel special. 🌸", "Grv says: I built this app because you deserve something made with love. 💻❤️",
+            "Grv says: Your laugh is my favourite sound. 🎶", "Grv says: Proud of you, always. 💖", "Grv says: You're my home, Eku. 🏡💕",
+            "Grv says: Rest when you need to, I've got you. 🫶", "Grv says: Every habit is better when we do life together. 👾🌸"
+        ];
+        function revealLoveNote() {
+            document.getElementById('love-note-content').innerText = loveNotes[Math.floor(Math.random() * loveNotes.length)];
+            document.getElementById('love-note-modal').classList.remove('hidden');
+        }
+        function closeLoveNoteModal() { document.getElementById('love-note-modal').classList.add('hidden'); }
+        document.getElementById('scratchpad-input').value = scratchpadText;
+
+        function switchTab(tName) {
+            ['dashboard', 'focus', 'budget', 'journal', 'settings'].forEach(t => {
+                document.getElementById(`tab-${t}`).classList.add('hidden');
+                document.getElementById(`nav-${t}`).className = "nav-btn flex flex-col items-center gap-0.5 opacity-50 transition";
+            });
+            document.getElementById(`tab-${tName}`).classList.remove('hidden');
+            document.getElementById(`nav-${tName}`).className = "nav-btn flex flex-col items-center gap-0.5 text-accent transition";
+
+            updateHeader(tName);
+            document.getElementById('fab').style.display = tName === 'dashboard' ? 'flex' : 'none';
+            document.body.dataset.tab = tName;
+            // Clock container removed - no more blank middle in header
+
+            render();
+        }
+
+        function switchJournalPane(which) {
+            try { localStorage.setItem('habitflow_journal_pane', which); } catch (e) {}
+            const cal = which === 'calendar';
+            document.getElementById('journal-pane-calendar').classList.toggle('hidden', !cal);
+            document.getElementById('journal-pane-notes').classList.toggle('hidden', cal);
+            document.getElementById('journal-pane-notes').classList.toggle('flex', !cal);
+            document.getElementById('jtab-calendar').className = "py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 " + (cal ? "bg-accent text-white" : "opacity-60");
+            document.getElementById('jtab-notes').className = "py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 " + (cal ? "opacity-60" : "bg-accent text-white");
+        }
+        switchJournalPane((() => { try { return localStorage.getItem('habitflow_journal_pane') || 'calendar'; } catch (e) { return 'calendar'; } })());
+
+        function getDateKey(d) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+        function getTodayKey() { return getDateKey(new Date()); }
+
+        function saveHabits() { localStorage.setItem('habitflow_habits', JSON.stringify(habits)); render(); scheduleStatusPublish(); }
+        function saveTodos() { localStorage.setItem('habitflow_todos', JSON.stringify(todos)); renderTodos(); }
+        function saveExpenses() { localStorage.setItem('habitflow_expenses', JSON.stringify(expenses)); renderExpenses(); }
+        function saveScratchpad() { localStorage.setItem('habitflow_notes', document.getElementById('scratchpad-input').value); }
+        function adjustWater(amt) {
+            const tk = getTodayKey();
+            waterData[tk] = Math.max(0, (waterData[tk] || 0) + amt);
+            localStorage.setItem('habitflow_water', JSON.stringify(waterData));
+            document.getElementById('water-status').innerText = `${waterData[tk]} / 8`;
+            bumpEl(document.getElementById('water-status'));
+            updateHabitSummary();
+        }
+
+        // Personal Memos
+        async function togglePersonalRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                personalMediaRecorder = new MediaRecorder(stream);
+                personalAudioChunks = [];
+                personalMediaRecorder.ondataavailable = e => personalAudioChunks.push(e.data);
+                personalMediaRecorder.onstop = () => {
+                    const blob = new Blob(personalAudioChunks, { type: 'audio/webm' });
+                    const reader = new FileReader();
+                    reader.readAsDataURL(blob);
+                    reader.onloadend = () => {
+                        savedPersonalMemos.push({ id: Date.now().toString(), ts: Date.now(), time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}), note: '', audio: reader.result });
+                        localStorage.setItem('habitflow_personal_memos', JSON.stringify(savedPersonalMemos));
+                        renderPersonalMemos();
+                    };
+                };
+                personalMediaRecorder.start();
+                document.getElementById('personal-rec-status').innerText = "🔴 Rec...";
+                document.getElementById('personal-record-btn').className = "flex-grow bg-red-500 text-white font-bold py-2.5 rounded-xl text-xs animate-pulse";
+                document.getElementById('personal-stop-btn').disabled = false;
+                document.getElementById('personal-stop-btn').className = "neon-card px-4 py-2.5 rounded-xl text-xs font-bold text-accent border-accent cursor-pointer";
+            } catch(e) { alert("Mic required."); }
+        }
+        function stopPersonalRecording() {
+            if (personalMediaRecorder && personalMediaRecorder.state !== "inactive") {
+                personalMediaRecorder.stop();
+                document.getElementById('personal-rec-status').innerText = "Saved!";
+                document.getElementById('personal-record-btn').className = "flex-grow bg-accent text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 active:scale-95";
+                document.getElementById('personal-stop-btn').disabled = true;
+                document.getElementById('personal-stop-btn').className = "neon-card px-4 py-2.5 rounded-xl text-xs font-bold opacity-50 cursor-not-allowed";
+                lucide.createIcons();
+            }
+        }
+        function formatMemoWhen(m) {
+            if (!m.ts) return m.time;
+            const d = new Date(m.ts);
+            return `${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} · ${m.time}`;
+        }
+        function escapeAttr(t) { return String(t || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+        function renderPersonalMemos() {
+            const c = document.getElementById('personal-voice-memos-container');
+            if (!c) return;
+            if (savedPersonalMemos.length === 0) { c.innerHTML = `<p class="text-[11px] opacity-40 text-center py-3">No memos yet. Tap Record to save your first one.</p>`; return; }
+            c.innerHTML = savedPersonalMemos.slice().reverse().map(m => `
+                <div class="neon-card p-2.5 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-bold text-accent">${formatMemoWhen(m)}</span>
+                        <button onclick="deletePersonalMemo('${m.id}')" class="opacity-50 hover:text-red-500 p-1"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                    </div>
+                    <audio controls src="${m.audio}" class="h-8 w-full"></audio>
+                    <input type="text" value="${escapeAttr(m.note)}" placeholder="Add a note: what is this about? (optional)" onchange="updatePersonalMemoNote('${m.id}', this.value)" class="w-full neon-card rounded-lg px-3 py-1.5 text-[11px] font-medium placeholder-slate-500 focus:outline-none">
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+        function updatePersonalMemoNote(id, val) {
+            savedPersonalMemos = savedPersonalMemos.map(m => m.id === id ? { ...m, note: val.trim() } : m);
+            localStorage.setItem('habitflow_personal_memos', JSON.stringify(savedPersonalMemos));
+        }
+        function deletePersonalMemo(id) {
+            removeWithAnim(() => {
+                const idx = savedPersonalMemos.findIndex(m => m.id === id); if (idx < 0) return;
+                const item = savedPersonalMemos[idx];
+                savedPersonalMemos = savedPersonalMemos.filter(m => m.id !== id);
+                localStorage.setItem('habitflow_personal_memos', JSON.stringify(savedPersonalMemos));
+                renderPersonalMemos();
+                showToast('Memo deleted', () => {
+                    savedPersonalMemos.splice(Math.min(idx, savedPersonalMemos.length), 0, item);
+                    localStorage.setItem('habitflow_personal_memos', JSON.stringify(savedPersonalMemos));
+                    renderPersonalMemos();
+                });
+            });
+        }
+
+        // ============ COUPLE HUB (chat + voice notes) removed ============
+
+        function escapeHtml(t) { return String(t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+        // To-Do / Tasks
+        function renderTodos() {
+            const container = document.getElementById('todo-list-container');
+            if (!container) return;
+            if (todos.length === 0) { container.innerHTML = `<p class="text-xs opacity-50 text-center py-4">No focus tasks.</p>`; return; }
+            container.innerHTML = todos.map(t => `
+                <div class="neon-card p-3.5 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <button onclick="toggleTodo('${t.id}')" class="${t.id === lastPopped && t.completed ? 'pop' : ''} w-6 h-6 rounded-full border ${t.completed ? 'bg-accent border-accent text-white' : 'border-slate-500 neon-card text-transparent'} flex items-center justify-center transition">
+                            <i data-lucide="check" class="w-3.5 h-3.5 stroke-[3]"></i>
+                        </button>
+                        <span class="text-xs font-medium ${t.completed ? 'line-through opacity-40' : ''}">${escapeHtml(t.text)}</span>
+                    </div>
+                    <button onclick="deleteTodo('${t.id}')" class="opacity-50 hover:text-red-500 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+        function handleTodoSubmit(e) {
+            e.preventDefault();
+            const input = document.getElementById('todo-input');
+            if(!input.value.trim()) return;
+            todos.push({ id: Date.now().toString(), text: input.value.trim(), completed: false });
+            input.value = ''; saveTodos();
+        }
+        function toggleTodo(id) { lastPopped = id; todos = todos.map(t => t.id === id ? {...t, completed: !t.completed} : t); saveTodos(); }
+        function deleteTodo(id) {
+            removeWithAnim(() => {
+                const idx = todos.findIndex(t => t.id === id); if (idx < 0) return;
+                const item = todos[idx];
+                todos = todos.filter(t => t.id !== id); saveTodos();
+                showToast('Task deleted', () => { todos.splice(Math.min(idx, todos.length), 0, item); saveTodos(); });
+            });
+        }
+
+        // Pomodoro
+        function setTimerDuration(m) {
+            pauseTimer(); selectedTimerMinutes = m; timeLeft = m * 60; updateTimerDisplay();
+            document.querySelectorAll('.duration-btn').forEach(b => {
+                b.className = Number(b.dataset.min) === m
+                    ? "duration-btn bg-accent border-accent text-white px-3 py-1 text-[11px] font-bold shadow-md rounded-[1.25rem]"
+                    : "duration-btn neon-card px-3 py-1 text-[11px] font-bold";
+            });
+        }
+        function startTimer() {
+            if (isTimerRunning) return;
+            isTimerRunning = true;
+            setTimerRunningUI(true);
+            timerInterval = setInterval(() => {
+                if (timeLeft > 0) { timeLeft--; updateTimerDisplay(); }
+                else { clearInterval(timerInterval); isTimerRunning = false; setTimerRunningUI(false); alert("Pomodoro complete! 🎉"); }
+            }, 1000);
+        }
+        function setTimerRunningUI(on) {
+            ['timer-display', 'timer-ring'].forEach(i => { const el = document.getElementById(i); if (el) el.classList.toggle('timer-running', on); });
+        }
+        function pauseTimer() { clearInterval(timerInterval); isTimerRunning = false; setTimerRunningUI(false); }
+        function resetTimer() { clearInterval(timerInterval); isTimerRunning = false; setTimerRunningUI(false); timeLeft = selectedTimerMinutes * 60; updateTimerDisplay(); }
+        function updateTimerDisplay() {
+            const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
+            document.getElementById('timer-display').innerText = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            const ring = document.getElementById('timer-ring');
+            if (ring) ring.style.strokeDashoffset = 339.292 * (1 - timeLeft / (selectedTimerMinutes * 60));
+        }
+
+        // Calendar Planner
+        function renderMonthlyCalendar() {
+            const grid = document.getElementById('monthly-grid');
+            if(!grid) return;
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            document.getElementById('calendar-month-year').innerText = `${monthNames[calMonth]} ${calYear}`;
+            const firstDayIndex = new Date(calYear, calMonth, 1).getDay();
+            const totalDays = new Date(calYear, calMonth + 1, 0).getDate();
+            let html = '';
+            for (let i = 0; i < firstDayIndex; i++) html += `<div></div>`;
+            for (let day = 1; day <= totalDays; day++) {
+                const dKey = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const isSelected = dKey === selectedDateKey;
+                const hasNote = plannerNotes[dKey] && plannerNotes[dKey].trim() !== '';
+                html += `<button onclick="selectCalendarDate('${dKey}')" class="h-full min-h-[22px] rounded-md ${isSelected ? 'bg-accent text-white font-extrabold shadow-md' : 'neon-card font-semibold'} flex flex-col items-center justify-center text-xs relative active:scale-95 transition">
+                    <span class="leading-none">${day}</span>
+                    ${hasNote ? `<span class="w-1 h-1 rounded-full ${isSelected ? 'bg-white' : 'bg-accent'} mt-0.5"></span>` : ''}
+                </button>`;
+            }
+            grid.innerHTML = html;
+            loadDayPlannerForSelected();
+        }
+        function changeMonth(dir) {
+            calMonth += dir;
+            if (calMonth > 11) { calMonth = 0; calYear++; } else if (calMonth < 0) { calMonth = 11; calYear--; }
+            renderMonthlyCalendar();
+        }
+        function selectCalendarDate(dKey) { selectedDateKey = dKey; renderMonthlyCalendar(); }
+        function loadDayPlannerForSelected() {
+            document.getElementById('selected-date-title').innerText = `Note for ${selectedDateKey}`;
+            document.getElementById('planner-notes-input').value = plannerNotes[selectedDateKey] || '';
+        }
+        function saveDayPlannerNotes() {
+            plannerNotes[selectedDateKey] = document.getElementById('planner-notes-input').value;
+            localStorage.setItem('habitflow_planner', JSON.stringify(plannerNotes));
+            renderMonthlyCalendar();
+        }
+
+        // Expenses & Habits
+        const EXPENSE_CATS = {
+            Food: { label: 'Food', color: '#f59e0b' },
+            Shopping: { label: 'Shopping', color: '#8b5cf6' },
+            Bills: { label: 'Bills', color: '#06b6d4' },
+            Other: { label: 'Other', color: '#94a3b8' }
+        };
+        function expenseInScope(e) {
+            const d = new Date(Number(e.id) || 0), now = new Date();
+            if (expenseScope === 'month') return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+            if (expenseScope === 'year') return d.getFullYear() === now.getFullYear();
+            return true;
+        }
+        function setExpenseScope(s) {
+            expenseScope = s;
+            try { localStorage.setItem('habitflow_expense_scope', s); } catch (e) {}
+            updateExpenseScopeUI(); renderExpenses();
+        }
+        function updateExpenseScopeUI() {
+            document.querySelectorAll('#expense-scope .scope-btn').forEach(b => {
+                const on = b.dataset.scope === expenseScope;
+                b.className = 'scope-btn py-1.5 rounded-xl text-xs font-bold ' + (on ? 'bg-accent text-white' : 'opacity-60');
+            });
+            const titles = { all: 'Total Spent', month: 'Spent This Month', year: 'Spent This Year' };
+            const t = document.getElementById('expense-scope-title');
+            if (t) t.innerText = titles[expenseScope] || 'Total Spent';
+        }
+        function renderExpenses() {
+            const container = document.getElementById('expense-list-container');
+            if (!container) return;
+            const list = expenses.filter(expenseInScope);
+            let total = 0; const byCat = {};
+            list.forEach(e => { const a = Number(e.amount); total += a; byCat[e.category] = (byCat[e.category] || 0) + a; });
+            document.getElementById('total-expense-amount').innerText = `₹${total}`;
+            document.getElementById('expense-count').innerText = `${list.length} item${list.length === 1 ? '' : 's'}`;
+            document.getElementById('category-bar').innerHTML = total > 0
+                ? Object.keys(EXPENSE_CATS).filter(k => byCat[k]).map(k => `<div style="width:${(byCat[k] / total) * 100}%;background:${EXPENSE_CATS[k].color}"></div>`).join('')
+                : '';
+            document.getElementById('category-legend').innerHTML = Object.keys(EXPENSE_CATS).map(k => `
+                <div class="flex items-center justify-between text-[11px]">
+                    <span class="flex items-center gap-1.5 font-semibold opacity-80"><span class="w-2 h-2 rounded-full" style="background:${EXPENSE_CATS[k].color}"></span>${EXPENSE_CATS[k].label}</span>
+                    <span class="font-extrabold">₹${byCat[k] || 0}</span>
+                </div>`).join('');
+            if (list.length === 0) {
+                container.innerHTML = `<p class="text-xs opacity-40 text-center py-3">No expenses ${expenseScope === 'all' ? 'logged' : 'in this period'}.</p>`;
+                renderBudgetTarget(); return;
+            }
+            container.innerHTML = list.slice().reverse().map(exp => `
+                <div class="neon-card px-3 py-2 flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-2 h-2 rounded-full shrink-0" style="background:${(EXPENSE_CATS[exp.category] || EXPENSE_CATS.Other).color}"></span>
+                        <div>
+                            <h4 class="text-xs font-bold leading-tight">${escapeHtml(exp.name)}</h4>
+                            <span class="text-[10px] opacity-60">${exp.category} • ${exp.date || 'Today'}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-extrabold text-accent">₹${exp.amount}</span>
+                        <button onclick="deleteExpense('${exp.id}')" class="opacity-50 hover:text-red-500 p-1"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                    </div>
+                </div>
+            `).join('');
+            renderBudgetTarget();
+            lucide.createIcons();
+        }
+        function handleExpenseSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('expense-name').value.trim();
+            const amount = document.getElementById('expense-amount').value.trim();
+            const category = document.getElementById('expense-category').value;
+            if (!name || !amount) return;
+            expenses.push({ id: Date.now().toString(), name, amount, category, date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) });
+            document.getElementById('expense-name').value = ''; document.getElementById('expense-amount').value = '';
+            saveExpenses();
+        }
+        function deleteExpense(id) {
+            removeWithAnim(() => {
+                const idx = expenses.findIndex(e => e.id === id); if (idx < 0) return;
+                const item = expenses[idx];
+                expenses = expenses.filter(e => e.id !== id); saveExpenses();
+                showToast('Expense deleted', () => { expenses.splice(Math.min(idx, expenses.length), 0, item); saveExpenses(); });
+            });
+        }
+
+        let currentCategoryFilter = 'all';
+        
+        function setCategoryFilter(category) {
+            currentCategoryFilter = category;
+            document.querySelectorAll('#habit-category-filter button').forEach(b => {
+                if (b.id === 'cat-' + category || (category === 'all' && b.id === 'cat-all')) {
+                    b.className = 'py-1 px-3 rounded-full text-[10px] font-semibold border border-accent text-accent bg-accent/10';
+                } else if (b.id.startsWith('cat-')) {
+                    b.className = 'py-1 px-3 rounded-full text-[10px] font-semibold opacity-50 border border-transparent';
+                }
+            });
+            render();
+        }
+        
+        function render() {
+            const container = document.getElementById('habits-container');
+            const emptyState = document.getElementById('empty-state');
+            const todayKey = getTodayKey();
+            document.getElementById('current-date-label').innerText = new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+
+            renderWeeklyChart(); renderExpenses(); renderMonthlyCalendar(); renderPersonalMemos(); renderTodos(); renderHeatmap(); renderPartnerCard();
+
+            let completedTodayCount = 0, maxStreak = 0;
+            habits.forEach(h => {
+                if (h.history[todayKey]) completedTodayCount++;
+                const st = computeStreak(h); if (st > maxStreak) maxStreak = st;
+            });
+            document.getElementById('today-completed-count').innerText = `${completedTodayCount}/${habits.length}`;
+            document.getElementById('max-streak-count').innerText = String(maxStreak);
+            updateHabitSummary();
+            (function(){ const t = habits.length, d = completedTodayCount; const r = document.getElementById('header-ring'); if (r) r.style.strokeDashoffset = 113.1 * (1 - (t ? d / t : 0)); const rt = document.getElementById('header-ring-text'); if (rt) rt.innerText = d + '/' + t; const hint = document.getElementById('habit-hint'); if (hint) hint.style.display = t ? '' : 'none'; })();
+            document.getElementById('today-bar').style.width = (habits.length ? Math.round((completedTodayCount / habits.length) * 100) : 0) + '%';
+
+            const poppedNow = lastPopped; setTimeout(() => { if (lastPopped === poppedNow) lastPopped = null; }, 450);
+            if (habits.length === 0) {
+                if (container) container.innerHTML = currentCategoryFilter !== 'all' 
+                    ? '<p class="text-[11px] opacity-40 text-center py-4">No habits in this category</p>'
+                    : '';
+                if (emptyState) emptyState.classList.remove('hidden');
+                lucide.createIcons(); return;
+            }
+            if (emptyState) emptyState.classList.add('hidden');
+            if (container) {
+                // Feature 12: Filter habits by category
+                const filteredHabits = currentCategoryFilter === 'all' 
+                    ? habits 
+                    : habits.filter(h => h.category === currentCategoryFilter);
+                container.innerHTML = filteredHabits.map(habit => {
+                    const isCompleted = habit.history[todayKey] || false;
+                    const st = computeStreak(habit);
+                    const catColor = ({ Fitness: '#5aa469', Wellness: '#8a7bd1', Study: '#d9a441' })[habit.category] || 'var(--accent-color)';
+                    const dot = habit.emoji
+                        ? `<span class="habit-emoji" style="background:${(habit.color || '#5873f0')}22">${habit.emoji}</span>`
+                        : `<span class="habit-dot" style="background:${catColor}"></span>`;
+                    // Feature 6: Calculate habit completion percentage based on history
+                    const totalDays = Object.keys(habit.history || {}).length;
+                    const doneDays = Object.keys(habit.history || {}).filter(k => habit.history[k]).length;
+                    const completionPct = totalDays > 0 ? Math.round((doneDays / totalDays) * 100) : 0;
+                    
+                    return `
+                        <div class="habit-card" data-id="${habit.id}" style="touch-action:pan-y">
+                            <button class="habit-drag" aria-label="Reorder habit" tabindex="-1"><i data-lucide="grip-vertical" class="w-3.5 h-3.5"></i></button>
+                            ${dot}
+                            <div class="habit-tap" onclick="openHabitDetail('${habit.id}')">
+                                <h4 class="habit-name ${isCompleted ? 'is-done' : ''}">${escapeHtml(habit.name)}</h4>
+                                ${st > 1 ? `<span class="habit-meta">🔥 ${st} days</span>` : ''}
+                            </div>
+                            <button onclick="toggleHabit('${habit.id}')" aria-label="Toggle ${escapeHtml(habit.name)}" class="habit-toggle2 ${isCompleted ? 'done' : ''} ${habit.id === lastPopped && isCompleted ? 'pop' : ''}">
+                                <i data-lucide="check" class="w-4 h-4 stroke-[3]"></i>
+                            </button>
+                            <span class="habit-category" style="background:${(habit.color || '#5873f0')}44; color:${(habit.color || '#5873f0')}">${habit.category}</span>
+                        </div>
+                        <div class="habit-progress"><div class="habit-progress-fill" style="width:${completionPct}%; background:${(habit.color || '#5873f0')}"></div></div>
+                    `;
+                }).join('');
+            }
+            lucide.createIcons();
+        }
+
+        function renderWeeklyChart() {
+            const c = document.getElementById('weekly-chart-container'); if (!c) return;
+            const todayKey = getTodayKey(); let html = '';
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date(); d.setDate(d.getDate() - i);
+                const key = getDateKey(d), letter = d.toLocaleDateString('en-US', { weekday: 'narrow' });
+                let done = 0; habits.forEach(h => { if (h.history && h.history[key]) done++; });
+                const ratio = habits.length ? done / habits.length : 0, isToday = key === todayKey;
+                let dot = 'background:var(--border-color);border:1.5px solid var(--border-color)';
+                if (ratio === 1) dot = 'background:var(--accent-color);border:1.5px solid var(--accent-color)';
+                else if (ratio > 0) dot = 'background:color-mix(in srgb,var(--accent-color) 38%,transparent);border:1.5px solid color-mix(in srgb,var(--accent-color) 38%,transparent)';
+                if (isToday && ratio < 1) dot = 'background:transparent;border:1.5px solid var(--accent-color)';
+                html += `<div class="flex flex-col items-center gap-1.5 cursor-pointer" onclick="openDayDetail('${key}')"><span class="text-[11px] ${isToday ? 'font-semibold' : 'opacity-55'}">${letter}</span><i style="display:block;width:14px;height:14px;border-radius:50%;box-sizing:border-box;${dot}"></i></div>`;
+            }
+            c.innerHTML = html;
+        }
+
+        function updateHabitSummary() {
+            const el = document.getElementById('habit-summary'); if (!el) return;
+            const badge = document.getElementById('habit-count-badge');
+            const waterEl = document.getElementById('header-water-text');
+            const todayKey = getTodayKey();
+            const done = habits.filter(h => h.history && h.history[todayKey]).length;
+            el.innerText = `${done}/${habits.length} done · ${waterData[todayKey] || 0}/8 water`;
+            // Feature 13: Update habit count badge
+            if (badge) {
+                badge.innerText = `${done}`;
+                badge.className = done > 0 ? 'habit-count-badge' : 'habit-count-badge hidden';
+            }
+            // Feature 8: Update water text
+            if (waterEl) waterEl.innerText = `${waterData[todayKey] || 0}/8`;
+        }
+        function computeStreak(h) {
+            if (!h || !h.history) return 0;
+            const d = new Date();
+            if (!h.history[getDateKey(d)]) d.setDate(d.getDate() - 1);
+            let n = 0;
+            while (h.history[getDateKey(d)]) { n++; d.setDate(d.getDate() - 1); }
+            return n;
+        }
+        function toggleHabit(id) {
+            const todayKey = getTodayKey();
+            lastPopped = id;
+            let nowDone = false;
+            habits = habits.map(h => {
+                if (h.id === id) {
+                    if (!h.history) h.history = {};
+                    h.history[todayKey] = !h.history[todayKey];
+                    nowDone = h.history[todayKey];
+                    h.streak = computeStreak(h);
+                }
+                return h;
+            });
+            saveHabits();
+            if (nowDone) celebrate(id);
+        }
+        const MILESTONES = [3, 7, 14, 30, 50, 100, 200, 365];
+        const MILESTONE_CARD_ANIMATIONS = [3, 7, 14, 30];
+        function celebrate(id) {
+            const todayKey = getTodayKey();
+            const h = habits.find(x => x.id === id);
+            const streak = computeStreak(h);
+            if (habits.length > 0 && habits.every(x => x.history && x.history[todayKey])) {
+                confettiBurst(); showToast('All habits done today 🎉');
+            } else if (h && MILESTONES.includes(streak)) {
+                confettiBurst();
+                showToast(`🔥 ${streak}-day streak: ${h.name}`);
+                // Feature 7: Add animation to habit card
+                if (MILESTONE_CARD_ANIMATIONS.includes(streak)) {
+                    const card = document.querySelector(`.habit-card[data-id="${id}"]`);
+                    if (card) {
+                        card.classList.add('bump');
+                        setTimeout(() => card.classList.remove('bump'), 500);
+                    }
+                }
+            }
+        }
+        function deleteHabit(id) { removeWithAnim(() => performDeleteHabit(id)); }
+        function performDeleteHabit(id) {
+            const idx = habits.findIndex(h => h.id === id); if (idx < 0) return;
+            const item = habits[idx];
+            habits = habits.filter(h => h.id !== id); saveHabits();
+            showToast('Habit deleted', () => { habits.splice(Math.min(idx, habits.length), 0, item); saveHabits(); });
+        }
+
+        // ============ HABIT DETAIL (stats + graphs) ============
+        function bestStreak(h) {
+            if (!h || !h.history) return 0;
+            const days = Object.keys(h.history).filter(k => h.history[k]).sort();
+            let best = 0, cur = 0, prev = null;
+            days.forEach(k => {
+                const d = new Date(k + 'T00:00:00');
+                if (prev && (d - prev) === 86400000) cur++; else cur = 1;
+                prev = d; if (cur > best) best = cur;
+            });
+            return best;
+        }
+        function heatGridHTML(isOn, weeks) {
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            const end = new Date(today); end.setDate(end.getDate() + (6 - end.getDay()));
+            const start = new Date(end); start.setDate(start.getDate() - (weeks * 7 - 1));
+            const first = new Date(start); first.setDate(first.getDate() - first.getDay());
+            let html = '';
+            for (let i = 0; i < weeks * 7; i++) {
+                const d = new Date(first); d.setDate(first.getDate() + i);
+                const key = getDateKey(d);
+                if (d > today) { html += `<div class="hm-cell" style="background:transparent"></div>`; continue; }
+                html += `<div class="hm-cell" title="${key}" style="background:${isOn(key) ? 'var(--accent-color)' : 'var(--hm-empty)'}"></div>`;
+            }
+            return html;
+        }
+        function renderHeatmap() {
+            const grid = document.getElementById('heatmap'); if (!grid) return;
+            const total = habits.length;
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            const end = new Date(today); end.setDate(end.getDate() + (6 - end.getDay()));
+            const start = new Date(end); start.setDate(start.getDate() - (20 * 7 - 1));
+            const first = new Date(start); first.setDate(first.getDate() - first.getDay());
+            let html = '';
+            for (let i = 0; i < 20 * 7; i++) {
+                const d = new Date(first); d.setDate(first.getDate() + i);
+                const key = getDateKey(d);
+                if (d > today) { html += `<div class="hm-cell" style="background:transparent"></div>`; continue; }
+                let done = 0; habits.forEach(h => { if (h.history && h.history[key]) done++; });
+                const ratio = total ? done / total : 0;
+                const bg = done === 0 ? 'var(--hm-empty)' : `color-mix(in srgb, var(--accent-color) ${Math.round(30 + ratio * 70)}%, var(--hm-empty))`;
+                html += `<div class="hm-cell hm-tap" data-day="${key}" title="${key}: ${done}/${total}" style="background:${bg}"></div>`;
+            }
+            grid.innerHTML = html;
+        }
+        function openDayDetail(key) {
+            const d = new Date(key + 'T00:00:00');
+            document.getElementById('dd-title').innerText = d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+            const total = habits.length;
+            let done = 0; habits.forEach(h => { if (h.history && h.history[key]) done++; });
+            document.getElementById('dd-summary').innerText = `${done}/${total} done`;
+            document.getElementById('dd-bar').style.width = (total ? Math.round(done / total * 100) : 0) + '%';
+            document.getElementById('dd-list').innerHTML = habits.length ? habits.map(h => {
+                const on = h.history && h.history[key];
+                const badge = h.emoji
+                    ? `<span class="habit-emoji" style="background:${(h.color || '#5873f0')}22;width:28px;height:28px;font-size:14px">${h.emoji}</span>`
+                    : `<span class="habit-dot" style="background:#888"></span>`;
+                return `<div class="flex items-center gap-3 py-2.5" style="border-bottom:1px solid var(--border-color)">
+                    ${badge}
+                    <span class="text-sm font-medium flex-grow ${on ? '' : 'opacity-45'}">${escapeHtml(h.name)}</span>
+                    <span class="${on ? 'text-accent' : 'opacity-30'} text-sm font-bold">${on ? '✓' : '—'}</span>
+                </div>`;
+            }).join('') : `<p class="text-xs opacity-40 text-center py-3">No habits yet.</p>`;
+            document.getElementById('day-detail-sheet').classList.remove('hidden');
+            lucide.createIcons();
+        }
+        function closeDayDetail() { document.getElementById('day-detail-sheet').classList.add('hidden'); }
+        function openHabitDetail(id) {
+            if (Date.now() < tapSuppressUntil) return;
+            const h = habits.find(x => x.id === id); if (!h) return;
+            detailHabitId = id;
+            document.getElementById('hd-emoji').innerText = h.emoji || '🎯';
+            document.getElementById('hd-name').innerText = h.name;
+            document.getElementById('hd-current').innerText = computeStreak(h);
+            document.getElementById('hd-best').innerText = bestStreak(h);
+            document.getElementById('hd-total').innerText = Object.keys(h.history || {}).filter(k => h.history[k]).length;
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            let bars = '';
+            for (let i = 29; i >= 0; i--) {
+                const d = new Date(today); d.setDate(d.getDate() - i);
+                const k = getDateKey(d), on = h.history && h.history[k];
+                bars += `<i class="${on ? 'on' : ''}" title="${k}"></i>`;
+            }
+            document.getElementById('hd-bars').innerHTML = bars;
+            document.getElementById('hd-grid').innerHTML = heatGridHTML(k => h.history && h.history[k], 12);
+            document.getElementById('habit-detail-sheet').classList.remove('hidden');
+            lucide.createIcons();
+        }
+        function closeHabitDetail() { document.getElementById('habit-detail-sheet').classList.add('hidden'); detailHabitId = null; }
+        function editHabit() { const id = detailHabitId; closeHabitDetail(); if (id) openAddModal(id); }
+        // Feature 11: Duplicate habit
+        function duplicateHabit(id) {
+            const h = habits.find(x => x.id === id);
+            if (!h) return;
+            const newId = Date.now().toString();
+            const duplicate = { ...h, id: newId, name: h.name + ' (copy)', history: {}, streak: 0 };
+            habits.push(duplicate);
+            saveHabits();
+            showToast('Habit duplicated');
+        }
+        function deleteHabitFromDetail() {
+            const id = detailHabitId; closeHabitDetail();
+            const idx = habits.findIndex(h => h.id === id); if (idx < 0) return;
+            const item = habits[idx];
+            habits = habits.filter(h => h.id !== id); saveHabits();
+            showToast('Habit deleted', () => { habits.splice(Math.min(idx, habits.length), 0, item); saveHabits(); });
+        }
+
+        // ============ HABIT ICON + COLOR PICKERS ============
+        function initHabitPickers() {
+            const ep = document.getElementById('emoji-picker');
+            if (ep) ep.innerHTML = HABIT_EMOJIS.map(e => `<button type="button" data-emoji="${e}" onclick="setEmoji('${e}')" class="emoji-btn neon-card">${e}</button>`).join('');
+            const cp = document.getElementById('habit-color-picker');
+            if (cp) cp.innerHTML = HABIT_COLORS.map(c => `<button type="button" data-color="${c}" onclick="setHabitColor('${c}')" class="color-btn" style="background:${c}"></button>`).join('');
+            updateHabitPickers();
+        }
+        function setEmoji(e) { selectedEmoji = e; updateHabitPickers(); }
+        function setHabitColor(c) { selectedHabitColor = c; updateHabitPickers(); }
+        function updateHabitPickers() {
+            document.querySelectorAll('#emoji-picker .emoji-btn').forEach(b => b.classList.toggle('sel', b.dataset.emoji === selectedEmoji));
+            document.querySelectorAll('#habit-color-picker .color-btn').forEach(b => b.classList.toggle('sel', b.dataset.color === selectedHabitColor));
+        }
+
+        // ============ BUDGET TARGET ============
+        function monthlySpent() {
+            const now = new Date();
+            return expenses.reduce((sum, e) => {
+                const d = new Date(Number(e.id) || 0);
+                const inMonth = d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+                return sum + (inMonth ? Number(e.amount) || 0 : 0);
+            }, 0);
+        }
+        function renderBudgetTarget() {
+            const lbl = document.getElementById('budget-target-label'); if (!lbl) return;
+            const spent = monthlySpent();
+            lbl.innerText = budgetTarget > 0 ? `₹${budgetTarget}` : 'Set target';
+            const fill = document.getElementById('budget-fill'), cap = document.getElementById('budget-caption');
+            if (budgetTarget > 0) {
+                fill.style.width = Math.min(100, Math.round(spent / budgetTarget * 100)) + '%';
+                fill.style.background = spent > budgetTarget ? '#ef4444' : 'var(--accent-color)';
+                const left = budgetTarget - spent;
+                cap.innerText = left >= 0 ? `₹${spent} spent · ₹${left} left this month` : `₹${spent} spent · ₹${-left} over budget`;
+            } else {
+                fill.style.width = '0%'; fill.style.background = 'var(--accent-color)';
+                cap.innerText = 'Tap to set a monthly budget';
+            }
+        }
+        function editBudgetTarget() {
+            const v = prompt('Monthly budget (₹)', budgetTarget > 0 ? String(budgetTarget) : '');
+            if (v === null) return;
+            budgetTarget = Math.max(0, Math.round(Number(v) || 0));
+            localStorage.setItem('habitflow_budget_target', String(budgetTarget));
+            renderBudgetTarget();
+        }
+
+        // ============ REMINDERS ============
+        let reminderTimer = null;
+        function updateReminderUI() {
+            const btn = document.getElementById('reminder-toggle'), inp = document.getElementById('reminder-time'), note = document.getElementById('reminder-note');
+            if (!btn) return;
+            inp.value = reminderSettings.time || '20:00';
+            btn.innerText = reminderSettings.enabled ? 'Enabled' : 'Enable';
+            btn.className = 'flex-grow rounded-xl py-2.5 text-xs font-bold active:scale-95 ' + (reminderSettings.enabled ? 'bg-accent text-white' : 'neon-card');
+            if (!('Notification' in window)) note.innerText = 'Notifications unsupported here — shows an in-app nudge instead.';
+            else if (Notification.permission === 'denied') note.innerText = 'Notifications are blocked in browser settings.';
+            else if (reminderSettings.enabled) note.innerText = `Reminder set for ${reminderSettings.time} (fires while the app is open).`;
+            else note.innerText = 'Fires while HabitFlow is open.';
+        }
+        function saveReminder() {
+            const v = document.getElementById('reminder-time').value;
+            if (v) reminderSettings.time = v;
+            localStorage.setItem('habitflow_reminder', JSON.stringify(reminderSettings));
+            updateReminderUI(); scheduleReminder();
+        }
+        function toggleReminder() {
+            reminderSettings.enabled = !reminderSettings.enabled;
+            if (reminderSettings.enabled && 'Notification' in window && Notification.permission === 'default') {
+                try { Notification.requestPermission().then(() => updateReminderUI()); } catch (e) {}
+            }
+            localStorage.setItem('habitflow_reminder', JSON.stringify(reminderSettings));
+            updateReminderUI(); scheduleReminder();
+        }
+        function scheduleReminder() {
+            clearTimeout(reminderTimer);
+            if (!reminderSettings.enabled) return;
+            const parts = (reminderSettings.time || '20:00').split(':').map(Number);
+            const next = new Date(); next.setHours(parts[0] || 20, parts[1] || 0, 0, 0);
+            if (next <= new Date()) next.setDate(next.getDate() + 1);
+            reminderTimer = setTimeout(() => { fireReminder(); scheduleReminder(); }, Math.max(1000, next - new Date()));
+        }
+        function fireReminder() {
+            const tk = getTodayKey();
+            if (reminderSettings.lastFired === tk) return;
+            reminderSettings.lastFired = tk;
+            localStorage.setItem('habitflow_reminder', JSON.stringify(reminderSettings));
+            const pending = habits.filter(h => !(h.history && h.history[tk])).length;
+            if (habits.length && pending === 0) return;
+            showReminder(pending > 0 ? `${pending} habit${pending === 1 ? '' : 's'} left today` : 'Time to check your habits');
+        }
+        function showReminder(body) {
+            try {
+                if ('Notification' in window && Notification.permission === 'granted') {
+                    const opts = { body: body, icon: 'icons/icon-192.png', badge: 'icons/icon-192.png', tag: 'habitflow-reminder' };
+                    if (navigator.serviceWorker && navigator.serviceWorker.ready) {
+                        navigator.serviceWorker.ready.then(reg => reg.showNotification('HabitFlow ⏰', opts)).catch(() => new Notification('HabitFlow ⏰', opts));
+                    } else { new Notification('HabitFlow ⏰', opts); }
+                } else { showToast('⏰ ' + body); }
+            } catch (e) { showToast('⏰ ' + body); }
+        }
+
+        // ============ BACKUP: EXPORT / IMPORT ============
+        function exportData() {
+            const out = { app: 'habitflow', exportedAt: new Date().toISOString(), data: {} };
+            Object.keys(localStorage).filter(k => k.indexOf('habitflow_') === 0).forEach(k => {
+                const raw = localStorage.getItem(k);
+                try { out.data[k] = JSON.parse(raw); } catch (e) { out.data[k] = raw; }
+            });
+            const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'habitflow-backup-' + getTodayKey() + '.json';
+            document.body.appendChild(a); a.click(); a.remove();
+            setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+            showToast('Backup downloaded');
+        }
+        // Feature 9: Export habits only
+        function exportHabits() {
+            const out = { app: 'habitflow', exportedAt: new Date().toISOString(), habits: habits };
+            const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'habitflow-habits-' + getTodayKey() + '.json';
+            document.body.appendChild(a); a.click(); a.remove();
+            setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+            showToast('Habits exported');
+        }
+        function importData(input) {
+            const file = input.files && input.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = () => {
+                try {
+                    const parsed = JSON.parse(reader.result);
+                    const data = parsed && parsed.data ? parsed.data : parsed;
+                    if (!data || typeof data !== 'object') throw new Error('bad');
+                    Object.keys(data).forEach(k => {
+                        if (k.indexOf('habitflow_') !== 0) return;
+                        const v = data[k];
+                        localStorage.setItem(k, typeof v === 'string' ? v : JSON.stringify(v));
+                    });
+                    showToast('Restored — reloading…');
+                    setTimeout(() => location.reload(), 900);
+                } catch (e) { alert('That file could not be read as a HabitFlow backup.'); }
+            };
+            reader.readAsText(file);
+            input.value = '';
+        }
+
+        // ============ DRAG TO REORDER ============
+        function initDrag() {
+            const c = document.getElementById('habits-container'); if (!c) return;
+            c.addEventListener('pointerdown', e => {
+                const handle = e.target.closest('.habit-drag'); if (!handle) return;
+                const row = handle.closest('.habit-card'); if (!row) return;
+                e.preventDefault();
+                dragState = { row: row, grabOffset: e.clientY - row.getBoundingClientRect().top, handle: handle };
+                row.classList.add('dragging'); row.style.transition = 'none';
+                try { handle.setPointerCapture(e.pointerId); } catch (err) {}
+            });
+            const move = e => {
+                if (!dragState) return;
+                const row = dragState.row;
+                const desiredTop = e.clientY - dragState.grabOffset;
+                row.style.transform = '';
+                const naturalTop = row.getBoundingClientRect().top;
+                row.style.transform = `translateY(${desiredTop - naturalTop}px)`;
+                const rect = row.getBoundingClientRect();
+                const center = rect.top + rect.height / 2;
+                const kids = Array.prototype.slice.call(c.children).filter(el => el !== row);
+                const next = kids.find(el => { const b = el.getBoundingClientRect(); return center < b.top + b.height / 2; });
+                if (next) { if (row.nextElementSibling !== next) c.insertBefore(row, next); }
+                else if (c.lastElementChild !== row) { c.appendChild(row); }
+            };
+            const up = () => {
+                if (!dragState) return;
+                const row = dragState.row;
+                row.style.transform = ''; row.style.transition = ''; row.classList.remove('dragging');
+                const order = Array.prototype.slice.call(c.children).map(el => el.dataset.id);
+                habits.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
+                localStorage.setItem('habitflow_habits', JSON.stringify(habits));
+                dragState = null; tapSuppressUntil = Date.now() + 250;
+            };
+            c.addEventListener('pointermove', move);
+            c.addEventListener('pointerup', up);
+            c.addEventListener('pointercancel', up);
+        }
+
+        // ============ PARTNER PROGRESS (Firestore: minimal) ============
+        function scheduleStatusPublish() { clearTimeout(publishTimer); publishTimer = setTimeout(publishMyStatus, 1200); }
+        async function publishMyStatus() {
+            if (IS_LOCAL || !window.isFirebaseReady || !window.fb) return; // never write to the live DB from a local preview
+            const tk = getTodayKey();
+            const data = {
+                role: userRole, date: tk,
+                done: habits.filter(h => h.history && h.history[tk]).length,
+                total: habits.length,
+                streak: habits.reduce((m, h) => Math.max(m, computeStreak(h)), 0)
+            };
+            const sig = JSON.stringify(data);
+            if (sig === lastPublished) return;
+            try {
+                await window.fb.setDoc(window.fb.doc(window.db, 'partner_status', userRole), Object.assign({}, data, { updatedAt: Date.now() }));
+                lastPublished = sig;
+            } catch (e) { console.warn('Status publish failed:', e); }
+        }
+        function renderPartnerCard() {
+            const p = partnerStatus[partnerRole];
+            let txt, pct;
+            if (!p) { txt = 'Waiting for an update…'; pct = 0; }
+            else if (p.date !== getTodayKey()) { txt = 'No update yet today'; pct = 0; }
+            else {
+                pct = p.total > 0 ? Math.round((p.done / p.total) * 100) : 0;
+                txt = `${p.done}/${p.total} done` + (p.streak ? ` · 🔥 ${p.streak}d` : '') + (p.total > 0 && p.done === p.total ? ' 🎉' : '');
+            }
+            document.querySelectorAll('[data-partner-progress]').forEach(el => { el.innerText = txt; });
+            document.querySelectorAll('[data-partner-bar]').forEach(el => { el.style.width = pct + '%'; });
+        }
+        function initPartnerSync() {
+            if (!window.isFirebaseReady) { setTimeout(initPartnerSync, 500); return; }
+            try {
+                window.fb.onSnapshot(window.fb.collection(window.db, 'partner_status'), snap => {
+                    snap.forEach(d => { partnerStatus[d.id] = d.data(); });
+                    renderPartnerCard();
+                }, err => { console.warn('Partner sync error:', err); });
+            } catch (e) { console.warn(e); }
+            scheduleStatusPublish();
+        }
+        async function nudgePartner() {
+            if (IS_LOCAL || !window.isFirebaseReady || !window.fb) { showToast('Nudge needs a connection'); return; }
+            try {
+                await window.fb.addDoc(window.fb.collection(window.db, 'partner_nudges'), { from: userRole, to: partnerRole, at: Date.now() });
+                showToast(`👏 Nudge sent to ${partnerRole}`);
+            } catch (e) { console.warn(e); showToast('Could not send nudge'); }
+        }
+        function initNudges() {
+            if (!window.isFirebaseReady) { setTimeout(initNudges, 500); return; }
+            try {
+                window.fb.onSnapshot(window.fb.collection(window.db, 'partner_nudges'), snap => {
+                    snap.forEach(d => {
+                        const v = d.data(); if (!v || v.to !== userRole) return;
+                        if (!seenNudges.has(d.id)) { seenNudges.add(d.id); showToast(`👏 ${v.from} nudged you — keep going!`); }
+                        window.fb.deleteDoc(window.fb.doc(window.db, 'partner_nudges', d.id)).catch(() => {});
+                    });
+                }, err => { console.warn('Nudge sync error:', err); });
+            } catch (e) { console.warn(e); }
+        }
+
+        // ============ ADD / EDIT HABIT ============
+        function openAddModal(id) {
+            editingHabitId = id || null;
+            const h = editingHabitId ? habits.find(x => x.id === editingHabitId) : null;
+            document.getElementById('add-modal-title').innerText = h ? 'Edit Habit' : 'Add New Habit';
+            const submitBtn = document.querySelector('#habit-form button[type="submit"]');
+            if (submitBtn) submitBtn.innerText = h ? 'Save Changes' : 'Save Habit';
+            document.getElementById('habit-name-input').value = h ? h.name : '';
+            selectedCategory = h ? h.category : 'Fitness';
+            selectedEmoji = (h && h.emoji) ? h.emoji : '💪';
+            selectedHabitColor = (h && h.color) ? h.color : HABIT_COLORS[0];
+            setCategory(selectedCategory);
+            updateHabitPickers();
+            document.getElementById('add-modal').classList.remove('hidden');
+            document.getElementById('habit-name-input').focus();
+        }
+        function closeAddModal() { document.getElementById('add-modal').classList.add('hidden'); document.getElementById('habit-form').reset(); editingHabitId = null; }
+        function setCategory(cat) {
+            selectedCategory = cat;
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                btn.className = btn.dataset.cat === cat ? "cat-btn py-2.5 px-2 rounded-xl border border-accent bg-accent/10 text-accent text-xs font-bold" : "cat-btn py-2.5 px-2 rounded-xl neon-card opacity-70 text-xs font-semibold";
+            });
+        }
+        function handleHabitSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('habit-name-input').value.trim();
+            if (!name) return;
+            if (editingHabitId) {
+                habits = habits.map(h => h.id === editingHabitId ? Object.assign({}, h, { name: name, category: selectedCategory, emoji: selectedEmoji, color: selectedHabitColor }) : h);
+                showToast('Habit updated');
+            } else {
+                habits.push({ id: Date.now().toString(), name: name, category: selectedCategory, emoji: selectedEmoji, color: selectedHabitColor, history: {}, streak: 0 });
+            }
+            closeAddModal(); saveHabits();
+        }
+
+
+        // ============ TOAST (undo) ============
+        let toastTimer = null;
+        function showToast(msg, undoFn, isDeleteWarning = false) {
+            const t = document.getElementById('toast'), u = document.getElementById('toast-undo');
+            document.getElementById('toast-msg').innerText = msg;
+            // Feature 3: Delete warning doesn't show undo button
+            u.style.display = undoFn && !isDeleteWarning ? '' : 'none';
+            u.onclick = () => {
+                if (undoFn) undoFn();
+                if (swipeDeletePending) swipeDeletePending = null;
+                clearTimeout(swipeDeleteTimer);
+                hideToast();
+            };
+            t.classList.add('hidden'); void t.offsetWidth; t.classList.remove('hidden');
+            clearTimeout(toastTimer); toastTimer = setTimeout(hideToast, 5000);
+        }
+        function hideToast() { document.getElementById('toast').classList.add('hidden'); }
+
+        // ============ CONFETTI ============
+        function confettiBurst() {
+            if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            const cv = document.createElement('canvas');
+            cv.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:70';
+            cv.width = innerWidth * devicePixelRatio; cv.height = innerHeight * devicePixelRatio;
+            document.body.appendChild(cv);
+            const ctx = cv.getContext('2d'); ctx.scale(devicePixelRatio, devicePixelRatio);
+            const colors = [currentAccentHex, '#fbbf24', '#34d399', '#60a5fa', '#f472b6', '#ffffff'];
+            const parts = Array.from({ length: 110 }, () => ({
+                x: innerWidth / 2, y: innerHeight * 0.55,
+                vx: (Math.random() - 0.5) * 12, vy: -Math.random() * 13 - 4,
+                w: 5 + Math.random() * 5, h: 3 + Math.random() * 4, r: Math.random() * 6, vr: (Math.random() - 0.5) * 0.4,
+                c: colors[(Math.random() * colors.length) | 0]
+            }));
+            const start = performance.now();
+            (function frame(now) {
+                const t = now - start; ctx.clearRect(0, 0, innerWidth, innerHeight);
+                parts.forEach(p => {
+                    p.vy += 0.38; p.x += p.vx; p.y += p.vy; p.r += p.vr; p.vx *= 0.99;
+                    ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.globalAlpha = Math.max(0, 1 - t / 1800);
+                    ctx.fillStyle = p.c; ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); ctx.restore();
+                });
+                if (t < 1800) requestAnimationFrame(frame); else cv.remove();
+            })(start);
+        }
+
+        // ============ SWIPE: right = done, left = delete ============
+        let swipeDeletePending = null;
+        let swipeDeleteTimer = null;
+        
+        (function initSwipe() {
+            const c = document.getElementById('habits-container');
+            let row = null, startX = 0, startY = 0, dx = 0, active = false, locked = false;
+            c.addEventListener('pointerdown', e => {
+                if (e.target.closest('button')) return;
+                row = e.target.closest('[data-id]'); if (!row) return;
+                startX = e.clientX; startY = e.clientY; dx = 0; active = true; locked = false;
+            });
+            c.addEventListener('pointermove', e => {
+                if (!active || !row) return;
+                const mx = e.clientX - startX, my = e.clientY - startY;
+                if (!locked) {
+                    if (Math.abs(mx) > 8 && Math.abs(mx) > Math.abs(my) * 1.5) { locked = true; row.style.transition = 'none'; try { c.setPointerCapture(e.pointerId); } catch (err) {} }
+                    else { if (Math.abs(my) > 10) active = false; return; }
+                }
+                dx = mx;
+                row.style.transform = `translateX(${dx}px)`;
+                row.style.opacity = String(1 - Math.min(Math.abs(dx) / 300, 0.45));
+                row.style.borderColor = dx > 90 ? 'var(--accent-color)' : (dx < -90 ? '#ef4444' : '');
+            });
+            const end = () => {
+                if (!active || !row) { active = false; return; }
+                const r = row, id = r.dataset.id, d = dx, wasLocked = locked;
+                active = false; row = null;
+                if (!wasLocked) return;
+                tapSuppressUntil = Date.now() + 350;
+                r.style.transition = 'transform .25s cubic-bezier(.2,.8,.2,1), opacity .25s ease';
+                
+                // Feature 3: Swipe delete warning
+                if (d < -90) {
+                    // Show warning before delete
+                    r.style.borderColor = 'var(--border-color)';
+                    showToast('Swipe again to confirm delete', () => {
+                        r.style.transform = '';
+                        r.style.opacity = '';
+                    }, true); // isDeleteWarning = true
+                    swipeDeletePending = {id: id, row: r};
+                    swipeDeleteTimer = setTimeout(() => {
+                        swipeDeletePending = null;
+                        r.style.borderColor = '';
+                    }, 2000);
+                    return;
+                }
+                if (d < -90) {
+                    r.style.transform = 'translateX(-110%)'; r.style.opacity = '0';
+                    // If warning was shown, skip actual delete
+                    if (swipeDeletePending && swipeDeletePending.id === id) {
+                        swipeDeletePending = null;
+                        clearTimeout(swipeDeleteTimer);
+                        return;
+                    }
+                    setTimeout(() => performDeleteHabit(id), 220);
+                } else {
+                    r.style.transform = ''; r.style.opacity = ''; r.style.borderColor = '';
+                    if (d > 90) setTimeout(() => toggleHabit(id), 120);
+                }
+            };
+            c.addEventListener('pointerup', end);
+            c.addEventListener('pointercancel', end);
+        })();
+
+
+        // ============ INSTALLABLE APP (PWA) ============
+        let deferredInstall = null;
+        window.addEventListener('beforeinstallprompt', e => {
+            e.preventDefault(); deferredInstall = e;
+            document.getElementById('install-btn').classList.remove('hidden');
+        });
+        window.addEventListener('appinstalled', () => {
+            deferredInstall = null; document.getElementById('install-btn').classList.add('hidden');
+            showToast('HabitFlow installed 🎉');
+        });
+        async function installApp() {
+            if (!deferredInstall) return;
+            deferredInstall.prompt();
+            await deferredInstall.userChoice;
+            deferredInstall = null; document.getElementById('install-btn').classList.add('hidden');
+        }
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(err => console.warn('Service worker failed:', err)));
+        }
+        // Home-screen shortcuts (long-press the app icon): ?tab=focus, ?tab=settings, ?action=add
+        (function handleLaunchParams() {
+            const q = new URLSearchParams(location.search);
+            const tab = q.get('tab');
+            if (tab && ['dashboard', 'focus', 'budget', 'journal', 'settings'].includes(tab)) switchTab(tab);
+            if (q.get('action') === 'add') { switchTab('dashboard'); openAddModal(); }
+        })();
+
+
+        function openDetails() { document.getElementById('today-sheet').classList.remove('hidden'); lucide.createIcons(); }
+        function closeDetails() { document.getElementById('today-sheet').classList.add('hidden'); }
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeDetails(); closeLoveNoteModal(); closeAddModal(); closeHabitDetail(); closeDayDetail(); } });
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState !== 'visible' || !reminderSettings.enabled) return;
+            const tk = getTodayKey();
+            if (reminderSettings.lastFired === tk) return;
+            const parts = (reminderSettings.time || '20:00').split(':').map(Number);
+            const due = new Date(); due.setHours(parts[0] || 20, parts[1] || 0, 0, 0);
+            if (new Date() >= due) fireReminder();
+        });
+
+        initHabitPickers();
+        updateReminderUI();
+        updateExpenseScopeUI();
+        scheduleReminder();
+        initPartnerSync();
+        initNudges();
+        initDrag();
+        (function initHeatmapTaps() {
+            const grid = document.getElementById('heatmap');
+            if (!grid) return;
+            grid.addEventListener('click', e => {
+                const cell = e.target.closest('[data-day]');
+                if (cell) openDayDetail(cell.dataset.day);
+            });
+        })();
+
+        render();
+    </script>
+</body>
+</html>
